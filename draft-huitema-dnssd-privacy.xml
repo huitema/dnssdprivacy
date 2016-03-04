@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY rfc1033 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1033.xml'>
+<!ENTITY rfc1035 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
+<!ENTITY rfc2131 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2131.xml'>
+<!ENTITY rfc2132 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2132.xml'>
+<!ENTITY rfc2782 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
+<!ENTITY rfc3315 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.3315.xml'>
+
+<!ENTITY rfc3596 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.3596.xml'>
+
+<!ENTITY rfc4795 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.4795.xml'>
+
+<!ENTITY rfc6762 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
+
+<!ENTITY rfc6763 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
+
+<!ENTITY rfc7288 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7288.xml'>
+
+<!ENTITY I-D.ietf-dhc-dhcp-privacy PUBLIC ''  
+   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
+
+]>
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc compact="yes"?>
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+
+<!-- Expand crefs and put them inline -->
+<?rfc comments='yes' ?>
+<?rfc inline='yes' ?>
+
+<rfc category="info" 
+     docName="draft-huitema-dnssd-privacy-00.txt" 
+     ipr="trust200902">
+
+<front>
+    <title abbrev="DNS-SD Privacy Extensions">
+      Privacy Extenstions for DNS-SD
+    </title>
+
+   <author fullname="Christian Huitema" initials="C." surname="Huitema">
+      <organization>Microsoft</organization>
+      <address>
+        <postal>
+          <street> </street>
+          <city>Redmond</city>
+          <code>98052</code>
+          <region>WA</region>
+          <country>U.S.A.</country>
+        </postal>
+        <email>huitema@microsoft.com</email>
+      </address>
+    </author>
+
+    <date year="2016" />
+
+    <abstract>
+        <t> 
+DNS-SD allows discovery of services published in DNS or MDNS. The publication
+normally disclose information about the device publishing the services.
+There are use cases where devices want to communicate without disclosing
+their identity, for example two mobile devices visiting the same
+hotspot. We propose a method to obfuscate the identification
+information published by DNS-SD.
+        </t>
+    </abstract>
+</front>
+
+<middle>
+<section title="Introduction">
+<t>
+
+</t>
+</section>
+<section title="Naming practices">
+<t>
+</t>
+</section>
+
+<section title="Randomized Instance Names" >
+<t>
+
+</t>
+</section>
+
+<section title="Security Considerations">
+<t> 
+Potential denial of service attack
+</t>
+</section>
+
+<section title="IANA Considerations" anchor="iana">
+<t> 
+This draft does not require any IANA action.
+</t> 
+</section>
+
+<section title="Acknowledgments">
+    <t>
+Contributions will be gladly acknowledged.
+    </t>
+</section>
+</middle>
+
+<back>
+
+<references title="Informative References">
+
+       &rfc1033;
+       &rfc1035;
+       &rfc2131;
+       &rfc2132;
+       &rfc2782;
+       &rfc3315;
+       &rfc3596;
+       &rfc4795;
+       &rfc6762;
+       &rfc6763;
+       &rfc7288;
+       &I-D.ietf-intarea-hostname-practice;
+
+
+
+</references>  
+
+</back>
+</rfc>
