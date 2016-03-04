@@ -4,33 +4,19 @@
 
 <!ENTITY rfc1033 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1033.xml'>
+<!ENTITY rfc1034 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1034.xml'>
 <!ENTITY rfc1035 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
-<!ENTITY rfc2131 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2131.xml'>
-<!ENTITY rfc2132 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2132.xml'>
+<!ENTITY rfc2119 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml'>
 <!ENTITY rfc2782 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
-<!ENTITY rfc3315 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.3315.xml'>
-
-<!ENTITY rfc3596 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.3596.xml'>
-
-<!ENTITY rfc4795 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.4795.xml'>
-
 <!ENTITY rfc6762 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
-
 <!ENTITY rfc6763 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
-
-<!ENTITY rfc7288 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7288.xml'>
-
-<!ENTITY I-D.ietf-dhc-dhcp-privacy PUBLIC ''  
+<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
 
 ]>
@@ -45,7 +31,7 @@
 <?rfc comments='yes' ?>
 <?rfc inline='yes' ?>
 
-<rfc category="info" 
+<rfc category="std" 
      docName="draft-huitema-dnssd-privacy-00.txt" 
      ipr="trust200902">
 
@@ -85,13 +71,54 @@ information published by DNS-SD.
 <middle>
 <section title="Introduction">
 <t>
+There are cases when nodes connected to a network want to provide
+or consume services without exposing their identity to the other
+parties connected to the same network. Consider for example a
+traveller wanting to upload pictures from a phone to a laptop
+when connected to the Wi-Fi network of an Internet cafe, or
+two travellers who want to share files between their laptops
+when waiting for their plane in an airport lounge. 
+</t>
+<t>
+We expect that these exchanges will start with a discovery 
+procedure using DNS-SD <xref target="RFC6763" />. One of the devices
+will publish the availability of a service, such as a picture library
+or a file store in our examples. The user of the other device will
+discover this service, and then connect to it.
+</t>
+<t>
+When analysing these scenarios in <xref target="analysis"/>, we find that
+the DNS-SD messages leak identifying information such as instance name,
+host name or service properties. We review the design constraint of a solution 
+in <xref target="design"/>, and describe the proposed solution in
+<xref target="solution"/>.
 
+<section title="Requirements">
+<t>
+  The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+  "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+  document are to be interpreted as described in <xref target="RFC2119" />.
 </t>
 </section>
-<section title="Naming practices">
+</section>
+<section title="Privacy implications of DNS-SD" anchor="analysis">
 <t>
 </t>
 </section>
+
+<section title="Design of DNS-SD privacy extensions" anchor="design" >
+<t>
+</t>
+</section>
+
+<section title="Privacy extensions for DNS-SD" anchor="solution" >
+
+<section title="Identity Resolution Key" >
+<t>
+
+</t>
+</section>
+
 
 <section title="Randomized Instance Names" >
 <t>
@@ -99,15 +126,31 @@ information published by DNS-SD.
 </t>
 </section>
 
+<section title="Randomized Host Name" >
+<t>
+
+</t>
+</section>
+
+<section title="Privacy enhanced service name" >
+<t>
+
+</t>
+</section>
+
+</section>
 <section title="Security Considerations">
 <t> 
-Potential denial of service attack
+Security value of privacy.
+</t>
+<t> 
+Potential denial of service attack.
 </t>
 </section>
 
 <section title="IANA Considerations" anchor="iana">
 <t> 
-This draft does not require any IANA action.
+This draft does not require any IANA action. Or maybe it does for the service names, but we are not sure yet.
 </t> 
 </section>
 
@@ -122,17 +165,30 @@ Contributions will be gladly acknowledged.
 
 <references title="Informative References">
 
+<!ENTITY rfc1033 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1033.xml'>
+<!ENTITY rfc1034 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1034.xml'>
+<!ENTITY rfc1035 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
+<!ENTITY rfc2119 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml'>
+<!ENTITY rfc2782 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
+<!ENTITY rfc6762 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
+<!ENTITY rfc6763 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
+<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
+   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml">
+
        &rfc1033;
+       &rfc1034;
        &rfc1035;
-       &rfc2131;
-       &rfc2132;
+       &rfc2119;
        &rfc2782;
-       &rfc3315;
-       &rfc3596;
-       &rfc4795;
        &rfc6762;
        &rfc6763;
-       &rfc7288;
        &I-D.ietf-intarea-hostname-practice;
 
 
