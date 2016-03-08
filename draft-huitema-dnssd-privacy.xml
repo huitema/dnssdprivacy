@@ -16,8 +16,15 @@
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
 <!ENTITY rfc6763 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
+<!ENTITY rfc7626 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7626.xml'>
+
 <!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
+<!ENTITY I-D.ietf-dprive-dns-over-tls PUBLIC ''  
+   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dns-over-tls.xml">
+<!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
+   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
 
 ]>
 
@@ -92,7 +99,7 @@ the DNS-SD messages leak identifying information such as instance name,
 host name or service properties. We review the design constraint of a solution 
 in <xref target="design"/>, and describe the proposed solution in
 <xref target="solution"/>.
-
+</t>
 <section title="Requirements">
 <t>
   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -101,17 +108,343 @@ in <xref target="design"/>, and describe the proposed solution in
 </t>
 </section>
 </section>
+
 <section title="Privacy implications of DNS-SD" anchor="analysis">
 <t>
+DNS-Based Service Discovery (DNS-SD) is defined in <xref target="RFC6763" />. 
+It allows nodes to publish the availibility of an instance of a service by
+inserting specific records in the DNS (<xref target="RFC1033"/>, 
+<xref target="RFC1034"/>, <xref target="RFC1035"/>) or by publishing 
+these records locally using
+multicast DNS (MDNS) <xref target="RFC6762"/>. The service availability
+will be described in three types of records:
+</t>
+<t>
+<list style="hanging">
+<t hangText="PTR Record:">Associate the service name in the domain with 
+the "instance" name published by the node.
+</t>
+<t hangText="SRV Record:">Provides the node name, port number, priority and 
+weight associated with the service instance, in conformance with <xref target="RFC2782" />.
+</t>
+<t hangText="TXT Record:">Provides a set of attribute-value pairs describing
+specific properties of the service instance.
+</t>
+</list>
+</t>
+<t>
+In the remaining subsections, we will review the privacy issues related to publishing
+instance names, node names, service attributes and other data, as well as review 
+the implications of using the discovery service as a client.
+</t>
+
+<section title="Privacy implication of publishing instance names" anchor="instanceLeak" >
+<t>
+In the first phase of discovery, the client will obtain a copy of all
+the PTR records associated to a service in a given naming domain. Each
+record contains a domain name starting with an instance name.
+Instance names are free form description of the instance, and are meant to
+convey enough information so discovery clients can easily select the
+desired service. 
+Section 4 of <xref target="RFC6763" /> give the
+following example for the instance names of a printer service:
+</t>
+<t>
+<figure>
+<artwork>
+     Building 2, 1st Floor  .  example  .  com  .
+     Building 2, 2nd Floor  .  example  .  com  .
+     Building 2, 3rd Floor  .  example  .  com  .
+     Building 2, 4th Floor  .  example  .  com  .
+</artwork>
+</figure>
+</t>
+<t>
+Nodes that use DNS-SD in a mobile environment will rely on the specificity
+of the instance name to identify the desired service. In our example of users
+wanting to upload pictures to a laptop in an Internet Cafe, the list of 
+available services may look like:
+</t>
+<t>
+<figure>
+<artwork>
+     Alice's notebook       .  local  .
+     Bob's laptop           .  local  .
+     Image store for Carol  .  local  .
+</artwork>
+</figure>
+</t>
+<t>
+Alice will see the list on her phone and understand intuitively that she should
+pick the fist item. The discovery will "just work." It will also reveal 
+to anybody who cares that Alice is currently visiting the Internet Cafe.
 </t>
 </section>
 
-<section title="Design of DNS-SD privacy extensions" anchor="design" >
+<section title="Privacy implication of publishing node names">
 <t>
+The SRV records contain the DNS name of the node publishing the
+service. Typical implementations construct this DNS name by
+concatenating the "host name" of the node with the name of the 
+local domain. The privacy implications of this
+practice are reviewed in <xref target="I-D.ietf-intarea-hostname-practice" />.
+Depending on naming practices, the host name is either a strong 
+identifier of the device, or at a minimum a partial identifier.
+It enables tracking of the device, and by extension of the device's owner.
 </t>
+</section>
+
+<section title="Privacy implication of publishing service attributes">
+<t>
+The TXT records contain a set of attribute and value pairs characteristics of
+the service implementation. These attributes reveal some information
+about the devices that publishes the service. The amount of information
+will vary widely with the particular service and its implementation:
+</t>
+<t>
+<list style="symbols">
+<t>
+Some attributeslike the paper size available in a printer, are the
+same on many devices, and thus only provides limited information
+to a tracker.
+</t>
+<t>
+Attributes that have freeform values, such as the name of a directory,
+may reveal much more information.
+</t>
+</list>
+</t>
+<t>
+Combinations of attributes have more information power than specific attributes,
+and can potentially be used for "fingerprinting" a specific device.
+</t>
+
+</section>
+
+<section title="Device fingerprinting">
+<t>
+The combination of information published in DNS-SD has the potential to
+provide a "fingerprint" of a specific device. Such information includes: 
+</t>
+<t>
+<list style="symbols">
+<t>
+The list of services published by the device, which can be retrieved because the
+SRV records will point to the same host name.
+</t>
+<t>
+The specific attributes describing these services.
+</t>
+<t>
+The port numbers used by the services.
+</t>
+<t>
+The values of the priority and weight attributes in the SRV records.
+</t>
+</list>
+</t>
+<t>
+This combination of services and attribute will often be sufficient to identify
+the version of the software running on a device. If a device publishes
+many services with rich sets of attributes, the combination may be
+sufficient to identify the specific device. 
+</t>
+</section>
+
+<section title="Privacy implication of discovering services" anchor="clientPrivacy" >
+<t>
+The consumers of services engage in discovery, and in doing so do 
+reveal some information such as the list of services that they
+are interested in and the domains in which they are looking for the
+services. When the clients select specific instances of services,
+they reveal their preference for these instances.
+</t>
+<t>
+In first analysis, the leakage of information by lients looks benign
+compared to the disclosures made by the servers. There may be a 
+concern when the client is attempting to use rare services.
+</t>
+</section>
+
+</section>
+
+<section title="Design of DNS-SD privacy mitigations" anchor="design" >
+<t>
+Ah Ah.
+</t>
+
+<section title="Obfuscated instance names" >
+<t>
+The privacy issues described in <xref target="instanceLeak"/> 
+can be solved by obfuscating the instance names. Instead
+of a user friendly description of the instance,
+the nodes will publish a random looking string of characters.
+To prevent tracking over time and location, different string
+values should be used at different locations, or at different times.
+</t>
+<t>
+Authorized parties should be able to "de-obfuscate" the names,
+while non-authorized third parties will not be. For example,
+if both Alice notebook and Bob's laptop use an obfuscation process, 
+the list of available services should appear differently 
+to them and to thrid parties. Alice's phone will be able to
+de-obfuscate the name of Alice's notebook, but not that of 
+Bob's laptop. Bob's phone will do the opposite. Carol will do
+neither.
+</t>
+<t>
+Alice will see something like:
+</t>
+<t>
+<figure>
+<artwork>
+     GobbeldygookBlaBlaBla (Alice's notebook) .  local  .
+     Abracadabragooklybok                     .  local  .
+     Image store for Carol                    .  local  .
+</artwork>
+</figure>
+</t>
+<t>
+Bob will see:
+</t>
+<t>
+<figure>
+<artwork>
+     GobbeldygookBlaBlaBla                   .  local  .
+     Abracadabragooklybok (Bob's laptop)     .  local  .
+     Image store for Carol                   .  local  .
+</artwork>
+</figure>
+</t>
+<t>
+Carol will see:
+</t>
+<t>
+<figure>
+<artwork>
+     GobbeldygookBlaBlaBla  .  local  .
+     Abracadabragooklybok   .  local  .
+     Image store for Carol  .  local  .
+</artwork>
+</figure>
+</t>
+<t>
+In that example, Alice, Bob and Carol will be able to select the
+appropriate instance. It would probably be preferable to filter out the
+obfuscated instance names, to avoid confusing the user. In our example, Alice 
+and Bob have updated their software to understand obfuscation, and they
+could easily filter out the obfuscated strings that they do not like.
+But Carol is not using this system, and we could argue that her experience 
+is suboptimal.
+</t>
+<t>
+The suboptimal experience with unmodified software could be avoided if
+the obfuscated service records were published using different service names,
+or using different domain names. This would of course make management a bit
+more complex, and is thus debatable.
+</t>
+</section>
+
+<section title="Randomized host names" >
+<t>
+Instead of publishing their actual name in the SRV records, nodes 
+could publish a randomized name. That the solution argued for
+in <xref target="I-D.ietf-intarea-hostname-practice" />.
+</t>
+<t>
+Randomized host names will prevent some of the tracking.
+Host names are typically not visible by the users, and
+randomizing host names will probably not cause much
+usability issues.
+</t>
+</section>
+
+
+<section title="Timing of obfuscation and randomization" >
+<t>
+It is important that obfuscation of instance names be performed at the right time,
+and that the obfuscated names change in synchrony with other identifiers,
+such as MAC Addresses, IP Addresses or host names.
+If the randomized host name changed
+but the instance name remained constant, an adversary would have no difficulty
+linking the old and new host names. Similarly, if IP or MAC addresses changed but 
+host names remained constant, the adversary could link the new addresses to the
+old ones using the published name.
+</t>
+<t>
+The problem is handled in <xref target="I-D.ietf-intarea-hostname-practice" />, 
+which recommends to pick a new random host name at the time of connecting to 
+a new network. The instance names should be obfuscated at the same time,
+or maybe use the randomized host name as input in the randomization
+process.
+</t>
+
+</section>
+
+<section title="Fingerprint resistance" >
+<t>
+Difficult...
+</t>
+</section>
+
+
+<section title="A note on Private DNS services" >
+<t>
+The DNS Private Exchange working group develops mechanisms to
+provide confidentiality to DNS transactions, addressing the problems 
+outlined in <xref target="RFC7626" />. The solutions being developed 
+include DNS over TLS <xref target="I-D.ietf-dprive-dns-over-tls" />
+and DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />.
+</t>
+<t>
+We could imagine that DNS-SD nodes are configure to update and
+retrieve DNS records using DNS over TLS or DNS over DTLS, but 
+a number of problems can arise:
+</t>
+<t>
+<list style="symbols" >
+<t>
+Discovery queries are scoped by the domain name within which services
+are published. As nodes move and visit arbitrary networks, there
+is no guarantee that the domain services for these networks
+will be accessible using DNS over TLS or DNS over DTLS.
+</t>
+<t>
+Information placed in the DNS is considered public. Even if
+the server does support DNS over TLS, third parties will 
+still be able to discover the content of PTR, SRV and TXT
+records.
+</t>
+<t>
+Neither DNS over TLS nor DNS over DTLS applies to MDNS.
+</t>
+</list>
+</t>
+<t>
+In short, DNS ovr TLS and DNS over DTLS solve a different problem,
+and are not a solution for DNS-SD privacy.
+</t>
+</section>
+
 </section>
 
 <section title="Privacy extensions for DNS-SD" anchor="solution" >
+<t>
+The proposed solution uses the following components:
+</t>
+<t>
+<list style="symbols">
+<t>
+Nodes provide an Identity Resolution Key to other nodes,
+</t>
+<t>
+The Identity Resolution Key is combined with a nonce to obfuscate and deobfuscate the instance names,
+</t>
+<t>
+The host names are randomized to prevent tracking.
+</t>
+</list>
+</t>
 
 <section title="Identity Resolution Key" >
 <t>
@@ -127,12 +460,6 @@ in <xref target="design"/>, and describe the proposed solution in
 </section>
 
 <section title="Randomized Host Name" >
-<t>
-
-</t>
-</section>
-
-<section title="Privacy enhanced service name" >
 <t>
 
 </t>
@@ -165,23 +492,6 @@ Contributions will be gladly acknowledged.
 
 <references title="Informative References">
 
-<!ENTITY rfc1033 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1033.xml'>
-<!ENTITY rfc1034 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1034.xml'>
-<!ENTITY rfc1035 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
-<!ENTITY rfc2119 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml'>
-<!ENTITY rfc2782 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
-<!ENTITY rfc6762 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
-<!ENTITY rfc6763 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
-<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml">
-
        &rfc1033;
        &rfc1034;
        &rfc1035;
@@ -189,7 +499,10 @@ Contributions will be gladly acknowledged.
        &rfc2782;
        &rfc6762;
        &rfc6763;
+       &rfc7626;
        &I-D.ietf-intarea-hostname-practice;
+       &I-D.ietf-dprive-dns-over-tls;
+       &I-D.ietf-dprive-dnsodtls;
 
 
 
