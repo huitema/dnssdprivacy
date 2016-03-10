@@ -7,7 +7,7 @@ Intended status: Standards Track                           March 9, 2016
 Expires: September 10, 2016
 
 
-                     Privacy Extenstions for DNS-SD
+                     Privacy Extensions for DNS-SD
                    draft-huitema-dnssd-privacy-00.txt
 
 Abstract
@@ -570,11 +570,6 @@ Internet-Draft          DNS-SD Privacy Extensions             March 2016
               Bodies", RFC 2045, DOI 10.17487/RFC2045, November 1996,
               <http://www.rfc-editor.org/info/rfc2045>.
 
-   [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
-              Hashing for Message Authentication", RFC 2104,
-              DOI 10.17487/RFC2104, February 1997,
-              <http://www.rfc-editor.org/info/rfc2104>.
-
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -609,6 +604,11 @@ Internet-Draft          DNS-SD Privacy Extensions             March 2016
               ietf-dprive-dns-over-tls-07 (work in progress), March
               2016.
 
+   [I-D.ietf-dprive-dnsodtls]
+              Reddy, T., Wing, D., and P. Patil, "DNS over DTLS
+              (DNSoD)", draft-ietf-dprive-dnsodtls-04 (work in
+              progress), January 2016.
+
 
 
 
@@ -616,11 +616,6 @@ Huitema                Expires September 10, 2016              [Page 11]
 
 Internet-Draft          DNS-SD Privacy Extensions             March 2016
 
-
-   [I-D.ietf-dprive-dnsodtls]
-              Reddy, T., Wing, D., and P. Patil, "DNS over DTLS
-              (DNSoD)", draft-ietf-dprive-dnsodtls-04 (work in
-              progress), January 2016.
 
    [I-D.ietf-intarea-hostname-practice]
               Huitema, C. and D. Thaler, "Current Hostname Practice
@@ -660,6 +655,11 @@ Author's Address
    U.S.A.
 
    Email: huitema@microsoft.com
+
+
+
+
+
 
 
 

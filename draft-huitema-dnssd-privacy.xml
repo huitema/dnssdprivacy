@@ -10,8 +10,6 @@
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
 <!ENTITY rfc2045 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2045.xml'>
-<!ENTITY rfc2104 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml'>
 <!ENTITY rfc2119 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml'>
 <!ENTITY rfc2782 PUBLIC ''
@@ -53,7 +51,7 @@
 
 <front>
     <title abbrev="DNS-SD Privacy Extensions">
-      Privacy Extenstions for DNS-SD
+      Privacy Extensions for DNS-SD
     </title>
 
    <author fullname="Christian Huitema" initials="C." surname="Huitema">
@@ -639,7 +637,6 @@ This draft results from initial discussions with Dave Thaler.
 <back>
 <references title="Normative References">
        &rfc2045;
-       &rfc2104;
        &rfc2119;
        &rfc4055;
        &rfc4075;
