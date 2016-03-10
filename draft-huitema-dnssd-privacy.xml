@@ -8,10 +8,18 @@
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1034.xml'>
 <!ENTITY rfc1035 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
+<!ENTITY rfc2045 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2045.xml'>
+<!ENTITY rfc2104 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml'>
 <!ENTITY rfc2119 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml'>
 <!ENTITY rfc2782 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
+<!ENTITY rfc4055 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.4055.xml'>
+<!ENTITY rfc4075 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.4075.xml'>
 <!ENTITY rfc6762 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
 <!ENTITY rfc6763 PUBLIC ''
@@ -25,7 +33,8 @@
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dns-over-tls.xml">
 <!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
-
+<!ENTITY I-D.ietf-dhc-anonymity-profile PUBLIC ''  
+   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dhc-anonymity-profile.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -360,7 +369,7 @@ usability issues.
 </section>
 
 
-<section title="Timing of obfuscation and randomization" >
+<section title="Timing of obfuscation and randomization" anchor="timing" >
 <t>
 It is important that obfuscation of instance names be performed at the right time,
 and that the obfuscated names change in synchrony with other identifiers,
@@ -435,77 +444,218 @@ The proposed solution uses the following components:
 <t>
 <list style="symbols">
 <t>
-Nodes provide an Identity Resolution Key to other nodes,
-</t>
-<t>
-The Identity Resolution Key is combined with a nonce to obfuscate and deobfuscate the instance names,
-</t>
-<t>
 The host names are randomized to prevent tracking.
+</t>
+<t>
+Nodes provide an Instance Discovery Key to other nodes authorized to discover the service instance,
+</t>
+<t>
+The Instance Discovery Key is combined with a random seed to obfuscate the instance names,
+</t>
+<t>
+Nodes engaged in discovery attempt to de-obfuscate the instance names using the set of Instance Discovery Key that they know about,
+</t>
+</list>
+</t>
+<t>
+These components are detailed in the following subsections.
+</t>
+<section title="Randomized Host Name" >
+<t>
+Nodes publishing services with DNS-SD and concerned about their privacy MUST
+use a randomized host name. The randomized name MUST be changed when
+network conectivity changes, to avid the correlation issues described in
+<xref target="timing" />. The randomized host name MUST be used in
+the SRV records describing the service instance, and the corresponding 
+A or AAAA records MUST be made available through DNS or MDNS, within the
+same scope as the PTR, SRV and TXT records used by DNS-SD.
+</t>
+<t>
+If the link-layer address of the network connection is properly obfuscated 
+(e.g. using MAC Address Randomization), 
+The Randomized Host Name MAY be computed using the algorithm described
+in section 3.7 of <xref target="I-D.ietf-dhc-anonymity-profile" />. 
+If this is not possible, the randomized host name SHOULD be constructed by simply
+picking a 48 bit random number meeting the 
+Randomness Requirements for Security expressed in <xref target="RFC4075" />,
+and then use the hexadecimal representation of this number as the
+obfuscated host name.
+</t>
+</section>
+
+<section title="Instance Discovery Key" >
+<t>
+The obfuscation and de-obfuscation of instance names is controlled by the Instance Discovery Key. 
+Each device publishing a service instance configures an Instance Discovery Key associated with
+the service instance.
+</t>
+<t>
+The Instance Key SHOULD be at least 16 bytes long (128 bits). Its content SHOULD meet the 
+Randomness Requirements for Security expressed in <xref target="RFC4075" />.
+</t>
+</section>
+
+<section title="Composing Obfuscated Instance Names" anchor="obfuscation" >
+<t>
+The obfuscated instance name is composed of two components,
+a seed and a hash, encoded in BASE64 (<xref target="RFC2045" /> section 6.8)
+and separated by a dot:
+</t>
+<t>
+<figure>
+<artwork>
+   instance_name = &lt;base64_seed> "." &lt;base64_hash>
+</artwork>
+</figure>
+</t>
+<t>
+The seed is derived algorithmically from the randomized host name. 
+If the randomized name changes, new instance names SHOULD be computed
+and the corresponding records SHOULD be published 
+in order to meet the requirement defined in <xref target="timing" />.
+</t>
+<t>
+The complete instance name MUST be genrated using the following process:
+</t>
+<t>
+<figure>
+<artwork>
+   long_seed = HASH(randomized_host_name)
+   seed = first 12 bytes of long_seed
+   long_hash = HASH(seed | instance_discovery_key )
+   instance_hash = first 12 bytes of long_hash 
+   instance_name = BASE64(seed) "." BASE64(instance_hash) 
+</artwork>
+</figure>
+</t>
+<t>
+In this formula, HASH SHOULD be the function SHA256 
+defined in <xref target="RFC4055"/>, unless otherwise specified. 
+Implementers MAY eventually replace SHA256 with a stronger algorithm.
+</t>
+<t>
+The algorithm produces seeds and hash that are encoded as 16 BASE64 characters.
+The resulting instance name is 33 characters long, which fits
+within the 63 characters limit defined in
+<xref target="RFC6763"/>.
+</t>
+</section>
+
+<section title="De-Obfuscation of Instance Names" >
+<t>
+De-obfuscation of instance names assumes that authorized nodes are provisioned with 
+three elements for each discoverable instance:
+</t>
+<t>
+<list style="symbols">
+<t>
+the de-obfuscated instance name,
+</t>
+<t>
+a copy of the instance_discovery_key,
+</t>
+<t>
+optionally, the identifier of the HASH function used by the publisher.
+</t>
+</list>
+</t>
+<t>
+A given node may be provisioned do discover many instances. For example,
+Alice's phone may know about Alice's laptop and Alice's desktop. It might
+also know of Bob's laptop, if Alice and Bob have agreed to share such 
+information.
+</t>
+<t>
+To de-obfuscate the instance names, nodes performing discovery should 
+obtain the list of PTR records published for the service and domain being 
+searched and then do the following:
+</t>
+<t>
+<list style="symbols">
+<t>
+Test whether the instance name contains the base64 encoding of a
+seed and hash as defined in <xref target="obfuscation" />. If it
+is not in that form, the name is not considered obfuscated.
+</t>
+<t>
+Retrieve the binary seed and hash from the base64 encoding.
+</t>
+<t>
+For each known instance discovery key, compute whether the
+hash of the seed and key, and compare it to the published
+hash.
+</t>
+<t>
+If there is a hash, the de-obfuscated name of the instance
+is the de-obfuscated name associated with the matching
+instance discovery key
 </t>
 </list>
 </t>
 
-<section title="Identity Resolution Key" >
-<t>
-
-</t>
-</section>
-
-
-<section title="Randomized Instance Names" >
-<t>
-
-</t>
-</section>
-
-<section title="Randomized Host Name" >
-<t>
-
-</t>
 </section>
 
 </section>
+
 <section title="Security Considerations">
 <t> 
-Security value of privacy.
+This document specifies a method to protect the privacy of 
+service publishing nodes. This is especially useful when operating
+in a public space.
+Obfuscating the identity of the publishing nodes prevents
+some forms of "targeting" of high value nodes.
 </t>
-<t> 
-Potential denial of service attack.
+<t>
+Obfuscating the identity of the publishing nodes does
+not provide any form of access control. It will not prevent
+attackers from trying to access the services.
+</t>
+<t>
+The cost of the de-obfuscation algorithm scales as the product
+of the number of authorized publishers known by the client,
+times the number of obfuscated services published in the
+searched name domain. Attackers could potentially publish
+a large number of bogus instances of a service, forcing a
+high computation cost on discovery clients. While this
+potential denial of service attack is concerning, we note
+that this is merely an aggravation of a flooding attacks
+against DNS-SD. 
 </t>
 </section>
 
 <section title="IANA Considerations" anchor="iana">
 <t> 
-This draft does not require any IANA action. Or maybe it does for the service names, but we are not sure yet.
+This draft does not require any IANA action.
 </t> 
 </section>
 
 <section title="Acknowledgments">
     <t>
-Contributions will be gladly acknowledged.
+This draft results from initial discussions with Dave Thaler.
     </t>
 </section>
 </middle>
 
 <back>
-
+<references title="Normative References">
+       &rfc2045;
+       &rfc2104;
+       &rfc2119;
+       &rfc4055;
+       &rfc4075;
+       &rfc6763;
+</references>
 <references title="Informative References">
-
        &rfc1033;
        &rfc1034;
        &rfc1035;
-       &rfc2119;
        &rfc2782;
        &rfc6762;
-       &rfc6763;
        &rfc7626;
        &I-D.ietf-intarea-hostname-practice;
        &I-D.ietf-dprive-dns-over-tls;
        &I-D.ietf-dprive-dnsodtls;
-
-
-
+       &I-D.ietf-dhc-anonymity-profile;
 </references>  
 
 </back>
