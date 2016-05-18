@@ -3,36 +3,41 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 
 <!ENTITY rfc1033 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1033.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1033.xml'>
 <!ENTITY rfc1034 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1034.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1034.xml'>
 <!ENTITY rfc1035 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1035.xml'>
 <!ENTITY rfc2045 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2045.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2045.xml'>
 <!ENTITY rfc2119 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml'>
 <!ENTITY rfc2782 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.2782.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2782.xml'>
 <!ENTITY rfc4055 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.4055.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4055.xml'>
 <!ENTITY rfc4075 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.4075.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4075.xml'>
 <!ENTITY rfc6762 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6762.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml'>
 <!ENTITY rfc6763 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6763.xml'>
 <!ENTITY rfc7626 PUBLIC ''
-   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7626.xml'>
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7626.xml'>
+<!ENTITY rfc7844 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7844.xml'>
+<!ENTITY rfc7858 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7858.xml'>
 
 <!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
-<!ENTITY I-D.ietf-dprive-dns-over-tls PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dns-over-tls.xml">
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
 <!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
-<!ENTITY I-D.ietf-dhc-anonymity-profile PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dhc-anonymity-profile.xml">
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
+
+<!ENTITY kw14a PUBLIC ''
+   "references/reference.kw14a.xml">
+<!ENTITY kw14b PUBLIC ''
+   "references/reference.kw14b.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -46,7 +51,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-huitema-dnssd-privacy-01.txt" 
+     docName="draft-huitema-dnssd-privacy-01.txt"
      ipr="trust200902">
 
 <front>
@@ -68,11 +73,19 @@
       </address>
     </author>
 
-<author fullname="David Kaiser" initials="D." surname="Kaiser">
+   <author fullname="Daniel Kaiser" initials="D." surname="Kaiser">
+     <organization>University of Konstanz</organization>
+      <address>
+        <postal>
+          <street> </street>
+          <city>Konstanz</city>
+          <code>78457</code>
+          <region></region>
+          <country>Germany</country>
+        </postal>
+        <email>daniel.kaiser@uni-konstanz.de</email>
+      </address>
     </author>
-
-
-<!-- David, please add your info here -->
 
     <date year="2016" />
 
@@ -164,7 +177,7 @@ record contains a domain name starting with an instance name.
 Instance names are free form description of the instance, and are meant to
 convey enough information so discovery clients can easily select the
 desired service. 
-Section 4 of <xref target="RFC6763" /> give the
+Section 4 of <xref target="RFC6763" /> gives the
 following example for the instance names of a printer service:
 </t>
 <!--
@@ -226,7 +239,7 @@ will vary widely with the particular service and its implementation:
 <t>
 <list style="symbols">
 <t>
-Some attributeslike the paper size available in a printer, are the
+Some attributes like the paper size available in a printer, are the
 same on many devices, and thus only provides limited information
 to a tracker.
 </t>
@@ -370,7 +383,7 @@ more complex, and is thus debatable.
 <section title="Randomized host names" >
 <t>
 Instead of publishing their actual name in the SRV records, nodes 
-could publish a randomized name. That the solution argued for
+could publish a randomized name. That is the solution argued for
 in <xref target="I-D.ietf-intarea-hostname-practice" />.
 </t>
 <t>
@@ -397,7 +410,7 @@ announcements to find what they want.
 
 <section title="Timing of obfuscation and randomization" anchor="timing" >
 <t>
-It is important that obfuscation of instance names be performed at the right time,
+It is important that the obfuscation of instance names is performed at the right time,
 and that the obfuscated names change in synchrony with other identifiers,
 such as MAC Addresses, IP Addresses or host names.
 If the randomized host name changed
@@ -428,11 +441,11 @@ Difficult...
 The DNS Private Exchange working group develops mechanisms to
 provide confidentiality to DNS transactions, addressing the problems 
 outlined in <xref target="RFC7626" />. The solutions being developed 
-include DNS over TLS <xref target="I-D.ietf-dprive-dns-over-tls" />
+include DNS over TLS <xref target="RFC7858" />
 and DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />.
 </t>
 <t>
-We could imagine that DNS-SD nodes are configure to update and
+We could imagine that DNS-SD nodes are configured to update and
 retrieve DNS records using DNS over TLS or DNS over DTLS, but 
 a number of problems can arise:
 </t>
@@ -456,7 +469,7 @@ Neither DNS over TLS nor DNS over DTLS applies to MDNS.
 </list>
 </t>
 <t>
-In short, DNS ovr TLS and DNS over DTLS solve a different problem,
+In short, DNS over TLS and DNS over DTLS solve a different problem,
 and are not a solution for DNS-SD privacy.
 </t>
 </section>
@@ -473,13 +486,13 @@ The proposed solution uses the following components:
 The host names are randomized to prevent tracking.
 </t>
 <t>
-Nodes provide an Instance Discovery Key to other nodes authorized to discover the service instance,
+Nodes provide an Instance Discovery Key to other nodes authorized to discover the service instance.
 </t>
 <t>
-The Instance Discovery Key is combined with a random seed to obfuscate the instance names,
+The Instance Discovery Key is combined with a random seed to obfuscate the instance names.
 </t>
 <t>
-Nodes engaged in discovery attempt to de-obfuscate the instance names using the set of Instance Discovery Key that they know about,
+Nodes engaged in discovery attempt to de-obfuscate the instance names using the set of Instance Discovery Keys that they know about.
 </t>
 </list>
 </t>
@@ -500,7 +513,7 @@ same scope as the PTR, SRV and TXT records used by DNS-SD.
 If the link-layer address of the network connection is properly obfuscated 
 (e.g. using MAC Address Randomization), 
 The Randomized Host Name MAY be computed using the algorithm described
-in section 3.7 of <xref target="I-D.ietf-dhc-anonymity-profile" />. 
+in section 3.7 of <xref target="RFC7844" />. 
 If this is not possible, the randomized host name SHOULD be constructed by simply
 picking a 48 bit random number meeting the 
 Randomness Requirements for Security expressed in <xref target="RFC4075" />,
@@ -677,10 +690,10 @@ This draft results from initial discussions with Dave Thaler.
        &rfc2782;
        &rfc6762;
        &rfc7626;
+       &rfc7844;
+       &rfc7858;
        &I-D.ietf-intarea-hostname-practice;
-       &I-D.ietf-dprive-dns-over-tls;
        &I-D.ietf-dprive-dnsodtls;
-       &I-D.ietf-dhc-anonymity-profile;
 
     <reference anchor="TrustCom2014" target="https://dx.doi.org/10.1109/TrustCom.2014.107">
         <front>
@@ -710,11 +723,8 @@ an implementation based on the open-source Avahi daemon.
         </front>
     </reference>
 
-<!--
-TODO: add other references.
--->
-
-
+       &kw14a;
+       &kw14b;
 
 </references>  
 
