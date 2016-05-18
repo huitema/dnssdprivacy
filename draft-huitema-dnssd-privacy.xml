@@ -68,6 +68,20 @@
       </address>
     </author>
 
+   <author fullname="Daniel Kaiser" initials="D." surname="Kaiser">
+     <organization>University of Konstanz</organization>
+      <address>
+        <postal>
+          <street> </street>
+          <city>Konstanz</city>
+          <code>78457</code>
+          <region></region>
+          <country>Germany</country>
+        </postal>
+        <email>daniel.kaiser@uni-konstanz.de</email>
+      </address>
+    </author>
+
     <date year="2016" />
 
     <abstract>
