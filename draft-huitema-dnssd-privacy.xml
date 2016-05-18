@@ -33,6 +33,11 @@
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
 <!ENTITY I-D.ietf-dhc-anonymity-profile PUBLIC ''  
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dhc-anonymity-profile.xml">
+
+<!ENTITY kw14a PUBLIC ''  
+   "references/reference.kw14a.xml">
+<!ENTITY kw14b PUBLIC ''  
+   "references/reference.kw14b.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -667,6 +672,8 @@ This draft results from initial discussions with Dave Thaler.
        &I-D.ietf-dprive-dns-over-tls;
        &I-D.ietf-dprive-dnsodtls;
        &I-D.ietf-dhc-anonymity-profile;
+       &kw14a;
+       &kw14b;
 </references>  
 
 </back>
