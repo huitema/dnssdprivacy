@@ -172,7 +172,7 @@ record contains a domain name starting with an instance name.
 Instance names are free form description of the instance, and are meant to
 convey enough information so discovery clients can easily select the
 desired service. 
-Section 4 of <xref target="RFC6763" /> give the
+Section 4 of <xref target="RFC6763" /> gives the
 following example for the instance names of a printer service:
 </t>
 <t>
@@ -230,7 +230,7 @@ will vary widely with the particular service and its implementation:
 <t>
 <list style="symbols">
 <t>
-Some attributeslike the paper size available in a printer, are the
+Some attributes like the paper size available in a printer, are the
 same on many devices, and thus only provides limited information
 to a tracker.
 </t>
@@ -286,7 +286,7 @@ services. When the clients select specific instances of services,
 they reveal their preference for these instances.
 </t>
 <t>
-In first analysis, the leakage of information by lients looks benign
+In first analysis, the leakage of information by clients looks benign
 compared to the disclosures made by the servers. There may be a 
 concern when the client is attempting to use rare services.
 </t>
@@ -374,7 +374,7 @@ more complex, and is thus debatable.
 <section title="Randomized host names" >
 <t>
 Instead of publishing their actual name in the SRV records, nodes 
-could publish a randomized name. That the solution argued for
+could publish a randomized name. That is the solution argued for
 in <xref target="I-D.ietf-intarea-hostname-practice" />.
 </t>
 <t>
@@ -388,7 +388,7 @@ usability issues.
 
 <section title="Timing of obfuscation and randomization" anchor="timing" >
 <t>
-It is important that obfuscation of instance names be performed at the right time,
+It is important that the obfuscation of instance names is performed at the right time,
 and that the obfuscated names change in synchrony with other identifiers,
 such as MAC Addresses, IP Addresses or host names.
 If the randomized host name changed
@@ -423,7 +423,7 @@ include DNS over TLS <xref target="RFC7858" />
 and DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />.
 </t>
 <t>
-We could imagine that DNS-SD nodes are configure to update and
+We could imagine that DNS-SD nodes are configured to update and
 retrieve DNS records using DNS over TLS or DNS over DTLS, but 
 a number of problems can arise:
 </t>
@@ -447,7 +447,7 @@ Neither DNS over TLS nor DNS over DTLS applies to MDNS.
 </list>
 </t>
 <t>
-In short, DNS ovr TLS and DNS over DTLS solve a different problem,
+In short, DNS over TLS and DNS over DTLS solve a different problem,
 and are not a solution for DNS-SD privacy.
 </t>
 </section>
@@ -464,13 +464,13 @@ The proposed solution uses the following components:
 The host names are randomized to prevent tracking.
 </t>
 <t>
-Nodes provide an Instance Discovery Key to other nodes authorized to discover the service instance,
+Nodes provide an Instance Discovery Key to other nodes authorized to discover the service instance.
 </t>
 <t>
-The Instance Discovery Key is combined with a random seed to obfuscate the instance names,
+The Instance Discovery Key is combined with a random seed to obfuscate the instance names.
 </t>
 <t>
-Nodes engaged in discovery attempt to de-obfuscate the instance names using the set of Instance Discovery Key that they know about,
+Nodes engaged in discovery attempt to de-obfuscate the instance names using the set of Instance Discovery Keys that they know about.
 </t>
 </list>
 </t>
