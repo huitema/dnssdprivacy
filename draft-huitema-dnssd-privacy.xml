@@ -103,13 +103,18 @@ information published by DNS-SD.
 
 <middle>
 <section title="Introduction">
-<!--
-TODO: add references to previous work on DNS-SD privacy.
-We cannot add a citation without having a corresponding
-reference in the text.
--->
 <t>
-There are cases when nodes connected to a network want to provide
+DNS-SD <xref target="RFC6763" /> enables distribution and discovery in local networks 
+without configuration. It is very convenient for users, but it requires the public exposure 
+of the offering and requesting identities along with information about the offered and 
+requested services.  Some of the information published by the 
+announcements can be very revealing. These privacy issues and potential
+solutions are discussed in <xref target="KW14a" /> 
+and <xref target="KW14b" />.
+</t>
+<t>
+There are cases when nodes connected 
+to a network want to provide
 or consume services without exposing their identity to the other
 parties connected to the same network. Consider for example a
 traveller wanting to upload pictures from a phone to a laptop
@@ -695,36 +700,34 @@ This draft results from initial discussions with Dave Thaler.
        &I-D.ietf-intarea-hostname-practice;
        &I-D.ietf-dprive-dnsodtls;
 
-    <reference anchor="TrustCom2014" target="https://dx.doi.org/10.1109/TrustCom.2014.107">
-        <front>
-            <title>Adding Privacy to Multicast DNS Service Discovery</title>
-            <author initials="D" surname="Kaiser" fullname="Daniel Kaiser" />
-            <author initials="M" surname="Waldvogel" fullname="Marcel Waldvogel" />
-            <date month="September" year="2014" />
-            <abstract>
-            <t>
-Multicast DNS Service Discovery (mDNS-SD), made fashionable through Apple's Bonjour, 
-is a prevalent technique allowing service distribution and discovery in local networks 
-without configuration (Zeroconf). Possible application areas are device synchronization, 
-instant messaging, VoIP, file and screen sharing. It is very convenient for users, 
-because they can connect to and offer services when they enter a network without any 
-manual configuration. However, it requires the public exposure of the offering and 
-requesting identities along with information about the offered and requested services, 
-even when services do not need to be public. Some of the information published by the 
-announcements can be very revealing, including complete lists of family members. In 
-this paper we discuss the privacy problems arising when using mDNS-SD and present our 
-privacy extension, which allows hiding all information published while still not 
-requiring any network configuration except for an initial pairing. A key feature of 
-our solution is the ease of upgrading existing systems, a must for widespread deployment 
-and acceptance. To show the feasibility of our mDNS-SD privacy extension, we developed 
-an implementation based on the open-source Avahi daemon.
-            </t>
-            </abstract>
-        </front>
-    </reference>
+<reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
+  <front>
+    <title>Adding Privacy to Multicast DNS Service Discovery</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <author initials="M." surname="Waldvogel" fullname="Marcel Waldvogel">
+      <organization/>
+    </author>
+    <date year="2014"/>
+  </front>
+  <seriesInfo name="DOI" value="10.1109/TrustCom.2014.107"/>
+</reference>
 
-       &kw14a;
-       &kw14b;
+<reference anchor="KW14b" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7056899">
+  <front>
+    <title>Efficient Privacy Preserving Multicast DNS Service Discovery</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <author initials="M." surname="Waldvogel" fullname="Marcel Waldvogel">
+      <organization/>
+    </author>
+    <date year="2014"/>
+  </front>
+  <seriesInfo name="DOI" value="10.1109/HPCC.2014.141"/>
+</reference>
+
 
 </references>  
 
