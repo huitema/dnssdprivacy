@@ -24,19 +24,19 @@
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.6763.xml'>
 <!ENTITY rfc7626 PUBLIC ''
    'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7626.xml'>
+<!ENTITY rfc7844 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7844.xml'>
+<!ENTITY rfc7858 PUBLIC ''
+   'http://xml.resource.org/public/rfc/bibxml/reference.RFC.7858.xml'>
 
 <!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
-<!ENTITY I-D.ietf-dprive-dns-over-tls PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dns-over-tls.xml">
 <!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
    "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
-<!ENTITY I-D.ietf-dhc-anonymity-profile PUBLIC ''  
-   "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dhc-anonymity-profile.xml">
 
-<!ENTITY kw14a PUBLIC ''  
+<!ENTITY kw14a PUBLIC ''
    "references/reference.kw14a.xml">
-<!ENTITY kw14b PUBLIC ''  
+<!ENTITY kw14b PUBLIC ''
    "references/reference.kw14b.xml">
 ]>
 
@@ -419,7 +419,7 @@ Difficult...
 The DNS Private Exchange working group develops mechanisms to
 provide confidentiality to DNS transactions, addressing the problems 
 outlined in <xref target="RFC7626" />. The solutions being developed 
-include DNS over TLS <xref target="I-D.ietf-dprive-dns-over-tls" />
+include DNS over TLS <xref target="RFC7858" />
 and DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />.
 </t>
 <t>
@@ -491,7 +491,7 @@ same scope as the PTR, SRV and TXT records used by DNS-SD.
 If the link-layer address of the network connection is properly obfuscated 
 (e.g. using MAC Address Randomization), 
 The Randomized Host Name MAY be computed using the algorithm described
-in section 3.7 of <xref target="I-D.ietf-dhc-anonymity-profile" />. 
+in section 3.7 of <xref target="RFC7844" />. 
 If this is not possible, the randomized host name SHOULD be constructed by simply
 picking a 48 bit random number meeting the 
 Randomness Requirements for Security expressed in <xref target="RFC4075" />,
@@ -668,10 +668,10 @@ This draft results from initial discussions with Dave Thaler.
        &rfc2782;
        &rfc6762;
        &rfc7626;
+       &rfc7844;
+       &rfc7858;
        &I-D.ietf-intarea-hostname-practice;
-       &I-D.ietf-dprive-dns-over-tls;
        &I-D.ietf-dprive-dnsodtls;
-       &I-D.ietf-dhc-anonymity-profile;
        &kw14a;
        &kw14b;
 </references>  
