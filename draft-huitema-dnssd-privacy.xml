@@ -46,7 +46,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-huitema-dnssd-privacy-00.txt" 
+     docName="draft-huitema-dnssd-privacy-01.txt" 
      ipr="trust200902">
 
 <front>
@@ -68,6 +68,12 @@
       </address>
     </author>
 
+<author fullname="David Kaiser" initials="D." surname="Kaiser">
+    </author>
+
+
+<!-- David, please add your info here -->
+
     <date year="2016" />
 
     <abstract>
@@ -84,6 +90,11 @@ information published by DNS-SD.
 
 <middle>
 <section title="Introduction">
+<!--
+TODO: add references to previous work on DNS-SD privacy.
+We cannot add a citation without having a corresponding
+reference in the text.
+-->
 <t>
 There are cases when nodes connected to a network want to provide
 or consume services without exposing their identity to the other
@@ -156,6 +167,10 @@ desired service.
 Section 4 of <xref target="RFC6763" /> give the
 following example for the instance names of a printer service:
 </t>
+<!--
+TODO: address comments from Stuart Cheshire. This example is wrong, it is
+a misreading of RFC6763.
+-->
 <t>
 <figure>
 <artwork>
@@ -267,7 +282,7 @@ services. When the clients select specific instances of services,
 they reveal their preference for these instances.
 </t>
 <t>
-In first analysis, the leakage of information by lients looks benign
+In first analysis, the leakage of information by clients looks benign
 compared to the disclosures made by the servers. There may be a 
 concern when the client is attempting to use rare services.
 </t>
@@ -365,6 +380,19 @@ randomizing host names will probably not cause much
 usability issues.
 </t>
 </section>
+
+<!--
+TODO: do we need to distinguish the announcements of obfuscated
+services using specific service types? The biggest issue is that
+we would need to register a new set of service tags, which has a
+significant administrative cost. The solution may be to overload
+the protocol tag, e.g. using _tcp_private instead of _tcp.
+
+Do we need to obfuscate the name of the services themselves, in 
+order to maintain privacy? This seems rather unwieldy, because 
+the clients will have to sort through a lot of irrelevant
+announcements to find what they want.
+-->
 
 
 <section title="Timing of obfuscation and randomization" anchor="timing" >
@@ -653,6 +681,41 @@ This draft results from initial discussions with Dave Thaler.
        &I-D.ietf-dprive-dns-over-tls;
        &I-D.ietf-dprive-dnsodtls;
        &I-D.ietf-dhc-anonymity-profile;
+
+    <reference anchor="TrustCom2014" target="https://dx.doi.org/10.1109/TrustCom.2014.107">
+        <front>
+            <title>Adding Privacy to Multicast DNS Service Discovery</title>
+            <author initials="D" surname="Kaiser" fullname="Daniel Kaiser" />
+            <author initials="M" surname="Waldvogel" fullname="Marcel Waldvogel" />
+            <date month="September" year="2014" />
+            <abstract>
+            <t>
+Multicast DNS Service Discovery (mDNS-SD), made fashionable through Apple's Bonjour, 
+is a prevalent technique allowing service distribution and discovery in local networks 
+without configuration (Zeroconf). Possible application areas are device synchronization, 
+instant messaging, VoIP, file and screen sharing. It is very convenient for users, 
+because they can connect to and offer services when they enter a network without any 
+manual configuration. However, it requires the public exposure of the offering and 
+requesting identities along with information about the offered and requested services, 
+even when services do not need to be public. Some of the information published by the 
+announcements can be very revealing, including complete lists of family members. In 
+this paper we discuss the privacy problems arising when using mDNS-SD and present our 
+privacy extension, which allows hiding all information published while still not 
+requiring any network configuration except for an initial pairing. A key feature of 
+our solution is the ease of upgrading existing systems, a must for widespread deployment 
+and acceptance. To show the feasibility of our mDNS-SD privacy extension, we developed 
+an implementation based on the open-source Avahi daemon.
+            </t>
+            </abstract>
+        </front>
+    </reference>
+
+<!--
+TODO: add other references.
+-->
+
+
+
 </references>  
 
 </back>
