@@ -336,9 +336,11 @@ Alice will see something like:
 <t>
 <figure>
 <artwork>
-     GobbeldygookBlaBlaBla (Alice's notebook) .  local  .
-     Abracadabragooklybok                     .  local  .
-     Image store for Carol                    .  local  .
+QwertyUiopAsdfghjk (Alice's Images)       . _imageStore._tcp . local
+GobbeldygookBlaBla (Alice's Mobile Phone) . _presence._tcp   . local
+MNbvCxzLkjhGfdEdhg (Alice's Notebook)     . _presence._tcp   . local
+Abracadabragooklybok (Bob's Notebook)     . _presence._tcp   . local
+Carol's Notebook                          . _presence._tcp   . local
 </artwork>
 </figure>
 </t>
@@ -348,9 +350,11 @@ Bob will see:
 <t>
 <figure>
 <artwork>
-     GobbeldygookBlaBlaBla                   .  local  .
-     Abracadabragooklybok (Bob's laptop)     .  local  .
-     Image store for Carol                   .  local  .
+QwertyUiopAsdfghjk                    . _imageStore._tcp . local
+GobbeldygookBlaBla                    . _presence._tcp   . local
+MNbvCxzLkjhGfdEdhg                    . _presence._tcp   . local
+Abracadabragooklybok (Bob's Notebook) . _presence._tcp   . local
+Carol's Notebook                      . _presence._tcp   . local
 </artwork>
 </figure>
 </t>
@@ -360,9 +364,11 @@ Carol will see:
 <t>
 <figure>
 <artwork>
-     GobbeldygookBlaBlaBla  .  local  .
-     Abracadabragooklybok   .  local  .
-     Image store for Carol  .  local  .
+QwertyUiopAsdfghjk   . _imageStore._tcp . local
+GobbeldygookBlaBla   . _presence._tcp   . local
+MNbvCxzLkjhGfdEdhg   . _presence._tcp   . local
+Abracadabragooklybok . _presence._tcp   . local
+Carol's Notebook     . _presence._tcp   . local
 </artwork>
 </figure>
 </t>
