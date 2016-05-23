@@ -1,19 +1,36 @@
-TARGET = draft-huitema-dnssd-privacy
-SOURCE = ${TARGET}.xml
-TRANSLATE = xml2rfc
-TXT  = ${TARGET}.txt
-HTML = ${TARGET}.html
-RM = rm -f
+TARGET    = draft-huitema-dnssd-privacy
+SOURCE    = ${TARGET}.xml
+TXT       = ${TARGET}.txt
+HTML      = ${TARGET}.html
+PS        = ${TARGET}.ps
+PDF       = ${TARGET}.pdf
 
-.PHONY: all,txt,html,clean
+XML2TXT   = xml2rfc --text
+XML2HTML  = xml2rfc --html
+TXT2PS    = enscript -p
+PS2PDF    = ps2pdf
+PDFREWORK = pdfcrop
 
-all: txt html
+RM        = rm -f
 
-txt: ${SOURCE}
-	${TRANSLATE} --text  ${SOURCE}
+.PHONY: all, html, txt, pdf, clean
 
-html: ${SOURCE}
-	${TRANSLATE} --html  ${SOURCE}
+all: txt html pdf
+
+%.txt: %.xml ${SOURCE}
+	${XML2TXT} $<
+
+%.html: %.xml ${SOURCE}
+	${XML2HTML} $<
+
+html: ${HTML}
+
+txt: ${TXT}
+
+pdf: ${TXT}
+	${TXT2PS}    ${PS}  ${TXT}
+	${PS2PDF}    ${PS}  ${PDF}
+	${PDFREWORK} ${PDF} ${PDF}
 
 clean:
-	${RM} ${TXT} ${HTML}
+	${RM} ${TXT} ${HTML} ${PS} ${PDF}
