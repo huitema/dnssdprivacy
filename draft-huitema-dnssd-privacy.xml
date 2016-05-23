@@ -214,7 +214,7 @@ pick the fist item. The discovery will "just work".
 <t>
 However, DNS-SD/mDNS will reveal to anybody that Alice is currently visiting the Internet Cafe.
 It further discloses the fact that she uses two devices, shares an image store, and uses a chat application supporting the
-_presence protocol on both of her devices. She might currenty chat with Bob or Carol, as they are also using a _presence supporting chat application.
+_presence protocol on both of her devices. She might currently chat with Bob or Carol, as they are also using a _presence supporting chat application.
 This information is not just available to devices actively browsing for and offering services, but to anybody passively listing to the network traffic.
 </t>
 </section>
