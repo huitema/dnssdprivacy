@@ -645,6 +645,55 @@ instance discovery key
 
 </section>
 
+
+<section title="My Thoughts on Privacy Problem Mitigation Techniques">
+  <t>
+    A problem with the mitigation techniques described so far is the need for a pairing.
+    When service instance keys are used, each service instance needs a separate key,
+    which in turn has to be transmitted to all devices that should be able to
+    discover the corresponding service instance.
+    This is disadvantageous in two ways.
+    On the one hand, it demands a pairing for each service instance;
+    on the other hand it makes it impossible to discover new service instances without prior pairing.
+    Both problems can be mitigated by using the method described in the following.
+  </t>
+  <t>
+    Privacy Preserving Service Discovery can be divided into three (independent) layers.
+  </t>
+  <t>
+    <list style="symbols">
+      <t>
+        Device Pairing: In this step users pair their devices.
+        There are two kinds of pairings: (1) intra-user pairing, which
+        is a pairing of devices of the same user; this can be done
+        without any configuration by a meta-service (pairing data synchronization service) in
+        a trusted (home) network;
+        (2) inter-user pairing is a pairing between devices of "friends".
+        Since this has to be done manually - e.g. by verifying a fingerprint leveraging QR-Codes -
+        it is important to limit it to once per pair of friends.
+      </t>
+      <t>
+        Directory Discovery: The set of devices that offer service instances can be seen as a distributed service directory.
+        When a user wants to discover services, she first discovers the part of the service directory she is authorized to use,
+        meaning the devices of her online friends.
+        This is done using an other meta service (private service directory service, PSDS) whose task it is to handle queries for actual services.
+        The connection to this service is done using private mutual authentication guaranteeing the privacy of both parties.
+      </t>
+      <t>
+        Service Querying: The PSDS is offered by a small DNS server running on each user's device that can be queried for the service instances offered by the
+        corresponding user.
+      </t>
+    </list>
+  </t>
+  <t>
+    This mitigates both afore mentioned problems as it reduces pairing to one pairing per pair of friends and allows to offer services in
+    a privacy preserving way whose existence was unknown at the time of pairing.
+    This grants an almost zeroconf user experience.
+  </t>
+</section>
+
+
+
 <section title="Security Considerations">
 <t> 
 This document specifies a method to protect the privacy of 
