@@ -213,9 +213,12 @@ pick the fist item. The discovery will "just work".
 </t>
 <t>
 However, DNS-SD/mDNS will reveal to anybody that Alice is currently visiting the Internet Cafe.
-It further discloses the fact that she uses two devices, shares an image store, and uses a chat application supporting the
-_presence protocol on both of her devices. She might currently chat with Bob or Carol, as they are also using a _presence supporting chat application.
-This information is not just available to devices actively browsing for and offering services, but to anybody passively listing to the network traffic.
+It further discloses the fact that she uses two devices, shares an image store, 
+and uses a chat application supporting the
+_presence protocol on both of her devices. She might currently chat with Bob or Carol, 
+as they are also using a _presence supporting chat application.
+This information is not just available to devices actively browsing for and offering 
+services, but to anybody passively listing to the network traffic.
 </t>
 </section>
 
@@ -287,6 +290,15 @@ the version of the software running on a device. If a device publishes
 many services with rich sets of attributes, the combination may be
 sufficient to identify the specific device. 
 </t>
+<t>
+There is however an argument that devices providing services can be discovered
+by observing the local traffic, because different services have different traffic 
+patterns. The observation could in many cases also reveal some specificities
+of the service's implementation. Even if the traffic is encrypted, the size
+and the timing of packets may be sufficient to reveal that information. This
+argument can be used to assess the priority of, for example, protecting the 
+fact that a device publishes a particular service.
+</t>
 </section>
 
 <section title="Privacy implication of discovering services" anchor="clientPrivacy" >
@@ -304,11 +316,12 @@ concern when the client is attempting to use rare services.
 </t>
 </section>
 
+
 </section>
 
 <section title="Design of DNS-SD privacy mitigations" anchor="design" >
 <t>
-Ah Ah.
+In this section, we present the design of the privacy mitigations.
 </t>
 
 <section title="Obfuscated instance names" >
@@ -403,19 +416,98 @@ usability issues.
 </t>
 </section>
 
-<!--
-TODO: do we need to distinguish the announcements of obfuscated
-services using specific service types? The biggest issue is that
-we would need to register a new set of service tags, which has a
-significant administrative cost. The solution may be to overload
-the protocol tag, e.g. using _tcp_private instead of _tcp.
+<section title="Names of obfuscated services" >
 
-Do we need to obfuscate the name of the services themselves, in 
-order to maintain privacy? This seems rather unwieldy, because 
-the clients will have to sort through a lot of irrelevant
-announcements to find what they want.
--->
-
+<t>
+Instead of publishing the actual service name in the SRV records,
+nodes could publish a randomized name. There are two plausible reasons
+for doing that:
+</t>
+<t>
+<list style="symbols">
+<t>
+Having a different service name for privacy enhanced services will ensure
+that hosts that are not privacy aware are not puzzled by obfuscated service names.
+</t>
+<t>
+Using obfuscated service names prevents third parties from discovering
+which service a particular host is providing or consuming.
+</t>
+</list>
+</t>
+<t>
+The first requirement can be met with a simple modification of an existing 
+name. For example, instead of publishing:
+</t>
+<t>
+<figure>
+<artwork>
+QwertyUiopAsdfghjk . _imageStore._tcp . local
+GobbeldygookBlaBla . _presence._tcp   . local
+</artwork>
+</figure>
+</t>
+<t>
+Alice could publish some kind of "translation" of the service name, such as:
+</t>
+<t>
+<figure>
+<artwork>
+QwertyUiopAsdfghjk . _vzntrFgber._tcp . local
+GobbeldygookBlaBla . _cerfrapr._tcp   . local
+</artwork>
+</figure>
+</t>
+<t>
+The previous examples use rot13 translation. It does not provide any 
+particular privacy, but it does ensure that obfuscated services are
+named differently from clear text services.
+</t>
+<t>
+Making the service name actually private would require some actual encryption.
+The main problem with such solutions is that the client needs to know the
+service name in order to compose the DNS-SD query for services. There are several 
+options:
+</t>
+<t>
+<list style="symbols">
+<t>
+The service name is chosen by the client. For example, the client could 
+encrypt the original service 
+name and a nonce with a key shared between client and server. Upon receiving
+the queries, the server would attempt to decrypt the service name. If that 
+succeeds, the server would respond with PTR records created on the fly for
+the new service name.
+</t>
+<t>
+The service name is chosen by the server and cannot be predicted in advance by
+the client. For example, the server could encrypt a nonce and
+the original service name. The client retrieves such services by doing
+a wild card query, then attempting to decrypt the received responses.
+</t>
+<t>
+The service name is chosen by the server in a way that can be predicted in advance by
+the client. For example, the server could encrypt some version of the data and time and
+the original service name. The data and time are encoded with a coarse precision, enabling
+the client to predict the value that the server is using, and to send the corresponding
+queries.
+</t>
+</list>
+</t>
+<t>
+None of these solutions is very attractive. Creating records on the fly is a burden
+for the server. If clients must use wildcard queries, they will need to process
+lots of irrelevant data. If clients need to predict different instance names for
+each potential server, they will end up sending batches of queries with many
+different names. All of these solutions appear like big departures from the 
+simplicty and robustness of the DNS-SD design.
+</t>
+<t>
+Given the relatively low priority of hiding the service name and the complexity
+of the potential solutions, we are not recommending any particular
+protection for the instance names.
+</t>
+</section>
 
 <section title="Timing of obfuscation and randomization" anchor="timing" >
 <t>
@@ -436,12 +528,6 @@ or maybe use the randomized host name as input in the randomization
 process.
 </t>
 
-</section>
-
-<section title="Fingerprint resistance" >
-<t>
-Difficult...
-</t>
 </section>
 
 
@@ -646,7 +732,7 @@ instance discovery key
 </section>
 
 
-<section title="My Thoughts on Privacy Problem Mitigation Techniques">
+<section title="Considerations on the pairing requirement">
   <t>
     A problem with the mitigation techniques described so far is the need for a pairing.
     When service instance keys are used, each service instance needs a separate key,
