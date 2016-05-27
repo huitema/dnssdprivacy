@@ -416,7 +416,7 @@ usability issues.
 </t>
 </section>
 
-<section title="Names of obfuscated services" >
+<section title="Names of obfuscated services">
 
 <t>
 Instead of publishing the actual service name in the SRV records,
@@ -500,7 +500,7 @@ for the server. If clients must use wildcard queries, they will need to process
 lots of irrelevant data. If clients need to predict different instance names for
 each potential server, they will end up sending batches of queries with many
 different names. All of these solutions appear like big departures from the 
-simplicty and robustness of the DNS-SD design.
+simplicity and robustness of the DNS-SD design.
 </t>
 <t>
 Given the relatively low priority of hiding the service name and the complexity
@@ -744,7 +744,7 @@ instance discovery key
     Both problems can be mitigated by using the method described in the following.
   </t>
   <t>
-    Privacy Preserving Service Discovery can be divided into three (independent) layers.
+    Privacy Preserving Service Discovery can be divided into three independent layers <xref target="KW14b" />.
   </t>
   <t>
     <list style="symbols">
