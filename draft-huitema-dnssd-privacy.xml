@@ -262,7 +262,7 @@ and can potentially be used for "fingerprinting" a specific device.
 
 </section>
 
-<section title="Device fingerprinting">
+<section title="Device fingerprinting" anchor="serverFingerprint">
 <t>
 The combination of information published in DNS-SD has the potential to
 provide a "fingerprint" of a specific device. Such information includes: 
@@ -297,7 +297,9 @@ patterns. The observation could in many cases also reveal some specificities
 of the service's implementation. Even if the traffic is encrypted, the size
 and the timing of packets may be sufficient to reveal that information. This
 argument can be used to assess the priority of, for example, protecting the 
-fact that a device publishes a particular service.
+fact that a device publishes a particular service. However, we may assume that the 
+developers of sensitive services will use counter-measures to defeat such
+traffic analysis.
 </t>
 </section>
 
@@ -307,12 +309,14 @@ The consumers of services engage in discovery, and in doing so do
 reveal some information such as the list of services that they
 are interested in and the domains in which they are looking for the
 services. When the clients select specific instances of services,
-they reveal their preference for these instances.
+they reveal their preference for these instances. This can be benign if
+the service type is very common, but it could be more problematic
+for sensitive services, such as for example some private messaging services.
 </t>
 <t>
-In first analysis, the leakage of information by clients looks benign
-compared to the disclosures made by the servers. There may be a 
-concern when the client is attempting to use rare services.
+One way to protect clients would be to somehow encrypt the requested service types.
+Of course, just as we noted in <xref target="serverFingerprint"/>, traffic
+analysis can often reveal the service. 
 </t>
 </section>
 
@@ -324,7 +328,44 @@ concern when the client is attempting to use rare services.
 In this section, we present the design of the privacy mitigations.
 </t>
 
-<section title="Obfuscated instance names" >
+  <t>
+    Privacy Preserving Service Discovery can be divided into three independent layers: Device Pairing, Directory Discovery, and Service Querying <xref target="KW14b" />.
+  </t>
+
+
+  <section title="Device Pairing">
+
+    <t>
+Any private discovery solution will need to understand which differentiate 
+between authorized devices, for which the discovery will be successful,
+and other devices, which should not be aware of the availability of the
+service. The commonly used solution to this problem is to establish "device 
+pairing." 
+In our discovery scenarios, we envisage two kinds of pairings:
+</t>
+<t>
+<list style="numbers">
+<t>
+inter-user pairing is a pairing between devices of "friends".
+      Since this has to be done manually, e.g. by the means described above,
+      it is important to limit it to once per pair of friends.
+</t>
+<t>
+intra-user pairing
+      is a pairing of devices of the same user. It can be performed
+      without any configuration by a meta-service (pairing data synchronization service) in
+      a trusted (home) network.
+    </t>
+</list>
+</t>
+<t>
+The result of the pairing will normally be the exchange of a shared secret between
+the devices, or the addition of the devices public keys to a local web of trust.
+Public key technology has many advatanges, but shared secrets are typically easier to
+handle on small devices.
+</t>
+</section>
+<section title="Obfuscated instance names" anchor="obfuscatedInstanceName" >
 <t>
 The privacy issues described in <xref target="instanceLeak"/> 
 can be solved by obfuscating the instance names. Instead
@@ -402,19 +443,6 @@ more complex, and is thus debatable.
 </t>
 </section>
 
-<section title="Randomized host names" >
-<t>
-Instead of publishing their actual name in the SRV records, nodes 
-could publish a randomized name. That is the solution argued for
-in <xref target="I-D.ietf-intarea-hostname-practice" />.
-</t>
-<t>
-Randomized host names will prevent some of the tracking.
-Host names are typically not visible by the users, and
-randomizing host names will probably not cause much
-usability issues.
-</t>
-</section>
 
 <section title="Names of obfuscated services">
 
@@ -508,6 +536,206 @@ of the potential solutions, we are not recommending any particular
 protection for the instance names.
 </t>
 </section>
+
+
+<section title="Scaling issues with obfuscation" anchor="scalingIssues" >
+<t>
+In <xref target="obfuscatedInstanceName" />, we assumed that each advertised
+record contains a name obfuscated with a shared key. This approach is easy
+to understand, but it contains the hidden assumption. Let look at one of our 
+examples:
+</t>
+<t>
+<figure>
+<artwork>
+Abracadabragooklybok (Bob's Notebook) . _presence._tcp   . local
+</artwork>
+</figure>
+</t>
+<t>
+We only see there one record for Bob's Notebook, obfuscated using 
+the unique shared secret associated with Bob's Notebook. That means that
+every device paired with Bob's Notebook will have a copy of that shared secret.
+We could of course do that, but there are known issues with having a secret 
+shared with multiple entities:
+</t>
+<t>
+<list style="symbols">
+<t>
+If for some reason the secret needs to be changed, every paired
+device will need a copy of the new secret before they can participate
+again in discovery;
+</t>
+<t>
+If one of the previous pairing becomes invalid, the only way
+to block the corresponding devices from discovery is to change the
+secret for all other devices.
+</t>
+</list>
+</t>
+<t>
+Key management becomes much easier if it is strictly pair-wise. Two
+paired devices, or to pairs of users, can simply renew their
+pairing and get a new secret. If a device ceases to be trusted, 
+the pairing data and the corresponding secret can just be 
+deleted and forgotten. But then, we have a scaling issue.
+Let's assume that:
+</t>
+<t>
+<list style="symbols">
+<t>
+Each device maintains an average of N pairing
+</t>
+<t>
+There are on average M devices present during discovery
+</t>
+</list>
+</t>
+<t>
+In the single key scenario, after issuing a broadcast query, the querier 
+will receive a series of responses, each of which may well be obfuscated 
+with a different key. If the receiver has N pre-existing pairing and 
+receives M obfuscated responses, the cost will scale as O(M*N), i.e. try 
+all N pairing keys for each of the M responses to see what matches. But
+if the keys are specific to each pair of devices, the obfuscation becomes 
+complicated. When receiving a request, the publisher does not know which 
+of its N keys the querier can decrypt. One simple solution would be to 
+send N responses, but then the load on the querier will scale as O(M*N^2).
+That can go out of hand very quickly.
+</t>
+<t>
+To solve the scaling issue, we consider a two-stages solutions: use
+an optimized discovery procedure to discover privacy-compatible devices;
+and use point to point encrypted exchanges to privately discover
+the available services.
+</t>
+</section>
+
+<section title="Private Service Directory Service" anchor="stage1Design">
+<t>
+The first step of the two-stage solution is the discovery of the
+available "privacy compatible" devices. The goal of that stage is
+to identify devices that share a pairing with the querier, and
+are available locally. They could be discovered by querying for the
+service "_psds._tls" using regular DNS-SD procedures, but the list of
+discovered services will have to be filtered so only paired
+devices are retained.
+</t>
+<t>
+We have demonstrated in <xref target="scalingIssues" /> that 
+simple obfuscation would require publishing as many records per
+publsiher as they are pairing, which ends up scaling as O(M*N^2)
+in which M is the number of devices present and N is the number of
+pairing pr device. We can mitigate this problem by using a special
+encoding of the instance name. Suppose that the publisher manages 
+N pairings with the associated keys K1, K2, ... Kn. The instance
+name will be set to an encoding of N "proofs" of the N keys,
+where each proof is computed as function of the key and a nonce:
+</t>
+<t>
+<list>
+<t>
+instance name = &lt;nonce&gt;&lt;F1&gt;&lt;F2&gt;..&lt;Fn&gt;
+</t>
+<t>
+Fi = hash (nonce, Ki), where hash is a cryptographic hash function.
+</t>
+</list>
+</t>
+<t>
+The querier can test the instance name by computing the same "proof" for
+each of its own keys. Suppose that the receiver manages P pairings, with
+the corresponding keys X1, X2, .. Xp. The receiver verification
+procedure will be:
+</t>
+<t>
+<figure>
+<artwork>
+   for each received instance name:
+      retrieve nonce from instance name
+      for (j = 1 to P)
+         retrieve the key Xj of pairing number j
+         compute F = hash(nonce, Xj)
+         for (i=1 to N)
+            retrieve the proof Fi
+            if F is equal to Fi
+               mark the pairing number j as available
+</artwork>
+</figure>
+</t>
+<t>
+The procedure presented here requires on average O(M*N) iterations of the
+hash function, which is the same scaling as the "shared secret" variant.
+It requires O(M*N^2) comparison operations, but these are less onerous
+than operation operations.
+</t>
+<t>
+The number of pairing proofs that can be encoded in a single record is
+limited by the maximum size of a DNS label, which is 63 bytes. Since
+this are characters and not pure binary values, nonce and proofs
+will have to be encoded using BASE64 (<xref target="RFC2045" /> section 6.8),
+resulting in at most 378 bits. The nonce should 
+not be repeated, and the simplest way to achieve that is to set
+the nonce to a 32 bit timestamp value. The remaining 346 bits could encode
+up to 10 proofs of 32 bits each, which would be sufficient for many
+practical scenarios. 
+</t>
+<t>
+In practice, a 32 bit proof should be sufficient to
+distinguish between avaliable devices. However, there is clearly a risk
+of collision. The privacy discovery service as described here will
+find the available pairings, but it might also find a spurious number of 
+"false positives." The chances of that happening are however quite small: 
+less than 0.02% for a device managing 10 pairings and processing 10000
+responses.
+</t>
+
+</section>
+
+<section title="Directed Private Discovery" >
+<t>
+The Private Service Directory Service discovery will allow a device to 
+discover a list available paired devices, and to identify the corresponding 
+pairing key. At that point, the querier can engae in a series of
+directed discoveries.
+</t>
+<t>
+We are considering two options for the directed discoveries:
+</t>
+<t>
+<list style="numbers" >
+<t>
+Use a unicast version of the DNS-SD service, in which the querier 
+send a unicast DNS-SD query to each privately discovered Private 
+Service Directory Server, looking for a service name ofbfuscated
+with the selected pairing key, and retrievig an obfuscated 
+instance name,
+</t>
+<t>
+Establish an encrypted connection with each discovered server,
+using for example a variation of TLS secured with the pairing key,
+and then send DNS-SD discovery requests over that connection.
+</t>
+</list>
+</t>
+ </section>
+
+
+
+<section title="Randomized host names" >
+<t>
+Instead of publishing their actual name in the SRV records, nodes 
+could publish a randomized name. That is the solution argued for
+in <xref target="I-D.ietf-intarea-hostname-practice" />.
+</t>
+<t>
+Randomized host names will prevent some of the tracking.
+Host names are typically not visible by the users, and
+randomizing host names will probably not cause much
+usability issues.
+</t>
+</section>
+
 
 <section title="Timing of obfuscation and randomization" anchor="timing" >
 <t>
