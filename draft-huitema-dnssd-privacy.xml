@@ -662,9 +662,9 @@ intra-user pairing
 
 <section title="Private Service Directory Service" anchor="stage1Design">
 <t>
-The first step of the two-stage solution is the discovery of the
-available "privacy compatible" devices. The goal of that stage is
-to identify devices that share a pairing with the querier, and
+The first stage of service discovery is directory discovery, i.e.
+the discovery of the available "privacy compatible" devices.
+The goal of that stage is to identify devices that share a pairing with the querier, and
 are available locally. They could be discovered by querying for the
 service "_psds._tls" using regular DNS-SD procedures, but the list of
 discovered services will have to be filtered so only paired
@@ -673,9 +673,9 @@ devices are retained.
 <t>
 We have demonstrated in <xref target="scalingIssues" /> that 
 simple obfuscation would require publishing as many records per
-publsiher as they are pairing, which ends up scaling as O(M*N^2)
+publisher as there are pairings, which ends up scaling as O(M*N^2)
 in which M is the number of devices present and N is the number of
-pairing pr device. We can mitigate this problem by using a special
+pairings per device. We can mitigate this problem by using a special
 encoding of the instance name. Suppose that the publisher manages 
 N pairings with the associated keys K1, K2, ... Kn. The instance
 name will be set to an encoding of N "proofs" of the N keys,
@@ -716,7 +716,9 @@ procedure will be:
 The procedure presented here requires on average O(M*N) iterations of the
 hash function, which is the same scaling as the "shared secret" variant.
 It requires O(M*N^2) comparison operations, but these are less onerous
-than operation operations.
+than cryptographic operations.
+Further, when setting the nonce to a timestamp, the Fi have to be
+calculated only once per time interval.
 </t>
 <t>
 The number of pairing proofs that can be encoded in a single record is
@@ -731,8 +733,8 @@ practical scenarios.
 </t>
 <t>
 In practice, a 32 bit proof should be sufficient to
-distinguish between avaliable devices. However, there is clearly a risk
-of collision. The privacy discovery service as described here will
+distinguish between available devices. However, there is clearly a risk
+of collision. The Private Service Directory Service as described here will
 find the available pairings, but it might also find a spurious number of 
 "false positives." The chances of that happening are however quite small: 
 less than 0.02% for a device managing 10 pairings and processing 10000
