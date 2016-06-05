@@ -745,12 +745,11 @@ responses.
 
 <section title="Directed Private Discovery" >
 <t>
-The Private Service Directory Service discovery will allow a device to 
-discover a list available paired devices, and to identify the corresponding 
-pairing key. At that point, the querier can engae in a series of
+The Private Service Directory Service discovery allows
+discovering a list of available paired devices, and verifying that either party knows the corresponding 
+shared secret. At that point, the querier can engage in a series of
 directed discoveries.
-</t>
-<t>
+
 We are considering two options for the directed discoveries:
 </t>
 <t>
@@ -758,8 +757,8 @@ We are considering two options for the directed discoveries:
 <t>
 Use a unicast version of the DNS-SD service, in which the querier 
 send a unicast DNS-SD query to each privately discovered Private 
-Service Directory Server, looking for a service name ofbfuscated
-with the selected pairing key, and retrievig an obfuscated 
+Service Directory Server, looking for a service name obfuscated
+with the selected pairing key, and retrieving an obfuscated 
 instance name,
 </t>
 <t>
