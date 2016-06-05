@@ -319,52 +319,9 @@ Of course, just as we noted in <xref target="serverFingerprint"/>, traffic
 analysis can often reveal the service. 
 </t>
 </section>
-
-
 </section>
 
-<section title="Design of DNS-SD privacy mitigations" anchor="design" >
-<t>
-In this section, we present the design of the privacy mitigations.
-</t>
-
-  <t>
-    Privacy Preserving Service Discovery can be divided into three independent layers: Device Pairing, Directory Discovery, and Service Querying <xref target="KW14b" />.
-  </t>
-
-
-  <section title="Device Pairing">
-
-    <t>
-Any private discovery solution will need to understand which differentiate 
-between authorized devices, for which the discovery will be successful,
-and other devices, which should not be aware of the availability of the
-service. The commonly used solution to this problem is to establish "device 
-pairing." 
-In our discovery scenarios, we envisage two kinds of pairings:
-</t>
-<t>
-<list style="numbers">
-<t>
-inter-user pairing is a pairing between devices of "friends".
-      Since this has to be done manually, e.g. by the means described above,
-      it is important to limit it to once per pair of friends.
-</t>
-<t>
-intra-user pairing
-      is a pairing of devices of the same user. It can be performed
-      without any configuration by a meta-service (pairing data synchronization service) in
-      a trusted (home) network.
-    </t>
-</list>
-</t>
-<t>
-The result of the pairing will normally be the exchange of a shared secret between
-the devices, or the addition of the devices public keys to a local web of trust.
-Public key technology has many advatanges, but shared secrets are typically easier to
-handle on small devices.
-</t>
-</section>
+<section title="Towards Privacy Preserving DNS-SD" anchor="towards" >
 <section title="Obfuscated instance names" anchor="obfuscatedInstanceName" >
 <t>
 The privacy issues described in <xref target="instanceLeak"/> 
@@ -611,6 +568,50 @@ the available services.
 </t>
 </section>
 
+
+</section>
+
+<section title="Design of DNS-SD privacy mitigations" anchor="design" >
+<t>
+In this section, we present the design of the privacy mitigations.
+</t>
+
+<t>
+Privacy Preserving Service Discovery can be divided into three independent layers: Device Pairing, Directory Discovery, and Service Querying <xref target="KW14b" />.
+</t>
+
+
+<section title="Device Pairing">
+<t>
+Any private discovery solution will need to understand which differentiate 
+between authorized devices, for which the discovery will be successful,
+and other devices, which should not be aware of the availability of the
+service. The commonly used solution to this problem is to establish "device 
+pairing." 
+In our discovery scenarios, we envisage two kinds of pairings:
+</t>
+<t>
+<list style="numbers">
+<t>
+inter-user pairing is a pairing between devices of "friends".
+      Since this has to be done manually, e.g. by the means described above,
+      it is important to limit it to once per pair of friends.
+</t>
+<t>
+intra-user pairing
+      is a pairing of devices of the same user. It can be performed
+      without any configuration by a meta-service (pairing data synchronization service) in
+      a trusted (home) network.
+    </t>
+</list>
+</t>
+<t>
+The result of the pairing will normally be the exchange of a shared secret between
+the devices, or the addition of the devices public keys to a local web of trust.
+Public key technology has many advatanges, but shared secrets are typically easier to
+handle on small devices.
+</t>
+</section>
 <section title="Private Service Directory Service" anchor="stage1Design">
 <t>
 The first step of the two-stage solution is the discovery of the
