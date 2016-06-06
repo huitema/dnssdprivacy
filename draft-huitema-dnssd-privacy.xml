@@ -103,7 +103,7 @@ hotspot.
 </t>
 <t>
 We propose to solve this problem by defining a "Private Discovery Service",
-which is a version fo DNS-SD running over TLS. Nodes that provide private
+which is a version of DNS-SD running over TLS. Nodes that provide private
 services will run the Private Discovery Service, and publish its presence
 in DNS-SD using special formats to protect their privacy. Nodes will be
 authorized to access the services by a pairing system, resulting in
@@ -346,8 +346,8 @@ it has two important drawbacks:
 <t>
 <list style="symbols">
 <t>
-The simple design leads to UI issues, because users of unmodified DNS-SD agents will see be
-presented mix of clear text names and obfuscated names, which is unpleasant; 
+The simple design leads to UI issues, because users of unmodified DNS-SD agents will see
+a mix of clear text names and obfuscated names, which is unpleasant; 
 </t>
 <t>
 The simple design either requires having a shared key between all "authorized users" of a 
@@ -620,7 +620,7 @@ We are using DNS Service Discovery (DNS-SD) to discover the Private Discovery Se
 <t>
 In this section, we present the design of a two stage solution that enables private
 use of DNS-SD, without affecting existing users, and with better scalability than 
-the simple solution presneted in <xref target="towards" />. The solution is largely based
+the simple solution presented in <xref target="towards" />. The solution is largely based
 on the architecture proposed in <xref target="KW14b" />. It is based on the following 
 components:
 </t>
@@ -636,7 +636,7 @@ in a private manner;
 </t>
 <t>
 And, we design a specific way to publish the secure directory service using DNS-SD,
-so that peers can discover their services without compromizing their privacy.
+so that peers can discover their services without compromising their privacy.
 </t>
 </list>
 </t>
@@ -862,14 +862,14 @@ the key exchange. This is logical, since server and clients need to identify the
 that will be used to protect the connection. But if we used a static identifier for the
 key, adversaries could use that identifier to track server and clients. The solution
 is to use a time-varying identifier, constructed exactly like the "hint" described in
-<xref target="stage1Design" />, by concatening a nonce and the hash of the nonce with
+<xref target="stage1Design" />, by concatenating a nonce and the hash of the nonce with
 the shared secret.
 </t>
 
 
 <section title="A note on Private DNS services" >
 <t>
-Our solution uses a variant of the DNS over TLS  protocole 
+Our solution uses a variant of the DNS over TLS  protocol 
 <xref target="RFC7858" /> defined by the DNS Private Exchange working group
 (DPRIVE). DPRIVE is also working on an UDP variant, 
 DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />, which
@@ -880,7 +880,7 @@ DPRIVE and Private Discovery solve however two somewhat different
 problems. DPRIVE is concerned with the confidentiality to DNS transactions, 
 addressing the problems outlined in <xref target="RFC7626" />. However,
 DPRIVE does not address the confidentiality or privacy issues with
-publication of services, and is not a direct solution to DNS-SD privacy:>
+publication of services, and is not a direct solution to DNS-SD privacy:
 </t>
 <t>
 <list style="symbols" >
