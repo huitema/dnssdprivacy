@@ -18,6 +18,8 @@
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4055.xml'>
 <!ENTITY rfc4075 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4075.xml'>
+<!ENTITY rfc4279 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4279.xml'>
 <!ENTITY rfc6762 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml'>
 <!ENTITY rfc6763 PUBLIC ''
@@ -33,6 +35,8 @@
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
 <!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
+<!ENTITY I-D.ietf-tls-tls13 PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-tls13.xml">
 
 <!ENTITY kw14a PUBLIC ''
    "references/reference.kw14a.xml">
@@ -95,9 +99,19 @@ DNS-SD allows discovery of services published in DNS or MDNS. The publication
 normally disclose information about the device publishing the services.
 There are use cases where devices want to communicate without disclosing
 their identity, for example two mobile devices visiting the same
-hotspot. We propose a method to obfuscate the identification
-information published by DNS-SD.
-        </t>
+hotspot.
+</t>
+<t>
+We propose to solve this problem by defining a "Private Discovery Service",
+which is a version fo DNS-SD running over TLS. Nodes that provide private
+services will run the Private Discovery Service, and publish its presence
+in DNS-SD using special formats to protect their privacy. Nodes will be
+authorized to access the services by a pairing system, resulting in
+the establishment of shared secrets. Peered nodes
+will discover the Private Discovery Services of their peers, and use TLS
+connections authenticated by a shared secret to retrieve information
+about the actual services.
+</t>
     </abstract>
 </front>
 
@@ -321,7 +335,32 @@ analysis can often reveal the service.
 </section>
 </section>
 
-<section title="Towards Privacy Preserving DNS-SD" anchor="towards" >
+<section title="Limits of a simple design" anchor="towards" >
+<t>
+We tried first a simple design for mitigating the issues outlined in <xref target="analysis" />. 
+The basic idea is to advertise obfuscated names, so as to not reveal the particularities
+of the service providers. This design is tempting, because it only requires minimal
+changes in the DNS-SD processing. However, as we will see in the following subsections,
+it has two important drawbacks:
+</t>
+<t>
+<list style="symbols">
+<t>
+The simple design leads to UI issues, because users of unmodified DNS-SD agents will see be
+presented mix of clear text names and obfuscated names, which is unpleasant; 
+</t>
+<t>
+The simple design either requires having a shared key between all "authorized users" of a 
+service, which implies substandard key management practices, or publishing as many instances
+of a service as there are authorized users, which leads to the scaling issues  
+discussed in <xref target="scalingIssues"/>.
+</t>
+</list>
+</t>
+<t>
+Both issues are mitigated by the two-stage design presented in <xref target="design" />. The following
+subsections detail the simple design, and its drawbacks.
+</t>
 <section title="Obfuscated instance names" anchor="obfuscatedInstanceName" >
 <t>
 The privacy issues described in <xref target="instanceLeak"/> 
@@ -571,14 +610,42 @@ the available services.
 
 </section>
 
+<!-- CH: Comment
+I kept the name that you have chosen, "Directory Discovery," but I find it confusing.
+I would really like to name the service that we are creating "Private Discovery Service."
+We are using DNS Service Discovery (DNS-SD) to discover the Private Discovery Service.
+-->
+
 <section title="Design of the DNS-SD Privacy Problem Mitigation" anchor="design" >
 <t>
-In this section, we present the design of a feasible technique for mitigating the aforementioned privacy problem.
+In this section, we present the design of a two stage solution that enables private
+use of DNS-SD, without affecting existing users, and with better scalability than 
+the simple solution presneted in <xref target="towards" />. The solution is largely based
+on the architecture proposed in <xref target="KW14b" />. It is based on the following 
+components:
 </t>
+<t>
+<list>
+<t>
+We assume the existence of a pairing system, described in <xref target="pairingDesign"/>, 
+through which authorized peers can establish shared secrets;
+</t>
+<t>
+We define a secure directory service through which other services can be advertised
+in a private manner;
+</t>
+<t>
+And, we design a specific way to publish the secure directory service using DNS-SD,
+so that peers can discover their services without compromizing their privacy.
+</t>
+</list>
+</t>
+
+<section title="Device Pairing" anchor="pairingDesign" >
 
 <t>
   Our solution adds device pairing to DNS-SD and divides service discovery into two stages:
-  Directory Discovery and Service Querying <xref target="KW14b" />.
+  Directory Discovery and Service Querying 
   These are independent with respect to means used for transmitting the necessary data.
   One possible setup is performing pairing via Bluetooth LE, Directory Discovery via obfuscated mDNS and
   Service Querying via TLS.
@@ -586,8 +653,6 @@ In this section, we present the design of a feasible technique for mitigating th
   Directory Discovery has to provide Service Querying with an authenticated connection to the desired service directory.
 </t>
 
-
-<section title="Device Pairing">
 <t>
   Any private discovery solution needs to differentiate
   between authorized devices, which are allowed to get information about discoverable entities,
@@ -620,6 +685,13 @@ intra-user pairing
   We offer both a simple pairing just exchanging a shared secret, and an authenticated pairing
   using public key technology.
 </t>
+<!-- CH-Comments:
+I leave this as is, because we will have time to revisit it later, but I think
+that the discussion here is a bit confusing. The private discovery service
+should just assume the existence of a shared secret by pair of peers. The
+pairing service can establish this secret in many ways, including of
+course taking advantage of lready authenticated public keys. 
+-->
 
 <section title="Shared Secret">
 <t>
@@ -749,25 +821,94 @@ The Private Service Directory Service discovery allows
 discovering a list of available paired devices, and verifying that either party knows the corresponding 
 shared secret. At that point, the querier can engage in a series of
 directed discoveries.
+</t>
+<t>
+We have considered defining an ad-hoc protocol for the private discovery service, but 
+found that  just using TLS would be much simpler. The Directed Private Discovery service 
+is just a regular DNS-SD service, accessed over TLS, using the encapsulation of DNS over
+TLS defined in <xref target="RFC7858" />. The main difference with simple DNS over TLS is
+the need for authentication.
+</t>
+<t>
+We assume that the pairing process has provided each pair of authorized client and server
+with a shared secret. We can use that shared secret to provide mutual authentication of
+clients and servers using "Pre Shared Key" authentication, as defined in <xref target="RFC4279" />
+and incorporated in the latest version of TLS <xref target="I-D.ietf-tls-tls13" />.
+</t>
+<t>
+One difficulty is the reliance on a key identifier in the protocol. 
+For example, in TLS 1.3 the PSK extension is defined as:
+</t>
+<t>
+<figure>
+<artwork>
+   opaque psk_identity&lt;0..2^16-1&gt;;
 
-We are considering two options for the directed discoveries:
+   struct {
+       select (Role) {
+           case client:
+               psk_identity identities&lt;2..2^16-1&gt;;
+
+           case server:
+               uint16 selected_identity;
+       }
+   } PreSharedKeyExtension
+</artwork>
+</figure>
 </t>
 <t>
-<list style="numbers" >
+According to the protocol, the PSK identity is passed in clear text at the beginning of
+the key exchange. This is logical, since server and clients need to identify the secret
+that will be used to protect the connection. But if we used a static identifier for the
+key, adversaries could use that identifier to track server and clients. The solution
+is to use a time-varying identifier, constructed exactly like the "hint" described in
+<xref target="stage1Design" />, by concatening a nonce and the hash of the nonce with
+the shared secret.
+</t>
+
+
+<section title="A note on Private DNS services" >
 <t>
-Use a unicast version of the DNS-SD service, in which the querier 
-send a unicast DNS-SD query to each privately discovered Private 
-Service Directory Server, looking for a service name obfuscated
-with the selected pairing key, and retrieving an obfuscated 
-instance name,
+Our solution uses a variant of the DNS over TLS  protocole 
+<xref target="RFC7858" /> defined by the DNS Private Exchange working group
+(DPRIVE). DPRIVE is also working on an UDP variant, 
+DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />, which
+would also be a candidate.
 </t>
 <t>
-Establish an encrypted connection with each discovered server,
-using for example a variation of TLS secured with the pairing key,
-and then send DNS-SD discovery requests over that connection.
+DPRIVE and Private Discovery solve however two somewhat different
+problems. DPRIVE is concerned with the confidentiality to DNS transactions, 
+addressing the problems outlined in <xref target="RFC7626" />. However,
+DPRIVE does not address the confidentiality or privacy issues with
+publication of services, and is not a direct solution to DNS-SD privacy:>
+</t>
+<t>
+<list style="symbols" >
+<t>
+Discovery queries are scoped by the domain name within which services
+are published. As nodes move and visit arbitrary networks, there
+is no guarantee that the domain services for these networks
+will be accessible using DNS over TLS or DNS over DTLS.
+</t>
+<t>
+Information placed in the DNS is considered public. Even if
+the server does support DNS over TLS, third parties will 
+still be able to discover the content of PTR, SRV and TXT
+records.
+</t>
+<t>
+Neither DNS over TLS nor DNS over DTLS applies to MDNS.
 </t>
 </list>
 </t>
+<t>
+In contrast, we propose using mutual authentication of the client and server
+as part of the TLS solution, to ensure that only authorized parties learn
+the presence of a service.
+</t>
+</section>
+
+
  </section>
 
 
@@ -808,44 +949,6 @@ process.
 
 </section>
 
-
-<section title="A note on Private DNS services" >
-<t>
-The DNS Private Exchange working group develops mechanisms to
-provide confidentiality to DNS transactions, addressing the problems 
-outlined in <xref target="RFC7626" />. The solutions being developed 
-include DNS over TLS <xref target="RFC7858" />
-and DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />.
-</t>
-<t>
-We could imagine that DNS-SD nodes are configured to update and
-retrieve DNS records using DNS over TLS or DNS over DTLS, but 
-a number of problems can arise:
-</t>
-<t>
-<list style="symbols" >
-<t>
-Discovery queries are scoped by the domain name within which services
-are published. As nodes move and visit arbitrary networks, there
-is no guarantee that the domain services for these networks
-will be accessible using DNS over TLS or DNS over DTLS.
-</t>
-<t>
-Information placed in the DNS is considered public. Even if
-the server does support DNS over TLS, third parties will 
-still be able to discover the content of PTR, SRV and TXT
-records.
-</t>
-<t>
-Neither DNS over TLS nor DNS over DTLS applies to MDNS.
-</t>
-</list>
-</t>
-<t>
-In short, DNS over TLS and DNS over DTLS solve a different problem,
-and are not a solution for DNS-SD privacy.
-</t>
-</section>
 
 </section>
 
@@ -1056,6 +1159,7 @@ This draft results from initial discussions with Dave Thaler.
        &rfc4055;
        &rfc4075;
        &rfc6763;
+       &rfc4279;
 </references>
 <references title="Informative References">
        &rfc1033;
@@ -1068,6 +1172,7 @@ This draft results from initial discussions with Dave Thaler.
        &rfc7858;
        &I-D.ietf-intarea-hostname-practice;
        &I-D.ietf-dprive-dnsodtls;
+       &I-D.ietf-tls-tls13;
 
 <reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
   <front>

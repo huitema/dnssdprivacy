@@ -1,11 +1,12 @@
 
 
 
+
 Network Working Group                                         C. Huitema
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                               D. Kaiser
-Expires: December 2, 2016                         University of Konstanz
-                                                            May 31, 2016
+Expires: December 7, 2016                         University of Konstanz
+                                                            June 5, 2016
 
 
                      Privacy Extensions for DNS-SD
@@ -17,8 +18,17 @@ Abstract
    publication normally disclose information about the device publishing
    the services.  There are use cases where devices want to communicate
    without disclosing their identity, for example two mobile devices
-   visiting the same hotspot.  We propose a method to obfuscate the
-   identification information published by DNS-SD.
+   visiting the same hotspot.
+
+   We propose to solve this problem by defining a "Private Discovery
+   Service", which is a version fo DNS-SD running over TLS.  Nodes that
+   provide private services will run the Private Discovery Service, and
+   publish its presence in DNS-SD using special formats to protect their
+   privacy.  Nodes will be authorized to access the services by a
+   pairing system, resulting in the establishment of shared secrets.
+   Peered nodes will discover the Private Discovery Services of their
+   peers, and use TLS connections authenticated by a shared secret to
+   retrieve information about the actual services.
 
 Status of This Memo
 
@@ -35,7 +45,18 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 2, 2016.
+   This Internet-Draft will expire on December 7, 2016.
+
+
+
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 1]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
 
 Copyright Notice
 
@@ -49,51 +70,50 @@ Copyright Notice
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 1]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
      1.1.  Requirements  . . . . . . . . . . . . . . . . . . . . . .   3
    2.  Privacy implications of DNS-SD  . . . . . . . . . . . . . . .   3
      2.1.  Privacy implication of publishing Service Instance Names    4
-     2.2.  Privacy implication of publishing node names  . . . . . .   4
+     2.2.  Privacy implication of publishing node names  . . . . . .   5
      2.3.  Privacy implication of publishing service attributes  . .   5
      2.4.  Device fingerprinting . . . . . . . . . . . . . . . . . .   5
      2.5.  Privacy implication of discovering services . . . . . . .   6
-   3.  Design of DNS-SD privacy mitigations  . . . . . . . . . . . .   6
-     3.1.  Device Pairing  . . . . . . . . . . . . . . . . . . . . .   6
-     3.2.  Obfuscated instance names . . . . . . . . . . . . . . . .   7
-     3.3.  Names of obfuscated services  . . . . . . . . . . . . . .   8
-     3.4.  Scaling issues with obfuscation . . . . . . . . . . . . .   9
-     3.5.  Private Service Directory Service . . . . . . . . . . . .  10
-     3.6.  Directed Private Discovery  . . . . . . . . . . . . . . .  12
-     3.7.  Randomized host names . . . . . . . . . . . . . . . . . .  12
-     3.8.  Timing of obfuscation and randomization . . . . . . . . .  12
-     3.9.  A note on Private DNS services  . . . . . . . . . . . . .  13
-   4.  Privacy extensions for DNS-SD . . . . . . . . . . . . . . . .  13
-     4.1.  Randomized Host Name  . . . . . . . . . . . . . . . . . .  14
-     4.2.  Instance Discovery Key  . . . . . . . . . . . . . . . . .  14
-     4.3.  Composing Obfuscated Instance Names . . . . . . . . . . .  14
-     4.4.  De-Obfuscation of Instance Names  . . . . . . . . . . . .  15
-   5.  Considerations on the pairing requirement . . . . . . . . . .  16
-     5.1.  Device Pairing  . . . . . . . . . . . . . . . . . . . . .  16
-     5.2.  Directory Discovery . . . . . . . . . . . . . . . . . . .  17
-     5.3.  Service Querying  . . . . . . . . . . . . . . . . . . . .  18
-     5.4.  Summarizing Thoughts  . . . . . . . . . . . . . . . . . .  18
+   3.  Limits of a simple design . . . . . . . . . . . . . . . . . .   6
+     3.1.  Obfuscated instance names . . . . . . . . . . . . . . . .   7
+     3.2.  Names of obfuscated services  . . . . . . . . . . . . . .   8
+     3.3.  Scaling issues with obfuscation . . . . . . . . . . . . .   9
+   4.  Design of the DNS-SD Privacy Problem Mitigation . . . . . . .  10
+     4.1.  Device Pairing  . . . . . . . . . . . . . . . . . . . . .  11
+       4.1.1.  Shared Secret . . . . . . . . . . . . . . . . . . . .  12
+       4.1.2.  Secure Authenticated Pairing Channel  . . . . . . . .  12
+       4.1.3.  Public Authentication Keys  . . . . . . . . . . . . .  12
+     4.2.  Private Service Directory Service . . . . . . . . . . . .  12
+     4.3.  Directed Private Discovery  . . . . . . . . . . . . . . .  14
+       4.3.1.  A note on Private DNS services  . . . . . . . . . . .  15
+     4.4.  Randomized host names . . . . . . . . . . . . . . . . . .  15
+     4.5.  Timing of obfuscation and randomization . . . . . . . . .  15
+   5.  Privacy extensions for DNS-SD . . . . . . . . . . . . . . . .  16
+     5.1.  Randomized Host Name  . . . . . . . . . . . . . . . . . .  16
+     5.2.  Instance Discovery Key  . . . . . . . . . . . . . . . . .  17
+     5.3.  Composing Obfuscated Instance Names . . . . . . . . . . .  17
+     5.4.  De-Obfuscation of Instance Names  . . . . . . . . . . . .  17
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  18
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  19
    8.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  19
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  19
+
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 2]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
      9.1.  Normative References  . . . . . . . . . . . . . . . . . .  19
      9.2.  Informative References  . . . . . . . . . . . . . . . . .  19
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  21
@@ -105,14 +125,6 @@ Table of Contents
    requires the public exposure of the offering and requesting
    identities along with information about the offered and requested
    services.  Some of the information published by the announcements can
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 2]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
    be very revealing.  These privacy issues and potential solutions are
    discussed in [KW14a] and [KW14b].
 
@@ -133,8 +145,8 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    When analyzing these scenarios in Section 2, we find that the DNS-SD
    messages leak identifying information such as instance name, host
    name or service properties.  We review the design constraint of a
-   solution in Section 3, and describe the proposed solution in
-   Section 4.
+   solution in Section 4, and describe the proposed solution in
+   Section 5.
 
 1.1.  Requirements
 
@@ -151,6 +163,13 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    (mDNS) [RFC6762].  Available services are described using three types
    of records:
 
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 3]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    PTR Record:  Associates a service type in the domain with an
       "instance" name of this service type.
 
@@ -160,14 +179,6 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
 
    TXT Record:  Provides a set of attribute-value pairs describing
       specific properties of the service instance.
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 3]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
 
    In the remaining subsections, we will review the privacy issues
    related to publishing instance names, node names, service attributes
@@ -206,6 +217,15 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    supporting the _presence protocol on both of her devices.  She might
    currently chat with Bob or Carol, as they are also using a _presence
    supporting chat application.  This information is not just available
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 4]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    to devices actively browsing for and offering services, but to
    anybody passively listing to the network traffic.
 
@@ -217,14 +237,6 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    domain.  The privacy implications of this practice are reviewed in
    [I-D.ietf-intarea-hostname-practice].  Depending on naming practices,
    the host name is either a strong identifier of the device, or at a
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 4]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
    minimum a partial identifier.  It enables tracking of the device, and
    by extension of the device's owner.
 
@@ -261,6 +273,15 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
 
    o  The port numbers used by the services.
 
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 5]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    o  The values of the priority and weight attributes in the SRV
       records.
 
@@ -273,14 +294,6 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    discovered by observing the local traffic, because different services
    have different traffic patterns.  The observation could in many cases
    also reveal some specificities of the service's implementation.  Even
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 5]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
    if the traffic is encrypted, the size and the timing of packets may
    be sufficient to reveal that information.  This argument can be used
    to assess the priority of, for example, protecting the fact that a
@@ -303,47 +316,39 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    service types.  Of course, just as we noted in Section 2.4, traffic
    analysis can often reveal the service.
 
-3.  Design of DNS-SD privacy mitigations
+3.  Limits of a simple design
 
-   In this section, we present the design of the privacy mitigations.
+   We tried first a simple design for mitigating the issues outlined in
+   Section 2.  The basic idea is to advertise obfuscated names, so as to
+   not reveal the particularities of the service providers.  This design
+   is tempting, because it only requires minimal changes in the DNS-SD
+   processing.  However, as we will see in the following subsections, it
+   has two important drawbacks:
 
-   Privacy Preserving Service Discovery can be divided into three
-   independent layers: Device Pairing, Directory Discovery, and Service
-   Querying [KW14b].
-
-3.1.  Device Pairing
-
-   Any private discovery solution will need to understand which
-   differentiate between authorized devices, for which the discovery
-   will be successful, and other devices, which should not be aware of
-   the availability of the service.  The commonly used solution to this
-   problem is to establish "device pairing."  In our discovery
-   scenarios, we envisage two kinds of pairings:
-
-   1.  inter-user pairing is a pairing between devices of "friends".
-       Since this has to be done manually, e.g. by the means described
-       above, it is important to limit it to once per pair of friends.
-
-   2.  intra-user pairing is a pairing of devices of the same user.  It
-       can be performed without any configuration by a meta-service
-       (pairing data synchronization service) in a trusted (home)
-       network.
+   o  The simple design leads to UI issues, because users of unmodified
+      DNS-SD agents will see be presented mix of clear text names and
+      obfuscated names, which is unpleasant;
 
 
 
 
-Huitema & Kaiser        Expires December 2, 2016                [Page 6]
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 6]
 
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
-   The result of the pairing will normally be the exchange of a shared
-   secret between the devices, or the addition of the devices public
-   keys to a local web of trust.  Public key technology has many
-   advatanges, but shared secrets are typically easier to handle on
-   small devices.
+   o  The simple design either requires having a shared key between all
+      "authorized users" of a service, which implies substandard key
+      management practices, or publishing as many instances of a service
+      as there are authorized users, which leads to the scaling issues
+      discussed in Section 3.3.
 
-3.2.  Obfuscated instance names
+   Both issues are mitigated by the two-stage design presented in
+   Section 4.  The following subsections detail the simple design, and
+   its drawbacks.
+
+3.1.  Obfuscated instance names
 
    The privacy issues described in Section 2.1 can be solved by
    obfuscating the instance names.  Instead of a user friendly
@@ -378,20 +383,22 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
 
    Carol will see:
 
+
+
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 7]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    QwertyUiopAsdfghjk   . _imageStore._tcp . local
    GobbeldygookBlaBla   . _presence._tcp   . local
    MNbvCxzLkjhGfdEdhg   . _presence._tcp   . local
    Abracadabragooklybok . _presence._tcp   . local
    Carol's Notebook     . _presence._tcp   . local
-
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 7]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
 
    In that example, Alice, Bob and Carol will be able to select the
    appropriate instance.  It would probably be preferable to filter out
@@ -406,7 +413,7 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    service names, or using different domain names.  This would of course
    make management a bit more complex, and is thus debatable.
 
-3.3.  Names of obfuscated services
+3.2.  Names of obfuscated services
 
    Instead of publishing the actual service name in the SRV records,
    nodes could publish a randomized name.  There are two plausible
@@ -436,18 +443,17 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    particular privacy, but it does ensure that obfuscated services are
    named differently from clear text services.
 
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 8]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    Making the service name actually private would require some actual
    encryption.  The main problem with such solutions is that the client
    needs to know the service name in order to compose the DNS-SD query
    for services.  There are several options:
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 8]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
 
    o  The service name is chosen by the client.  For example, the client
       could encrypt the original service name and a nonce with a key
@@ -481,9 +487,9 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    complexity of the potential solutions, we are not recommending any
    particular protection for the instance names.
 
-3.4.  Scaling issues with obfuscation
+3.3.  Scaling issues with obfuscation
 
-   In Section 3.2, we assumed that each advertised record contains a
+   In Section 3.1, we assumed that each advertised record contains a
    name obfuscated with a shared key.  This approach is easy to
    understand, but it contains the hidden assumption.  Let look at one
    of our examples:
@@ -492,18 +498,17 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
 
    We only see there one record for Bob's Notebook, obfuscated using the
    unique shared secret associated with Bob's Notebook.  That means that
+
+
+
+Huitema & Kaiser        Expires December 7, 2016                [Page 9]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    every device paired with Bob's Notebook will have a copy of that
    shared secret.  We could of course do that, but there are known
    issues with having a secret shared with multiple entities:
-
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016                [Page 9]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
 
    o  If for some reason the secret needs to be changed, every paired
       device will need a copy of the new secret before they can
@@ -540,33 +545,137 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    devices; and use point to point encrypted exchanges to privately
    discover the available services.
 
-3.5.  Private Service Directory Service
+4.  Design of the DNS-SD Privacy Problem Mitigation
 
-   The first step of the two-stage solution is the discovery of the
-   available "privacy compatible" devices.  The goal of that stage is to
-   identify devices that share a pairing with the querier, and are
-   available locally.  They could be discovered by querying for the
-   service "_psds._tls" using regular DNS-SD procedures, but the list of
-   discovered services will have to be filtered so only paired devices
-   are retained.
-
-   We have demonstrated in Section 3.4 that simple obfuscation would
-   require publishing as many records per publsiher as they are pairing,
-   which ends up scaling as O(M*N^2) in which M is the number of devices
+   In this section, we present the design of a two stage solution that
+   enables private use of DNS-SD, without affecting existing users, and
+   with better scalability than the simple solution presneted in
+   Section 3.  The solution is largely based on the architecture
+   proposed in [KW14b].  It is based on the following components:
 
 
 
-Huitema & Kaiser        Expires December 2, 2016               [Page 10]
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 10]
 
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
-   present and N is the number of pairing pr device.  We can mitigate
-   this problem by using a special encoding of the instance name.
-   Suppose that the publisher manages N pairings with the associated
-   keys K1, K2, ... Kn.  The instance name will be set to an encoding of
-   N "proofs" of the N keys, where each proof is computed as function of
-   the key and a nonce:
+      We assume the existence of a pairing system, described in
+      Section 4.1, through which authorized peers can establish shared
+      secrets;
+
+      We define a secure directory service through which other services
+      can be advertised in a private manner;
+
+      And, we design a specific way to publish the secure directory
+      service using DNS-SD, so that peers can discover their services
+      without compromizing their privacy.
+
+4.1.  Device Pairing
+
+   Our solution adds device pairing to DNS-SD and divides service
+   discovery into two stages: Directory Discovery and Service Querying
+   These are independent with respect to means used for transmitting the
+   necessary data.  One possible setup is performing pairing via
+   Bluetooth LE, Directory Discovery via obfuscated mDNS and Service
+   Querying via TLS.  Pairing has to provide Directory Discovery with
+   means for mutual authentication, e.g. with an authenticated shared
+   secret.  Directory Discovery has to provide Service Querying with an
+   authenticated connection to the desired service directory.
+
+   Any private discovery solution needs to differentiate between
+   authorized devices, which are allowed to get information about
+   discoverable entities, and other devices, which should not be aware
+   of the availability of private entities.  The commonly used solution
+   to this problem is establishing a "device pairing".  In our discovery
+   scenarios, we envisage two kinds of pairings:
+
+   1.  inter-user pairing is a pairing between devices of "friends".
+       Since this has to be done manually, e.g. by the means described
+       above, it is important to limit it to once per pair of friends.
+
+   2.  intra-user pairing is a pairing of devices of the same user.  It
+       can be performed without any configuration by a meta-service
+       (pairing data synchronization service) in a trusted (home)
+       network.
+
+   The result of the pairing will be a shared secret, and optionally
+   mutually authenticated public keys added to a local web of trust.
+   Public key technology has many advantages, but shared secrets are
+   typically easier to handle on small devices.  We offer both a simple
+   pairing just exchanging a shared secret, and an authenticated pairing
+   using public key technology.
+
+
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 11]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
+4.1.1.  Shared Secret
+
+   TODO: generation and transmission of the shared secret.  When using
+   Bluetooth LE or scanning a QR code as means of transmitting the
+   shared secret, the probability of the secret getting stolen is
+   reasonably low.
+
+4.1.2.  Secure Authenticated Pairing Channel
+
+   Optionally, authenticated DH can be used to exchange a mutually
+   authenticated shared secret.  TODO: protocol.  Further, using DH to
+   generate the shared secret has the advantage of both parties
+   contributing to the shared secret (multiparty computation).
+
+4.1.3.  Public Authentication Keys
+
+   The public/private key pair - if at all - is just used for the
+   aforementioned authenticated DH to grant a mutually authenticated
+   shared secret.  Obtaining and verifying a friend's public key, can be
+   achieved by different means.  For obtaining the keys, we can either
+   leverage an existing PKI, e.g. the PGP web of trust, or generate our
+   own key pairs (and exchange them right before verifying).  For
+   authenticating the keys, which boils down to comparing fingerprints
+   on an off-channel, we distinguish between means that demand users to
+   be in close proximity of each other, and means where users do not
+   have to meet in person.  The former can e.g. be realized by verifying
+   a fingerprint leveraging QR-Codes, the latter by reading a
+   fingerprint during a phone call or using the socialist millionaires
+   protocol.
+
+4.2.  Private Service Directory Service
+
+   The first stage of service discovery is directory discovery, i.e.
+   the discovery of the available "privacy compatible" devices.  The
+   goal of that stage is to identify devices that share a pairing with
+   the querier, and are available locally.  They could be discovered by
+   querying for the service "_psds._tls" using regular DNS-SD
+   procedures, but the list of discovered services will have to be
+   filtered so only paired devices are retained.
+
+   We have demonstrated in Section 3.3 that simple obfuscation would
+   require publishing as many records per publisher as there are
+   pairings, which ends up scaling as O(M*N^2) in which M is the number
+   of devices present and N is the number of pairings per device.  We
+   can mitigate this problem by using a special encoding of the instance
+   name.  Suppose that the publisher manages N pairings with the
+   associated keys K1, K2, ... Kn.  The instance name will be set to an
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 12]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
+   encoding of N "proofs" of the N keys, where each proof is computed as
+   function of the key and a nonce:
 
       instance name = <nonce><F1><F2>..<Fn>
 
@@ -591,7 +700,9 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    The procedure presented here requires on average O(M*N) iterations of
    the hash function, which is the same scaling as the "shared secret"
    variant.  It requires O(M*N^2) comparison operations, but these are
-   less onerous than operation operations.
+   less onerous than cryptographic operations.  Further, when setting
+   the nonce to a timestamp, the Fi have to be calculated only once per
+   time interval.
 
    The number of pairing proofs that can be encoded in a single record
    is limited by the maximum size of a DNS label, which is 63 bytes.
@@ -604,88 +715,90 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    scenarios.
 
    In practice, a 32 bit proof should be sufficient to distinguish
-   between avaliable devices.  However, there is clearly a risk of
-   collision.  The privacy discovery service as described here will find
-   the available pairings, but it might also find a spurious number of
-   "false positives."  The chances of that happening are however quite
+   between available devices.  However, there is clearly a risk of
+   collision.  The Private Service Directory Service as described here
+   will find the available pairings, but it might also find a spurious
+   number of "false positives."  The chances of that happening are
+   however quite small: less than 0.02% for a device managing 10
+   pairings and processing 10000 responses.
 
 
 
 
-Huitema & Kaiser        Expires December 2, 2016               [Page 11]
+Huitema & Kaiser        Expires December 7, 2016               [Page 13]
 
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
-   small: less than 0.02% for a device managing 10 pairings and
-   processing 10000 responses.
+4.3.  Directed Private Discovery
 
-3.6.  Directed Private Discovery
+   The Private Service Directory Service discovery allows discovering a
+   list of available paired devices, and verifying that either party
+   knows the corresponding shared secret.  At that point, the querier
+   can engage in a series of directed discoveries.
 
-   The Private Service Directory Service discovery will allow a device
-   to discover a list available paired devices, and to identify the
-   corresponding pairing key.  At that point, the querier can engae in a
-   series of directed discoveries.
+   We have considered defining an ad-hoc protocol for the private
+   discovery service, but found that just using TLS would be much
+   simpler.  The Directed Private Discovery service is just a regular
+   DNS-SD service, accessed over TLS, using the encapsulation of DNS
+   over TLS defined in [RFC7858].  The main difference with simple DNS
+   over TLS is the need for authentication.
 
-   We are considering two options for the directed discoveries:
+   We assume that the pairing process has provided each pair of
+   authorized client and server with a shared secret.  We can use that
+   shared secret to provide mutual authentication of clients and servers
+   using "Pre Shared Key" authentication, as defined in [RFC4279] and
+   incorporated in the latest version of TLS [I-D.ietf-tls-tls13].
 
-   1.  Use a unicast version of the DNS-SD service, in which the querier
-       send a unicast DNS-SD query to each privately discovered Private
-       Service Directory Server, looking for a service name ofbfuscated
-       with the selected pairing key, and retrievig an obfuscated
-       instance name,
+   One difficulty is the reliance on a key identifier in the protocol.
+   For example, in TLS 1.3 the PSK extension is defined as:
 
-   2.  Establish an encrypted connection with each discovered server,
-       using for example a variation of TLS secured with the pairing
-       key, and then send DNS-SD discovery requests over that
-       connection.
+      opaque psk_identity<0..2^16-1>;
 
-3.7.  Randomized host names
+      struct {
+          select (Role) {
+              case client:
+                  psk_identity identities<2..2^16-1>;
 
-   Instead of publishing their actual name in the SRV records, nodes
-   could publish a randomized name.  That is the solution argued for in
-   [I-D.ietf-intarea-hostname-practice].
+              case server:
+                  uint16 selected_identity;
+          }
+      } PreSharedKeyExtension
 
-   Randomized host names will prevent some of the tracking.  Host names
-   are typically not visible by the users, and randomizing host names
-   will probably not cause much usability issues.
-
-3.8.  Timing of obfuscation and randomization
-
-   It is important that the obfuscation of instance names is performed
-   at the right time, and that the obfuscated names change in synchrony
-   with other identifiers, such as MAC Addresses, IP Addresses or host
-   names.  If the randomized host name changed but the instance name
-   remained constant, an adversary would have no difficulty linking the
-   old and new host names.  Similarly, if IP or MAC addresses changed
-   but host names remained constant, the adversary could link the new
-   addresses to the old ones using the published name.
-
-   The problem is handled in [I-D.ietf-intarea-hostname-practice], which
-   recommends to pick a new random host name at the time of connecting
-   to a new network.  The instance names should be obfuscated at the
+   According to the protocol, the PSK identity is passed in clear text
+   at the beginning of the key exchange.  This is logical, since server
+   and clients need to identify the secret that will be used to protect
+   the connection.  But if we used a static identifier for the key,
+   adversaries could use that identifier to track server and clients.
+   The solution is to use a time-varying identifier, constructed exactly
+   like the "hint" described in Section 4.2, by concatening a nonce and
+   the hash of the nonce with the shared secret.
 
 
 
 
-Huitema & Kaiser        Expires December 2, 2016               [Page 12]
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 14]
 
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
-   same time, or maybe use the randomized host name as input in the
-   randomization process.
+4.3.1.  A note on Private DNS services
 
-3.9.  A note on Private DNS services
+   Our solution uses a variant of the DNS over TLS protocole [RFC7858]
+   defined by the DNS Private Exchange working group (DPRIVE).  DPRIVE
+   is also working on an UDP variant, DNS over DTLS
+   [I-D.ietf-dprive-dnsodtls], which would also be a candidate.
 
-   The DNS Private Exchange working group develops mechanisms to provide
-   confidentiality to DNS transactions, addressing the problems outlined
-   in [RFC7626].  The solutions being developed include DNS over TLS
-   [RFC7858] and DNS over DTLS [I-D.ietf-dprive-dnsodtls].
-
-   We could imagine that DNS-SD nodes are configured to update and
-   retrieve DNS records using DNS over TLS or DNS over DTLS, but a
-   number of problems can arise:
+   DPRIVE and Private Discovery solve however two somewhat different
+   problems.  DPRIVE is concerned with the confidentiality to DNS
+   transactions, addressing the problems outlined in [RFC7626].
+   However, DPRIVE does not address the confidentiality or privacy
+   issues with publication of services, and is not a direct solution to
+   DNS-SD privacy:>
 
    o  Discovery queries are scoped by the domain name within which
       services are published.  As nodes move and visit arbitrary
@@ -698,10 +811,47 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
 
    o  Neither DNS over TLS nor DNS over DTLS applies to MDNS.
 
-   In short, DNS over TLS and DNS over DTLS solve a different problem,
-   and are not a solution for DNS-SD privacy.
+   In contrast, we propose using mutual authentication of the client and
+   server as part of the TLS solution, to ensure that only authorized
+   parties learn the presence of a service.
 
-4.  Privacy extensions for DNS-SD
+4.4.  Randomized host names
+
+   Instead of publishing their actual name in the SRV records, nodes
+   could publish a randomized name.  That is the solution argued for in
+   [I-D.ietf-intarea-hostname-practice].
+
+   Randomized host names will prevent some of the tracking.  Host names
+   are typically not visible by the users, and randomizing host names
+   will probably not cause much usability issues.
+
+4.5.  Timing of obfuscation and randomization
+
+   It is important that the obfuscation of instance names is performed
+   at the right time, and that the obfuscated names change in synchrony
+   with other identifiers, such as MAC Addresses, IP Addresses or host
+   names.  If the randomized host name changed but the instance name
+   remained constant, an adversary would have no difficulty linking the
+   old and new host names.  Similarly, if IP or MAC addresses changed
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 15]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
+   but host names remained constant, the adversary could link the new
+   addresses to the old ones using the published name.
+
+   The problem is handled in [I-D.ietf-intarea-hostname-practice], which
+   recommends to pick a new random host name at the time of connecting
+   to a new network.  The instance names should be obfuscated at the
+   same time, or maybe use the randomized host name as input in the
+   randomization process.
+
+5.  Privacy extensions for DNS-SD
 
    The proposed solution uses the following components:
 
@@ -719,22 +869,12 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
 
    These components are detailed in the following subsections.
 
-
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 13]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
-4.1.  Randomized Host Name
+5.1.  Randomized Host Name
 
    Nodes publishing services with DNS-SD and concerned about their
    privacy MUST use a randomized host name.  The randomized name MUST be
    changed when network connectivity changes, to avid the correlation
-   issues described in Section 3.8.  The randomized host name MUST be
+   issues described in Section 4.5.  The randomized host name MUST be
    used in the SRV records describing the service instance, and the
    corresponding A or AAAA records MUST be made available through DNS or
    MDNS, within the same scope as the PTR, SRV and TXT records used by
@@ -749,7 +889,16 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    [RFC4075], and then use the hexadecimal representation of this number
    as the obfuscated host name.
 
-4.2.  Instance Discovery Key
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 16]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
+5.2.  Instance Discovery Key
 
    The obfuscation and de-obfuscation of instance names is controlled by
    the Instance Discovery Key.  Each device publishing a service
@@ -760,7 +909,7 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    content SHOULD meet the Randomness Requirements for Security
    expressed in [RFC4075].
 
-4.3.  Composing Obfuscated Instance Names
+5.3.  Composing Obfuscated Instance Names
 
    The obfuscated instance name is composed of two components, a seed
    and a hash, encoded in BASE64 ([RFC2045] section 6.8) and separated
@@ -771,19 +920,10 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    The seed is derived algorithmically from the randomized host name.
    If the randomized name changes, new instance names SHOULD be computed
    and the corresponding records SHOULD be published in order to meet
-   the requirement defined in Section 3.8.
+   the requirement defined in Section 4.5.
 
    The complete instance name MUST be generated using the following
    process:
-
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 14]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
 
       long_seed = HASH(randomized_host_name)
       seed = first 12 bytes of long_seed
@@ -799,12 +939,20 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    characters.  The resulting instance name is 33 characters long, which
    fits within the 63 characters limit defined in [RFC6763].
 
-4.4.  De-Obfuscation of Instance Names
+5.4.  De-Obfuscation of Instance Names
 
    De-obfuscation of instance names assumes that authorized nodes are
    provisioned with three elements for each discoverable instance:
 
    o  the de-obfuscated instance name,
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 17]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
 
    o  a copy of the instance_discovery_key,
 
@@ -821,7 +969,7 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    being searched and then do the following:
 
    o  Test whether the instance name contains the base64 encoding of a
-      seed and hash as defined in Section 4.3.  If it is not in that
+      seed and hash as defined in Section 5.3.  If it is not in that
       form, the name is not considered obfuscated.
 
    o  Retrieve the binary seed and hash from the base64 encoding.
@@ -832,158 +980,6 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    o  If there is a hash, the de-obfuscated name of the instance is the
       de-obfuscated name associated with the matching instance discovery
       key
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 15]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
-5.  Considerations on the pairing requirement
-
-   A problem with the mitigation techniques described so far is the need
-   for a pairing.  When service instance keys are used, each service
-   instance needs a separate key, which in turn has to be transmitted to
-   all devices that should be able to discover the corresponding service
-   instance.  This is disadvantageous in two ways.  On the one hand, it
-   demands a pairing for each service instance; on the other hand it
-   makes it impossible to discover new service instances without prior
-   pairing.  Both problems can be mitigated by using the method
-   described in the following.
-
-   Privacy Preserving Service Discovery can be divided into three
-   independent layers: Device Pairing, Directory Discovery, and Service
-   Querying [KW14b].
-
-5.1.  Device Pairing
-
-   Device pairing is a must for privacy preserving service discovery, as
-   devices need means for (private) mutual authentication.  To this end,
-   each user has a public/private key pair.  The purpose of device
-   pairing is both obtaining the public key of a "friend" and verifying
-   the authenticity of this key.
-
-   Since several other applications apart from service discovery also
-   need a pairing that allows later authentication of another user, we
-   propose to outsource device pairing to a dedicated component, e.g.  a
-   device pairing daemon [see Chapter 5 of my thesis].
-
-   Obtaining and verifying this key, can be achieved by different means.
-   For obtaining the keys, we can either leverage an existing PKI, e.g.
-   the PGP web of trust, or generate our own key pairs (and exchange
-   them right before verifying).  For authenticating the keys, which
-   boils down to comparing fingerprints on an off-channel, we
-   distinguish between means that demand users to be in close proximity
-   of each other, and means where users do not have to meet in person.
-   The former can e.g. be realized by verifying a fingerprint leveraging
-   QR-Codes, the latter by reading a fingerprint during a phone call or
-   using the socialist millionaires protocol.
-
-   There are two kinds of pairings: (1) inter-user pairing is a pairing
-   between devices of "friends".  Since this has to be done manually,
-   e.g. by the means described above, it is important to limit it to
-   once per pair of friends.  (2) intra-user pairing is a pairing of
-   devices of the same user.  It can be performed without any
-   configuration by a meta-service (pairing data synchronization
-   service) in a trusted (home) network.
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 16]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
-5.2.  Directory Discovery
-
-   The set of devices that offer service instances can be seen as a
-   distributed service directory.  When a user wants to discover
-   services, she first discovers the part of the service directory she
-   is authorized to use, meaning the devices of her online friends.
-   This is done using another meta service (private service directory
-   service, PSDS) whose task it is to handle queries for actual
-   services.
-
-   In order to be privacy preserving, the PSDS has to transmit the
-   necessary data over an encrypted and mutually authenticated channel.
-   To retrieve information (PTR, TXT, SRV) about private services
-   offered by friends, first these friends' PSDSes have to be discovered
-   (directory discovery), and secondly, the users have to use private
-   mutual authentication guaranteeing the privacy of both parties.
-
-   For the discovery part, there is need for a service instance name
-   that allows authorized friends to efficiently determine whether the
-   service instance is meant for them or not.  Further, this instance
-   name should not be traceable and be updated according to Section 3.8.
-   To generate this instance name, we currently use hash(public_key ||
-   time stamp).  This has two disadvantages: Everyone knowing of the
-   public_key can trace the user (which is especially a problem when
-   using a PKI), and it is dependent on time stamps, calling for hash
-   table recalculations each time the time stamp runs out and is prone
-   to time skew problems.  The first problem can be mitigated using a
-   shared secret exchanged during pairing and renewing this secret after
-   each connection.  (It really depends on what level of privacy is
-   longed for; if we want to grant untraceability, we need unlinkable
-   service instance names.  There is a paper on that matter by Pang et
-   al.; I also did some research on making this more efficient but did
-   not find a solution yet.)  Replay is no problem, as the following
-   private mutual authentication will only work if both parties are who
-   they claim to be; and neither party will disclose the identity to an
-   imposter.
-
-   A simple way for private mutual authentication between Alice and Bob
-   can performed in a three way handshake as follows.  After Alice has
-   discovered Bob's PSDS, she contacts Bob's PSDS by (simplified
-   explanation)
-
-   o  sending to Bob: g^a, prvSID_A=hash(secret||timestamp) the prvSID
-      lets Bob know that the message is a session start request most
-      likely sent from Alice.
-
-   o  Bob answers: g^a, enc_A(sig_B(g^{ab})) At this point the DH key
-      exchange is complete.  Further, Bob can verify Alice's identity
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 17]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
-      (if he really is Bob) by decrypting the corresponding block and
-      checking Alice's signature.
-
-   o  Alice answers: enc_B(sig_A(g^{ab})) Now Alice can verify Bob (is
-      she really if Alice) decrypting the corresponding block and
-      checking Bob's signature.
-
-5.3.  Service Querying
-
-   Service Querying: The PSDS is offered by a small DNS server running
-   on each user's device; this DNS server can be queried for the service
-   instances offered by the corresponding user.  Messages sent during
-   the process of service querying are encrypted using authenticated
-   encryption with keys derived from g^{ab}, the DH key exchanged during
-   directory discovery.
-
-5.4.  Summarizing Thoughts
-
-   This solution mitigates both afore mentioned problems as it reduces
-   pairing to one pairing per pair of friends and allows to offer
-   services in a privacy preserving way whose existence was unknown at
-   the time of pairing.  This grants an almost zeroconf user experience.
-   An other disadvantage of the 1-stage approach it that either it needs
-   a service instance key per service instance and user; or it uses the
-   same key for all users.  The former is more privacy preserving but
-   has the huge disadvantage of demanding a huge load of multicast
-   messages, which are inefficient anyway.  The latter makes friend
-   revocations very complicated -> repairing for each friend that should
-   still be able to de-obfuscate the instance.  (It would be possible to
-   use keys for groups of friends, finding a compromise between these
-   two extremes.)
 
 6.  Security Considerations
 
@@ -1001,17 +997,18 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
    of obfuscated services published in the searched name domain.
    Attackers could potentially publish a large number of bogus instances
    of a service, forcing a high computation cost on discovery clients.
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 18]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
    While this potential denial of service attack is concerning, we note
    that this is merely an aggravation of a flooding attacks against DNS-
    SD.
+
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 18]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
 
 7.  IANA Considerations
 
@@ -1047,28 +1044,42 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
               DOI 10.17487/RFC4075, May 2005,
               <http://www.rfc-editor.org/info/rfc4075>.
 
+   [RFC4279]  Eronen, P., Ed. and H. Tschofenig, Ed., "Pre-Shared Key
+              Ciphersuites for Transport Layer Security (TLS)",
+              RFC 4279, DOI 10.17487/RFC4279, December 2005,
+              <http://www.rfc-editor.org/info/rfc4279>.
+
    [RFC6763]  Cheshire, S. and M. Krochmal, "DNS-Based Service
               Discovery", RFC 6763, DOI 10.17487/RFC6763, February 2013,
               <http://www.rfc-editor.org/info/rfc6763>.
 
 9.2.  Informative References
 
+
+
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 19]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    [I-D.ietf-dprive-dnsodtls]
               Reddy, T., Wing, D., and P. Patil, "DNS over DTLS
               (DNSoD)", draft-ietf-dprive-dnsodtls-06 (work in
               progress), April 2016.
 
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 19]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
-
    [I-D.ietf-intarea-hostname-practice]
               Huitema, C., Thaler, D., and R. Winter, "Current Hostname
               Practice Considered Harmful", draft-ietf-intarea-hostname-
               practice-02 (work in progress), May 2016.
+
+   [I-D.ietf-tls-tls13]
+              Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", draft-ietf-tls-tls13-13 (work in progress),
+              May 2016.
 
    [KW14a]    Kaiser, D. and M. Waldvogel, "Adding Privacy to Multicast
               DNS Service Discovery", DOI 10.1109/TrustCom.2014.107,
@@ -1102,6 +1113,15 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
               DOI 10.17487/RFC6762, February 2013,
               <http://www.rfc-editor.org/info/rfc6762>.
 
+
+
+
+
+Huitema & Kaiser        Expires December 7, 2016               [Page 20]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    [RFC7626]  Bortzmeyer, S., "DNS Privacy Considerations", RFC 7626,
               DOI 10.17487/RFC7626, August 2015,
               <http://www.rfc-editor.org/info/rfc7626>.
@@ -1110,16 +1130,6 @@ Internet-Draft          DNS-SD Privacy Extensions               May 2016
               Profiles for DHCP Clients", RFC 7844,
               DOI 10.17487/RFC7844, May 2016,
               <http://www.rfc-editor.org/info/rfc7844>.
-
-
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 20]
-
-Internet-Draft          DNS-SD Privacy Extensions               May 2016
-
 
    [RFC7858]  Hu, Z., Zhu, L., Heidemann, J., Mankin, A., Wessels, D.,
               and P. Hoffman, "Specification for DNS over Transport
@@ -1163,14 +1173,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-Huitema & Kaiser        Expires December 2, 2016               [Page 21]
-
+Huitema & Kaiser        Expires December 7, 2016               [Page 21]
