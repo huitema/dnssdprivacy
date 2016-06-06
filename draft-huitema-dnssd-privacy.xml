@@ -37,6 +37,8 @@
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
 <!ENTITY I-D.ietf-tls-tls13 PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-tls13.xml">
+<!ENTITY I-D.ietf-dnssd-push PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-push">
 
 <!ENTITY kw14a PUBLIC ''
    "references/reference.kw14a.xml">
@@ -952,34 +954,39 @@ process.
 
 </section>
 
-<section title="Privacy extensions for DNS-SD" anchor="solution" >
+<section title="Proposed Privacy Extension for DNS-SD" anchor="solution" >
 <t>
 The proposed solution uses the following components:
 </t>
+
 <t>
 <list style="symbols">
 <t>
-The host names are randomized to prevent tracking.
+Host name randomization to prevent tracking.
 </t>
 <t>
-Nodes provide an Instance Discovery Key to other nodes authorized to discover the service instance.
+Device pairing yielding pairwise shared secrets.
 </t>
 <t>
-The Instance Discovery Key is combined with a random seed to obfuscate the instance names.
+A privacy name server (PNS) running on each host.
 </t>
 <t>
-Nodes engaged in discovery attempt to de-obfuscate the instance names using the set of Instance Discovery Keys that they know about.
+A Private Discovery Service (_pds._tls) for discovering PNSes.
+</t>
+<t>
+Instance name obfuscation for the Private Discovery Service.
 </t>
 </list>
 </t>
+
 <t>
 These components are detailed in the following subsections.
 </t>
-<section title="Randomized Host Name" >
+<section title="Host Name Randomization" >
 <t>
 Nodes publishing services with DNS-SD and concerned about their privacy MUST
 use a randomized host name. The randomized name MUST be changed when
-network connectivity changes, to avid the correlation issues described in
+network connectivity changes, to avoid the correlation issues described in
 <xref target="timing" />. The randomized host name MUST be used in
 the SRV records describing the service instance, and the corresponding 
 A or AAAA records MUST be made available through DNS or MDNS, within the
@@ -998,6 +1005,59 @@ obfuscated host name.
 </t>
 </section>
 
+<section title="Device Pairing" anchor="solution:pairing">
+<t>
+  Nodes that want to leverage the Private Directory Service for private service discovery among peers
+  MUST share a secret with each of these peers. The shared secret MUST be a 256 bit randomly chosen number.
+  The secret SHOULD be exchanged via device Pairing. The pairing process SHALL establish a mutually authenticated secure channel to
+  perform the shared secret exchange.
+  It is RECOMMENDED for both parties to contribute to the shared secret, e.g. by using a Diffie-Hellman key exchange.
+</t>
+</section>
+
+
+<section title="Private Name Server" anchor="solution:pns">
+<t>
+  TODO
+</t>
+
+<t>
+  A private name server (PNS) is a minimal DNS server running on each host.
+  Its task is to offer resource records corresponding to private services only to
+  authorized peers. These peers MUST share a secret with the host (see <xref target="solution:pairing" />).
+</t>
+
+<t>
+  The PNS MUST publish a Service Discovery Service (_pds._tls) instance with an obfuscated instance name
+  (see <xref target="solution:pds" /> and <xref target="solution:obfuscation" />).
+  The PNS MUST only answer queries via DNS over TLS <xref target="RFC7858"/> and MUST use
+  DH PSK as TLS handshake. The shared secret exchanged during pairing MUST be used as PSK.
+  TODO: we need a Usage Profile (Section 4 of <xref target="RFC7858"/>) supporting this.
+</t>
+
+<t>
+  Authorized peers are able to discover a PNS by resolving the corresponding _pds instance.
+</t>
+
+<t>
+  The Private Name Server SHOULD support DNS push notifications <xref target="I-D.ietf-dnssd-push" />,
+  e.g. to facilitate an up-to-date contact list in a chat application without polling.
+</t>
+
+</section>
+
+
+<section title="Private Discovery Service" anchor="solution:pds">
+<t>
+TODO
+
+Allows discovering the PNSes
+
+</t>
+</section>
+
+
+<section title="Instance Name Obfuscation for the Private Discovery Service" anchor="solution:obfuscation" >
 <section title="Instance Discovery Key" >
 <t>
 The obfuscation and de-obfuscation of instance names is controlled by the Instance Discovery Key. 
@@ -1109,6 +1169,7 @@ instance discovery key
 </t>
 
 </section>
+</section>
 
 </section>
 
@@ -1173,6 +1234,7 @@ This draft results from initial discussions with Dave Thaler.
        &I-D.ietf-intarea-hostname-practice;
        &I-D.ietf-dprive-dnsodtls;
        &I-D.ietf-tls-tls13;
+       &I-D.ietf-dnssd-push;
 
 <reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
   <front>
