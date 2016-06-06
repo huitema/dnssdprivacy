@@ -20,6 +20,8 @@
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4075.xml'>
 <!ENTITY rfc4279 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4279.xml'>
+<!ENTITY rfc5246 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml'>
 <!ENTITY rfc6762 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml'>
 <!ENTITY rfc6763 PUBLIC ''
@@ -225,7 +227,7 @@ Carol's Notebook       . _presence._tcp   . local
 </t>
 <t>
 Alice will see the list on her phone and understand intuitively that she should
-pick the fist item. The discovery will "just work".
+pick the first item. The discovery will "just work".
 </t>
 <t>
 However, DNS-SD/mDNS will reveal to anybody that Alice is currently visiting the Internet Cafe.
@@ -340,7 +342,7 @@ analysis can often reveal the service.
 <section title="Limits of a simple design" anchor="towards" >
 <t>
 We tried first a simple design for mitigating the issues outlined in <xref target="analysis" />. 
-The basic idea is to advertise obfuscated names, so as to not reveal the particularities
+The basic idea was to advertise obfuscated names, so as to not reveal the particularities
 of the service providers. This design is tempting, because it only requires minimal
 changes in the DNS-SD processing. However, as we will see in the following subsections,
 it has two important drawbacks:
@@ -366,14 +368,14 @@ subsections detail the simple design, and its drawbacks.
 <section title="Obfuscated instance names" anchor="obfuscatedInstanceName" >
 <t>
 The privacy issues described in <xref target="instanceLeak"/> 
-can be solved by obfuscating the instance names. Instead
+could be solved by obfuscating the instance names. Instead
 of a user friendly description of the instance,
-the nodes will publish a random looking string of characters.
+the nodes would publish a random looking string of characters.
 To prevent tracking over time and location, different string
-values should be used at different locations, or at different times.
+values would be used at different locations, or at different times.
 </t>
 <t>
-Authorized parties should be able to "de-obfuscate" the names,
+Authorized parties have to be able to "de-obfuscate" the names,
 while non-authorized third parties will not be. For example,
 if both Alice notebook and Bob's laptop use an obfuscation process, 
 the list of available services should appear differently 
@@ -433,12 +435,7 @@ could easily filter out the obfuscated strings that they do not like.
 But Carol is not using this system, and we could argue that her experience 
 is suboptimal.
 </t>
-<t>
-The suboptimal experience with unmodified software could be avoided if
-the obfuscated service records were published using different service names,
-or using different domain names. This would of course make management a bit
-more complex, and is thus debatable.
-</t>
+
 </section>
 
 
@@ -612,48 +609,43 @@ the available services.
 
 </section>
 
-<!-- CH: Comment
-I kept the name that you have chosen, "Directory Discovery," but I find it confusing.
-I would really like to name the service that we are creating "Private Discovery Service."
-We are using DNS Service Discovery (DNS-SD) to discover the Private Discovery Service.
--->
-
-<section title="Design of the DNS-SD Privacy Problem Mitigation" anchor="design" >
+<section title="Design of the Private DNS-SD Discovery Service" anchor="design" >
 <t>
 In this section, we present the design of a two stage solution that enables private
 use of DNS-SD, without affecting existing users, and with better scalability than 
 the simple solution presented in <xref target="towards" />. The solution is largely based
-on the architecture proposed in <xref target="KW14b" />. It is based on the following 
-components:
+on the architecture proposed in <xref target="KW14b" />, which separates the 
+general private discovery problems in three components: Pairing, discovery of 
+private directory service, and actual discovery through this private service. 
+Pairing has to provide Directory Discovery with means for mutual authentication, 
+e.g. with an authenticated shared secret. Directory Discovery has to provide Service 
+Querying with an authenticated connection to the desired service directory.
+Our solution applies this architecture in the context of DNS-SD.
+It is based on the following components:
 </t>
 <t>
 <list>
 <t>
-We assume the existence of a pairing system, described in <xref target="pairingDesign"/>, 
+Adding to DNS-SD a pairing system, described in <xref target="pairingDesign"/>, 
 through which authorized peers can establish shared secrets;
 </t>
 <t>
-We define a secure directory service through which other services can be advertised
+Defining the Private Discovery Service through which other services can be advertised
 in a private manner;
 </t>
 <t>
-And, we design a specific way to publish the secure directory service using DNS-SD,
+And, publishing availability
+of the Private Discovery Service using DNS-SD,
 so that peers can discover their services without compromising their privacy.
 </t>
 </list>
 </t>
+<t>
+These are independent with respect to means used for transmitting the necessary data.
+</t>
 
 <section title="Device Pairing" anchor="pairingDesign" >
 
-<t>
-  Our solution adds device pairing to DNS-SD and divides service discovery into two stages:
-  Directory Discovery and Service Querying 
-  These are independent with respect to means used for transmitting the necessary data.
-  One possible setup is performing pairing via Bluetooth LE, Directory Discovery via obfuscated mDNS and
-  Service Querying via TLS.
-  Pairing has to provide Directory Discovery with means for mutual authentication, e.g. with an authenticated shared secret.
-  Directory Discovery has to provide Service Querying with an authenticated connection to the desired service directory.
-</t>
 
 <t>
   Any private discovery solution needs to differentiate
@@ -734,13 +726,13 @@ course taking advantage of lready authenticated public keys.
 </section>
 
 
-<section title="Private Service Directory Service" anchor="stage1Design">
+<section title="Discovery of the Private Discovery Service" anchor="stage1Design">
 <t>
-The first stage of service discovery is directory discovery, i.e.
-the discovery of the available "privacy compatible" devices.
+The first stage of service discovery is to check whether 
+instances of compatible Private Discovery Service are available in the local scope.
 The goal of that stage is to identify devices that share a pairing with the querier, and
-are available locally. They could be discovered by querying for the
-service "_psds._tls" using regular DNS-SD procedures, but the list of
+are available locally. The service instances can be discovered 
+using regular DNS-SD procedures, but the list of
 discovered services will have to be filtered so only paired
 devices are retained.
 </t>
@@ -944,17 +936,14 @@ old ones using the published name.
 <t>
 The problem is handled in <xref target="I-D.ietf-intarea-hostname-practice" />, 
 which recommends to pick a new random host name at the time of connecting to 
-a new network. The instance names should be obfuscated at the same time,
-or maybe use the randomized host name as input in the randomization
-process.
+a new network. New instance names for the Private Discovery Srvices should be
+composed at the same time.
 </t>
 
 </section>
-
-
 </section>
 
-<section title="Proposed Privacy Extension for DNS-SD" anchor="solution" >
+<section title="Private Discovery Service Specification" anchor="solution" >
 <t>
 The proposed solution uses the following components:
 </t>
@@ -968,13 +957,10 @@ Host name randomization to prevent tracking.
 Device pairing yielding pairwise shared secrets.
 </t>
 <t>
-A privacy name server (PNS) running on each host.
+A Private Discovery Server (PDS) running on each host.
 </t>
 <t>
-A Private Discovery Service (_pds._tls) for discovering PNSes.
-</t>
-<t>
-Instance name obfuscation for the Private Discovery Service.
+Discovery of the PDS insyances using DNS-SD.
 </t>
 </list>
 </t>
@@ -982,6 +968,7 @@ Instance name obfuscation for the Private Discovery Service.
 <t>
 These components are detailed in the following subsections.
 </t>
+
 <section title="Host Name Randomization" >
 <t>
 Nodes publishing services with DNS-SD and concerned about their privacy MUST
@@ -1013,202 +1000,306 @@ obfuscated host name.
   perform the shared secret exchange.
   It is RECOMMENDED for both parties to contribute to the shared secret, e.g. by using a Diffie-Hellman key exchange.
 </t>
+<t>
+TODO: need to define the pairing service, or API. The API approach assumes that pairing is outside our scope,
+and is done using BT-LE, or any other existing mechanism. This is a bit of a cope-out. We could also define
+a pairing system that just sets the pairing with equivalent security as the "push button" or "PIN" solutions
+used for BT or Wi-Fi. And we could at this stage leverage pre-existing security association, e.g. PGP
+identities or other certificates. If we do that, we should probably dedicate a top level section to
+specifying the minimal pairing service.
+</t>
 </section>
 
 
-<section title="Private Name Server" anchor="solution:pns">
+<section title="Private Discovery Server" anchor="solution:pns">
 <t>
-  TODO
-</t>
-
-<t>
-  A private name server (PNS) is a minimal DNS server running on each host.
+  A Private Discovery Server (PDS) is a minimal DNS server running on each host.
   Its task is to offer resource records corresponding to private services only to
-  authorized peers. These peers MUST share a secret with the host (see <xref target="solution:pairing" />).
+  authorized peers. These peers MUST share a secret with the host 
+  (see <xref target="solution:pairing" />). To ensure privacy of the requests, the service is 
+  only available over TLS <xref target="RFC5246" />, and the shared secrets
+  are used to mutually authenticate peers and servers.
 </t>
-
-<t>
-  The PNS MUST publish a Service Discovery Service (_pds._tls) instance with an obfuscated instance name
-  (see <xref target="solution:pds" /> and <xref target="solution:obfuscation" />).
-  The PNS MUST only answer queries via DNS over TLS <xref target="RFC7858"/> and MUST use
-  DH PSK as TLS handshake. The shared secret exchanged during pairing MUST be used as PSK.
-  TODO: we need a Usage Profile (Section 4 of <xref target="RFC7858"/>) supporting this.
-</t>
-
-<t>
-  Authorized peers are able to discover a PNS by resolving the corresponding _pds instance.
-</t>
-
 <t>
   The Private Name Server SHOULD support DNS push notifications <xref target="I-D.ietf-dnssd-push" />,
   e.g. to facilitate an up-to-date contact list in a chat application without polling.
 </t>
 
-</section>
-
-
-<section title="Private Discovery Service" anchor="solution:pds">
+<section title="Establishing TLS Connections" anchor="solution:tls" >
 <t>
-TODO
-
-Allows discovering the PNSes
-
-</t>
-</section>
-
-
-<section title="Instance Name Obfuscation for the Private Discovery Service" anchor="solution:obfuscation" >
-<section title="Instance Discovery Key" >
-<t>
-The obfuscation and de-obfuscation of instance names is controlled by the Instance Discovery Key. 
-Each device publishing a service instance configures an Instance Discovery Key associated with
-the service instance.
+  The PDS MUST only answer queries via DNS over TLS <xref target="RFC7858"/> and MUST use
+  a PSK authenticated TLS handshake <xref target="RFC4279"/>. The client and server
+  should negotiate a forward secure cypher suite such as DHE-PSK or ECDHE-PSK when 
+  available. The shared secret exchanged during pairing MUST be used as PSK.
 </t>
 <t>
-The Instance Key SHOULD be at least 16 bytes long (128 bits). Its content SHOULD meet the 
-Randomness Requirements for Security expressed in <xref target="RFC4075" />.
-</t>
-</section>
-
-<section title="Composing Obfuscated Instance Names" anchor="obfuscation" >
-<t>
-The obfuscated instance name is composed of two components,
-a seed and a hash, encoded in BASE64 (<xref target="RFC2045" /> section 6.8)
-and separated by a dot:
+  When using the PSK based authentication, the "psk_identity" parameter identifying
+  the pre-shared key MUST be composed as follow, using the conventions
+  of TLS <xref target="RFC7858"/>:
 </t>
 <t>
 <figure>
 <artwork>
-   instance_name = &lt;base64_seed> "." &lt;base64_hash>
-</artwork>
-</figure>
-</t>
-<t>
-The seed is derived algorithmically from the randomized host name. 
-If the randomized name changes, new instance names SHOULD be computed
-and the corresponding records SHOULD be published 
-in order to meet the requirement defined in <xref target="timing" />.
-</t>
-<t>
-The complete instance name MUST be generated using the following process:
-</t>
-<t>
-<figure>
-<artwork>
-   long_seed = HASH(randomized_host_name)
-   seed = first 12 bytes of long_seed
-   long_hash = HASH(seed | instance_discovery_key )
-   instance_hash = first 12 bytes of long_hash 
-   instance_name = BASE64(seed) "." BASE64(instance_hash) 
+   struct {
+
+             uint32 gmt_unix_time;
+
+             opaque random_bytes[4];
+         
+   } nonce;
+
+   long_proof = HASH(nonce  | pairing_key )
+   proof = first 12 bytes of long_proof 
+   psk_identity = BASE64(nonce) "." BASE64(proof) 
 </artwork>
 </figure>
 </t>
 <t>
 In this formula, HASH SHOULD be the function SHA256 
-defined in <xref target="RFC4055"/>, unless otherwise specified. 
-Implementers MAY eventually replace SHA256 with a stronger algorithm.
+defined in <xref target="RFC4055"/>. Implementers MAY eventually 
+replace SHA256 with a stronger algorithm, in which cases both
+clients and servers will have to agree on that algorithm during
+the pairing process. The first 32 bits of the nonce are set
+to The current time and date in standard UNIX 32-bit format
+ 
+(seconds since the midnight starting Jan 1, 1970, UTC, ignoring
+leap seconds) according to the client's internal clock. The 
+next 32 bits of the nonce are set to a value generated by
+a secure random generator.
 </t>
 <t>
-The algorithm produces seeds and hash that are encoded as 16 BASE64 characters.
-The resulting instance name is 33 characters long, which fits
+In this formula, the identity is finally set to a character
+string, using BASE64 (<xref target="RFC2045" /> section 6.8).
+This transform is meant to comply with the PSK identity encoding
+rules specified in section 5.1 of <xref target="RFC4279"/>.
+</t>
+<t>
+The server will check the received key identity, trying the key against the valid
+keys established through pairing. If one of the key matches, the TLS connection is
+accepted, otherwise it is declined.
+</t>
+</section>
+</section>
+
+<section title="Publishing Private Discovery Service Instances" anchor="solution:publishPds" >
+<t>
+Nodes that provide the Private Discovery Service SHOULD advertise their
+availability by publishing instances of the service through DNS-SD.
+</t>
+<t>
+The DNS-SD service type for Private Discovery Service is "_pds._tls".
+</t>
+<t>
+Each published instance describes one server and up to 10 pairings.
+In the case where a node manages more than 10 pairings, it should
+publish as many instances as necessary to advertise all available
+pairings.
+</t>
+<t>
+Each instance name is composed as follow:
+</t>
+<t>
+<figure>
+<artwork>
+   pick a 32 bit nonce, e.g. using the Unix GMT time.
+   set the binary identifier to the nonce.
+
+   for each of up to 10 pairings
+      hint = first 32 bits of HASH(&lt;nonce&gt;|&lt;pairing key&gt;)
+      concatenate the hint to the binary identifier
+
+   set instance-ID = BASE64(binary identifier)
+</artwork>
+</figure>
+</t>
+<t>
+In this formula, HASH SHOULD be the function SHA256 
+defined in <xref target="RFC4055"/>, and BASE64 is defined 
+in section 6.8 of <xref target="RFC2045" />. The concatenation
+of a 32 bit nonce and up to 10 pairing hints result a bit string 
+at most 332 bit long. The BASE64 conversion will produce 
+a string that is up to 59 character long, which fits
 within the 63 characters limit defined in
 <xref target="RFC6763"/>.
 </t>
 </section>
 
-<section title="De-Obfuscation of Instance Names" >
+<section title="Discovering Private Discovery Service Instances"  anchor="solution:discoverPds" >
 <t>
-De-obfuscation of instance names assumes that authorized nodes are provisioned with 
-three elements for each discoverable instance:
+Nodes that wish to discover Private Discovery Service Instances will issue a DNS-SD 
+discovery request for the service type. These request will return a series
+of PTR records, providing the names of the instances present in the scope.
 </t>
 <t>
-<list style="symbols">
-<t>
-the de-obfuscated instance name,
+The querier SHOULD examine each instance to see whether it hints at one
+of its available pairings, according to the following conceptual algorithm:
 </t>
 <t>
-a copy of the instance_discovery_key,
-</t>
-<t>
-optionally, the identifier of the HASH function used by the publisher.
-</t>
-</list>
-</t>
-<t>
-A given node may be provisioned do discover many instances. For example,
-Alice's phone may know about Alice's laptop and Alice's desktop. It might
-also know of Bob's laptop, if Alice and Bob have agreed to share such 
-information.
-</t>
-<t>
-To de-obfuscate the instance names, nodes performing discovery should 
-obtain the list of PTR records published for the service and domain being 
-searched and then do the following:
-</t>
-<t>
-<list style="symbols">
-<t>
-Test whether the instance name contains the base64 encoding of a
-seed and hash as defined in <xref target="obfuscation" />. If it
-is not in that form, the name is not considered obfuscated.
-</t>
-<t>
-Retrieve the binary seed and hash from the base64 encoding.
-</t>
-<t>
-For each known instance discovery key, compute whether the
-hash of the seed and key, and compare it to the published
-hash.
-</t>
-<t>
-If there is a hash, the de-obfuscated name of the instance
-is the de-obfuscated name associated with the matching
-instance discovery key
-</t>
-</list>
-</t>
+<figure>
+<artwork>
+   for each received instance name:
+      convert the instance name to binary using BASE64
+      if the conversion fails, 
+         discard the instance.
+      if the binary instance length is a not multiple of 32 bits,
+         discard the instance.
 
+      nonce = first 32 bits of binary.
+      for each 32 bit hint after the nonce
+         for each available pairing
+            retrieve the key Xj of pairing number j
+            compute F = hash(nonce, Xj)
+            if F is equal to the 32 bit hint
+               mark the pairing number j as available
+</artwork>
+</figure>
+</t>
+<t>
+Once a pairing has been marked available, the querier SHOULD 
+try connecting to the corresponding instance, using the selected key.
+The connection is likely to succeed, but it MAY fail for a variety
+of reasons. One of these reasons is the probabilistic nature of the
+hint, which entails a small chance of "false positive" match. This
+will occur if the hash of the nonce with two different keys produces
+the same result. In that case, the TLS connection will fail with
+an authentication error or a decryption error.
+</t>
 </section>
+
+<section title="Using the Private Discovery Service" >
+<t>
+Once instances of the Private Discovery Service have been discovered, 
+peers can establish TLS connections and send DNS requests over
+these connections, as specified in DNS-SD.
+</t>
 </section>
 
 </section>
-
 
 <section title="Security Considerations">
 <t> 
 This document specifies a method to protect the privacy of 
 service publishing nodes. This is especially useful when operating
 in a public space.
-Obfuscating the identity of the publishing nodes prevents
-some forms of "targeting" of high value nodes.
+Hiding the identity of the publishing nodes prevents
+some forms of "targeting" of high value nodes. However,
+adversaries can attempt various attacks to break the anonymity
+of the service, or to deny it. A list of these attacks and their
+mitigations are described in the following sections.
+</t>
+
+<section title="Attacks against the Pairing System" >
+<t>
+There are a variety of attacks against pairing systems. They 
+may result in compromised pairing keys. If an adversary manages to
+acquire a compromised key, the adversary will be able to perform 
+private service discovery according to <xref target="solution:discoverPds" />.
+This will allow tracking of the service. The adversary will also
+be able to discover which private services are available for
+the compromized pairing.
 </t>
 <t>
-Obfuscating the identity of the publishing nodes does
-not provide any form of access control. It will not prevent
-attackers from trying to access the services.
+To mitigate such attacks, nodes MUST be able to quickly revoke 
+a compromised pairing. This is however not sufficient, as the 
+compromise of the pairing key could remain undetected for
+a long time. For further safety, nodes SHOULD assign a time limit
+to the validity of pairings, discard the corresponding keys when
+the time has passed, and establish new pairings.
+</t>
+</section>
+
+<section title="Attacks against the Private Discovery Service" >
+<t>
+The Private Discovery Service is only available through a 
+mutually authenticated TLS connection, which provides good
+protections. However, adversaries can mount a denial of service 
+attack against the service. In the absence of shared secrets,
+the connections will fail, but the servers will expend some
+CPU cycles defending against them.
 </t>
 <t>
-The cost of the de-obfuscation algorithm scales as the product
-of the number of authorized publishers known by the client,
-times the number of obfuscated services published in the
-searched name domain. Attackers could potentially publish
-a large number of bogus instances of a service, forcing a
-high computation cost on discovery clients. While this
-potential denial of service attack is concerning, we note
-that this is merely an aggravation of a flooding attacks
-against DNS-SD. 
+To mitigate such attacks, nodes SHOULD restrict the 
+range of network addresses from which they accept connections,
+matching the expected scope of the service. This will not
+restrict denial of service attacks to locally connected 
+adversaries. 
 </t>
+</section>
+
+<section title="Replay Attacks against the Private Discovery Service" >
+<t>
+Adversaries may record the PSK Key Identifiers used in successful
+connections to a private discovery service. They could attempt
+to replay them later against nodes advertising the private 
+service at other times or at other locations. If the PSK Identifier
+is still valid, the server will accept the TLS connection, and in doing 
+so will reveal being the same server observed at a previous time or
+location.
+</t>
+<t>
+The PSK identifiers defined in <xref target="solution:tls"/>
+start with 32 bits encoding the "UNIX" time. In order to
+mitigate replay attacks, servers SHOULD verify that this time
+is reasonably recent, and fail the connection if it is too old,
+or if it occurs too far in the future. 
+</t>
+<t>
+The processing of
+timestamps is however mitigated by the accuracy of computer clocks. 
+If the check is too strict, reasonable connections could fail. To
+further mitigate the replay attacks, servers MAY record the list of 
+valid PSK identifiers received in a recent past, and fail connections
+if one of these identifiers is replayed.
+</t>
+</section>
+
+<section title="Denial of Discovery Service" >
+<t>
+The algorithm described in <xref target="solution:discoverPds" /> scales as
+O(M*N), where M is the number of pairing per nodes and N is the number of nodes in
+the local scope. Adversaries can attack this service by publishing "fake"
+instances, effectively increasing the number N in that scaling equation.
+</t>
+<t>
+Similar attacks can be mounted against DNS-SD: creating fake instances
+will generally increase the noise in the system and make discovery less
+usable. Private Discovery Service discovery SHOULD use the same
+mitigations as DNS-SD.
+</t>
+</section>
+
+<section title="Replay attacks against discovery service" >
+<t>
+Adversaries can record the service instance names published by
+Private Discovery Service instances, and replay them later in different
+contexts. Peers engaging in discovery can be misled into believing
+that a paired server is present. They will attempt to connect to the
+absent peer, and in doing so will disclose their presence in a 
+monitored scope.
+</t>
+<t>
+The binary instance identifiers defined in <xref target="solution:publishPds"/>
+start with 32 bits encoding the "UNIX" time. In order to
+protect against replay attacks, clients MAY verify that this time
+is reasonably recent.
+</t>
+<t>
+TODO: should we somehow encode the scope in the identifier? Having both scope and
+time would really mitigate that attack.
+</t>
+</section>
+
 </section>
 
 <section title="IANA Considerations" anchor="iana">
 <t> 
-This draft does not require any IANA action.
+This draft does not require any IANA action. (Or does it? What about the _pds tag?)
 </t> 
 </section>
 
 <section title="Acknowledgments">
     <t>
-This draft results from initial discussions with Dave Thaler.
+This draft results from initial discussions with Dave Thaler, and encouragements from the DNS-SD working group members.
     </t>
 </section>
 </middle>
@@ -1221,6 +1312,7 @@ This draft results from initial discussions with Dave Thaler.
        &rfc4075;
        &rfc6763;
        &rfc4279;
+       &rfc5246;
 </references>
 <references title="Informative References">
        &rfc1033;
