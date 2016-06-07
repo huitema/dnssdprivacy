@@ -936,7 +936,7 @@ old ones using the published name.
 <t>
 The problem is handled in <xref target="I-D.ietf-intarea-hostname-practice" />, 
 which recommends to pick a new random host name at the time of connecting to 
-a new network. New instance names for the Private Discovery Srvices should be
+a new network. New instance names for the Private Discovery Services should be
 composed at the same time.
 </t>
 
@@ -960,7 +960,7 @@ Device pairing yielding pairwise shared secrets.
 A Private Discovery Server (PDS) running on each host.
 </t>
 <t>
-Discovery of the PDS insyances using DNS-SD.
+Discovery of the PDS instances using DNS-SD.
 </t>
 </list>
 </t>
@@ -1060,7 +1060,7 @@ defined in <xref target="RFC4055"/>. Implementers MAY eventually
 replace SHA256 with a stronger algorithm, in which cases both
 clients and servers will have to agree on that algorithm during
 the pairing process. The first 32 bits of the nonce are set
-to The current time and date in standard UNIX 32-bit format
+to the current time and date in standard UNIX 32-bit format
  
 (seconds since the midnight starting Jan 1, 1970, UTC, ignoring
 leap seconds) according to the client's internal clock. The 
@@ -1070,7 +1070,7 @@ a secure random generator.
 <t>
 In this formula, the identity is finally set to a character
 string, using BASE64 (<xref target="RFC2045" /> section 6.8).
-This transform is meant to comply with the PSK identity encoding
+This transformation is meant to comply with the PSK identity encoding
 rules specified in section 5.1 of <xref target="RFC4279"/>.
 </t>
 <t>
@@ -1087,7 +1087,7 @@ Nodes that provide the Private Discovery Service SHOULD advertise their
 availability by publishing instances of the service through DNS-SD.
 </t>
 <t>
-The DNS-SD service type for Private Discovery Service is "_pds._tls".
+The DNS-SD service type for the Private Discovery Service is "_pds._tls".
 </t>
 <t>
 Each published instance describes one server and up to 10 pairings.
@@ -1096,7 +1096,7 @@ publish as many instances as necessary to advertise all available
 pairings.
 </t>
 <t>
-Each instance name is composed as follow:
+Each instance name is composed as follows:
 </t>
 <t>
 <figure>
@@ -1118,7 +1118,7 @@ defined in <xref target="RFC4055"/>, and BASE64 is defined
 in section 6.8 of <xref target="RFC2045" />. The concatenation
 of a 32 bit nonce and up to 10 pairing hints result a bit string 
 at most 332 bit long. The BASE64 conversion will produce 
-a string that is up to 59 character long, which fits
+a string that is up to 59 characters long, which fits
 within the 63 characters limit defined in
 <xref target="RFC6763"/>.
 </t>
