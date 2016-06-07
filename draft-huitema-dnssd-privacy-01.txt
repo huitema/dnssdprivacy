@@ -4,8 +4,8 @@
 Network Working Group                                         C. Huitema
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                               D. Kaiser
-Expires: December 8, 2016                         University of Konstanz
-                                                            June 6, 2016
+Expires: December 9, 2016                         University of Konstanz
+                                                            June 7, 2016
 
 
                      Privacy Extensions for DNS-SD
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 8, 2016.
+   This Internet-Draft will expire on December 9, 2016.
 
 
 
@@ -52,7 +52,7 @@ Status of This Memo
 
 
 
-Huitema & Kaiser        Expires December 8, 2016                [Page 1]
+Huitema & Kaiser        Expires December 9, 2016                [Page 1]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -92,7 +92,7 @@ Table of Contents
        4.1.2.  Secure Authenticated Pairing Channel  . . . . . . . .  12
        4.1.3.  Public Authentication Keys  . . . . . . . . . . . . .  12
      4.2.  Discovery of the Private Discovery Service  . . . . . . .  12
-     4.3.  Directed Private Discovery  . . . . . . . . . . . . . . .  14
+     4.3.  Private Discovery Service . . . . . . . . . . . . . . . .  14
        4.3.1.  A note on Private DNS services  . . . . . . . . . . .  15
      4.4.  Randomized host names . . . . . . . . . . . . . . . . . .  15
      4.5.  Timing of obfuscation and randomization . . . . . . . . .  15
@@ -108,22 +108,23 @@ Table of Contents
 
 
 
-Huitema & Kaiser        Expires December 8, 2016                [Page 2]
+Huitema & Kaiser        Expires December 9, 2016                [Page 2]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
      6.1.  Attacks against the Pairing System  . . . . . . . . . . .  20
-     6.2.  Attacks against the Private Discovery Service . . . . . .  20
-     6.3.  Replay Attacks against the Private Discovery Service  . .  21
-     6.4.  Denial of Discovery Service . . . . . . . . . . . . . . .  21
-     6.5.  Replay attacks against discovery service  . . . . . . . .  21
+     6.2.  Denial of Discovery of the Private Discovery Service  . .  20
+     6.3.  Replay attacks against Discovery of the Private Discovery
+           Service . . . . . . . . . . . . . . . . . . . . . . . . .  21
+     6.4.  Denial of Private Discovery Service . . . . . . . . . . .  21
+     6.5.  Replay Attacks against the Private Discovery Service  . .  22
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  22
    8.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  22
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  22
      9.1.  Normative References  . . . . . . . . . . . . . . . . . .  22
      9.2.  Informative References  . . . . . . . . . . . . . . . . .  23
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  24
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  25
 
 1.  Introduction
 
@@ -163,8 +164,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-
-Huitema & Kaiser        Expires December 8, 2016                [Page 3]
+Huitema & Kaiser        Expires December 9, 2016                [Page 3]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -220,7 +220,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016                [Page 4]
+Huitema & Kaiser        Expires December 9, 2016                [Page 4]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -276,7 +276,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016                [Page 5]
+Huitema & Kaiser        Expires December 9, 2016                [Page 5]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -332,7 +332,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016                [Page 6]
+Huitema & Kaiser        Expires December 9, 2016                [Page 6]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -343,6 +343,9 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    o  The simple design leads to UI issues, because users of unmodified
       DNS-SD agents will see a mix of clear text names and obfuscated
       names, which is unpleasant;
+
+   o  With this simple design, there is no good way to hide the type of
+      services provided or consumed by a specific node;
 
    o  The simple design either requires having a shared key between all
       "authorized users" of a service, which implies substandard key
@@ -385,10 +388,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-
-
-
-Huitema & Kaiser        Expires December 8, 2016                [Page 7]
+Huitema & Kaiser        Expires December 9, 2016                [Page 7]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -444,7 +444,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016                [Page 8]
+Huitema & Kaiser        Expires December 9, 2016                [Page 8]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -486,10 +486,6 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    different names.  All of these solutions appear like big departures
    from the simplicity and robustness of the DNS-SD design.
 
-   Given the relatively low priority of hiding the service name and the
-   complexity of the potential solutions, we are not recommending any
-   particular protection for the instance names.
-
 3.3.  Scaling issues with obfuscation
 
    In Section 3.1, we assumed that each advertised record contains a
@@ -497,18 +493,18 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    understand, but it contains the hidden assumption.  Let look at one
    of our examples:
 
-
-
-
-Huitema & Kaiser        Expires December 8, 2016                [Page 9]
-
-Internet-Draft          DNS-SD Privacy Extensions              June 2016
-
-
    Abracadabragooklybok (Bob's Notebook) . _presence._tcp   . local
 
    We only see there one record for Bob's Notebook, obfuscated using the
    unique shared secret associated with Bob's Notebook.  That means that
+
+
+
+Huitema & Kaiser        Expires December 9, 2016                [Page 9]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    every device paired with Bob's Notebook will have a copy of that
    shared secret.  We could of course do that, but there are known
    issues with having a secret shared with multiple entities:
@@ -553,18 +549,18 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    In this section, we present the design of a two stage solution that
    enables private use of DNS-SD, without affecting existing users, and
    with better scalability than the simple solution presented in
-
-
-
-Huitema & Kaiser        Expires December 8, 2016               [Page 10]
-
-Internet-Draft          DNS-SD Privacy Extensions              June 2016
-
-
    Section 3.  The solution is largely based on the architecture
    proposed in [KW14b], which separates the general private discovery
    problems in three components: Pairing, discovery of private directory
    service, and actual discovery through this private service.  Pairing
+
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 10]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    has to provide Directory Discovery with means for mutual
    authentication, e.g. with an authenticated shared secret.  Directory
    Discovery has to provide Service Querying with an authenticated
@@ -612,7 +608,11 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 11]
+
+
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 11]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -668,7 +668,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 12]
+Huitema & Kaiser        Expires December 9, 2016               [Page 12]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -724,17 +724,17 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 13]
+Huitema & Kaiser        Expires December 9, 2016               [Page 13]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
-4.3.  Directed Private Discovery
+4.3.  Private Discovery Service
 
-   The Private Service Directory Service discovery allows discovering a
-   list of available paired devices, and verifying that either party
-   knows the corresponding shared secret.  At that point, the querier
-   can engage in a series of directed discoveries.
+   The Private Discovery Service discovery allows discovering a list of
+   available paired devices, and verifying that either party knows the
+   corresponding shared secret.  At that point, the querier can engage
+   in a series of directed discoveries.
 
    We have considered defining an ad-hoc protocol for the private
    discovery service, but found that just using TLS would be much
@@ -780,7 +780,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 14]
+Huitema & Kaiser        Expires December 9, 2016               [Page 14]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -836,7 +836,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 15]
+Huitema & Kaiser        Expires December 9, 2016               [Page 15]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -847,7 +847,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    The problem is handled in [I-D.ietf-intarea-hostname-practice], which
    recommends to pick a new random host name at the time of connecting
    to a new network.  New instance names for the Private Discovery
-   Srvices should be composed at the same time.
+   Services should be composed at the same time.
 
 5.  Private Discovery Service Specification
 
@@ -859,7 +859,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
    o  A Private Discovery Server (PDS) running on each host.
 
-   o  Discovery of the PDS insyances using DNS-SD.
+   o  Discovery of the PDS instances using DNS-SD.
 
    These components are detailed in the following subsections.
 
@@ -892,7 +892,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 16]
+Huitema & Kaiser        Expires December 9, 2016               [Page 16]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -948,7 +948,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 17]
+Huitema & Kaiser        Expires December 9, 2016               [Page 17]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -969,16 +969,16 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    [RFC4055].  Implementers MAY eventually replace SHA256 with a
    stronger algorithm, in which cases both clients and servers will have
    to agree on that algorithm during the pairing process.  The first 32
-   bits of the nonce are set to The current time and date in standard
+   bits of the nonce are set to the current time and date in standard
    UNIX 32-bit format (seconds since the midnight starting Jan 1, 1970,
    UTC, ignoring leap seconds) according to the client's internal clock.
    The next 32 bits of the nonce are set to a value generated by a
    secure random generator.
 
    In this formula, the identity is finally set to a character string,
-   using BASE64 ([RFC2045] section 6.8).  This transform is meant to
-   comply with the PSK identity encoding rules specified in section 5.1
-   of [RFC4279].
+   using BASE64 ([RFC2045] section 6.8).  This transformation is meant
+   to comply with the PSK identity encoding rules specified in section
+   5.1 of [RFC4279].
 
    The server will check the received key identity, trying the key
    against the valid keys established through pairing.  If one of the
@@ -991,20 +991,20 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    their availability by publishing instances of the service through
    DNS-SD.
 
-   The DNS-SD service type for Private Discovery Service is "_pds._tls".
+   The DNS-SD service type for the Private Discovery Service is
+   "_pds._tls".
 
    Each published instance describes one server and up to 10 pairings.
    In the case where a node manages more than 10 pairings, it should
    publish as many instances as necessary to advertise all available
    pairings.
 
-   Each instance name is composed as follow:
+   Each instance name is composed as follows:
 
 
 
 
-
-Huitema & Kaiser        Expires December 8, 2016               [Page 18]
+Huitema & Kaiser        Expires December 9, 2016               [Page 18]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -1022,7 +1022,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    [RFC4055], and BASE64 is defined in section 6.8 of [RFC2045].  The
    concatenation of a 32 bit nonce and up to 10 pairing hints result a
    bit string at most 332 bit long.  The BASE64 conversion will produce
-   a string that is up to 59 character long, which fits within the 63
+   a string that is up to 59 characters long, which fits within the 63
    characters limit defined in [RFC6763].
 
 5.5.  Discovering Private Discovery Service Instances
@@ -1060,7 +1060,7 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 19]
+Huitema & Kaiser        Expires December 9, 2016               [Page 19]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
@@ -1100,7 +1100,59 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    validity of pairings, discard the corresponding keys when the time
    has passed, and establish new pairings.
 
-6.2.  Attacks against the Private Discovery Service
+   This later requirement of limiting the Time-To-Live can raise doubts
+   about the usability fo the protocol.  The usability issues would be
+   mitigated if the initial pairing provided both a shared secret and
+   the means to renew that secret over time, e.g. using authenticated
+   public keys.
+
+6.2.  Denial of Discovery of the Private Discovery Service
+
+   The algorithm described in Section 5.5 scales as O(M*N), where M is
+   the number of pairing per nodes and N is the number of nodes in the
+   local scope.  Adversaries can attack this service by publishing
+   "fake" instances, effectively increasing the number N in that scaling
+   equation.
+
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 20]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
+   Similar attacks can be mounted against DNS-SD: creating fake
+   instances will generally increase the noise in the system and make
+   discovery less usable.  Private Discovery Service discovery SHOULD
+   use the same mitigations as DNS-SD.
+
+   The attack is amplified because the clients need to compute proofs
+   for all the nonces presented in Private Discovery Service Instance
+   names.  One possible mitigation would be to require that such nonces
+   correspond to rounded timestamps.  If we assume that timestamps must
+   not be too old, there will be a finite number of valid rounded
+   timestamps at any time.  Even if there are many instances present,
+   they would all pick their nonces from this small number of rounded
+   timestamps, and a smart client could make sure that proofs are only
+   computed once per valid time stamp.
+
+6.3.  Replay attacks against Discovery of the Private Discovery Service
+
+   Adversaries can record the service instance names published by
+   Private Discovery Service instances, and replay them later in
+   different contexts.  Peers engaging in discovery can be misled into
+   believing that a paired server is present.  They will attempt to
+   connect to the absent peer, and in doing so will disclose their
+   presence in a monitored scope.
+
+   The binary instance identifiers defined in Section 5.4 start with 32
+   bits encoding the "UNIX" time.  In order to protect against replay
+   attacks, clients MAY verify that this time is reasonably recent.
+
+   TODO: should we somehow encode the scope in the identifier?  Having
+   both scope and time would really mitigate that attack.
+
+6.4.  Denial of Private Discovery Service
 
    The Private Discovery Service is only available through a mutually
    authenticated TLS connection, which provides good protections.
@@ -1111,17 +1163,24 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
    To mitigate such attacks, nodes SHOULD restrict the range of network
    addresses from which they accept connections, matching the expected
-   scope of the service.  This will not restrict denial of service
-   attacks to locally connected adversaries.
+   scope of the service.
+
+   The mitigation will not restrict denial of service attacks to locally
+   connected adversaries, but then we know that it is generally very
+   difficult to protect against denial of service by local attackers.
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 20]
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 21]
 
 Internet-Draft          DNS-SD Privacy Extensions              June 2016
 
 
-6.3.  Replay Attacks against the Private Discovery Service
+   For example, local attackers can also attack mDNS and DNS-SD by
+   generating large number of multicast requests.
+
+6.5.  Replay Attacks against the Private Discovery Service
 
    Adversaries may record the PSK Key Identifiers used in successful
    connections to a private discovery service.  They could attempt to
@@ -1142,43 +1201,6 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
    could fail.  To further mitigate the replay attacks, servers MAY
    record the list of valid PSK identifiers received in a recent past,
    and fail connections if one of these identifiers is replayed.
-
-6.4.  Denial of Discovery Service
-
-   The algorithm described in Section 5.5 scales as O(M*N), where M is
-   the number of pairing per nodes and N is the number of nodes in the
-   local scope.  Adversaries can attack this service by publishing
-   "fake" instances, effectively increasing the number N in that scaling
-   equation.
-
-   Similar attacks can be mounted against DNS-SD: creating fake
-   instances will generally increase the noise in the system and make
-   discovery less usable.  Private Discovery Service discovery SHOULD
-   use the same mitigations as DNS-SD.
-
-6.5.  Replay attacks against discovery service
-
-   Adversaries can record the service instance names published by
-   Private Discovery Service instances, and replay them later in
-   different contexts.  Peers engaging in discovery can be misled into
-   believing that a paired server is present.  They will attempt to
-   connect to the absent peer, and in doing so will disclose their
-   presence in a monitored scope.
-
-   The binary instance identifiers defined in Section 5.4 start with 32
-   bits encoding the "UNIX" time.  In order to protect against replay
-   attacks, clients MAY verify that this time is reasonably recent.
-
-
-
-
-Huitema & Kaiser        Expires December 8, 2016               [Page 21]
-
-Internet-Draft          DNS-SD Privacy Extensions              June 2016
-
-
-   TODO: should we somehow encode the scope in the identifier?  Having
-   both scope and time would really mitigate that attack.
 
 7.  IANA Considerations
 
@@ -1204,6 +1226,13 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
               DOI 10.17487/RFC2119, March 1997,
               <http://www.rfc-editor.org/info/rfc2119>.
 
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 22]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    [RFC4055]  Schaad, J., Kaliski, B., and R. Housley, "Additional
               Algorithms and Identifiers for RSA Cryptography for use in
               the Internet X.509 Public Key Infrastructure Certificate
@@ -1225,13 +1254,6 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
               (TLS) Protocol Version 1.2", RFC 5246,
               DOI 10.17487/RFC5246, August 2008,
               <http://www.rfc-editor.org/info/rfc5246>.
-
-
-
-Huitema & Kaiser        Expires December 8, 2016               [Page 22]
-
-Internet-Draft          DNS-SD Privacy Extensions              June 2016
-
 
    [RFC6763]  Cheshire, S. and M. Krochmal, "DNS-Based Service
               Discovery", RFC 6763, DOI 10.17487/RFC6763, February 2013,
@@ -1258,6 +1280,15 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
               Version 1.3", draft-ietf-tls-tls13-13 (work in progress),
               May 2016.
 
+
+
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 23]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
+
    [KW14a]    Kaiser, D. and M. Waldvogel, "Adding Privacy to Multicast
               DNS Service Discovery", DOI 10.1109/TrustCom.2014.107,
               2014, <http://ieeexplore.ieee.org/xpl/
@@ -1281,14 +1312,6 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
               November 1987, <http://www.rfc-editor.org/info/rfc1035>.
 
-
-
-
-Huitema & Kaiser        Expires December 8, 2016               [Page 23]
-
-Internet-Draft          DNS-SD Privacy Extensions              June 2016
-
-
    [RFC2782]  Gulbrandsen, A., Vixie, P., and L. Esibov, "A DNS RR for
               specifying the location of services (DNS SRV)", RFC 2782,
               DOI 10.17487/RFC2782, February 2000,
@@ -1311,6 +1334,16 @@ Internet-Draft          DNS-SD Privacy Extensions              June 2016
               and P. Hoffman, "Specification for DNS over Transport
               Layer Security (TLS)", RFC 7858, DOI 10.17487/RFC7858, May
               2016, <http://www.rfc-editor.org/info/rfc7858>.
+
+
+
+
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 24]
+
+Internet-Draft          DNS-SD Privacy Extensions              June 2016
+
 
 Authors' Addresses
 
@@ -1340,5 +1373,28 @@ Authors' Addresses
 
 
 
-Huitema & Kaiser        Expires December 8, 2016               [Page 24]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Huitema & Kaiser        Expires December 9, 2016               [Page 25]
 

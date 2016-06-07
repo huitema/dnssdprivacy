@@ -354,6 +354,10 @@ The simple design leads to UI issues, because users of unmodified DNS-SD agents 
 a mix of clear text names and obfuscated names, which is unpleasant; 
 </t>
 <t>
+With this simple design, there is no good way to hide the type of services provided 
+or consumed by a specific node;
+</t>
+<t>
 The simple design either requires having a shared key between all "authorized users" of a 
 service, which implies substandard key management practices, or publishing as many instances
 of a service as there are authorized users, which leads to the scaling issues  
@@ -525,11 +529,7 @@ each potential server, they will end up sending batches of queries with many
 different names. All of these solutions appear like big departures from the 
 simplicity and robustness of the DNS-SD design.
 </t>
-<t>
-Given the relatively low priority of hiding the service name and the complexity
-of the potential solutions, we are not recommending any particular
-protection for the instance names.
-</t>
+
 </section>
 
 
@@ -624,7 +624,7 @@ Our solution applies this architecture in the context of DNS-SD.
 It is based on the following components:
 </t>
 <t>
-<list>
+<list style="symbols">
 <t>
 Adding to DNS-SD a pairing system, described in <xref target="pairingDesign"/>, 
 through which authorized peers can establish shared secrets;
@@ -679,6 +679,7 @@ intra-user pairing
   We offer both a simple pairing just exchanging a shared secret, and an authenticated pairing
   using public key technology.
 </t>
+
 <!-- CH-Comments:
 I leave this as is, because we will have time to revisit it later, but I think
 that the discussion here is a bit confusing. The private discovery service
@@ -809,9 +810,9 @@ responses.
 
 </section>
 
-<section title="Directed Private Discovery" >
+<section title="Private Discovery Service" >
 <t>
-The Private Service Directory Service discovery allows
+The Private Discovery Service discovery allows
 discovering a list of available paired devices, and verifying that either party knows the corresponding 
 shared secret. At that point, the querier can engage in a series of
 directed discoveries.
@@ -1206,9 +1207,64 @@ a long time. For further safety, nodes SHOULD assign a time limit
 to the validity of pairings, discard the corresponding keys when
 the time has passed, and establish new pairings.
 </t>
+<t>
+This later requirement of limiting the Time-To-Live can raise
+doubts about the usability fo the protocol. The usability issues
+would be mitigated if the initial pairing provided both
+a shared secret and the means to renew that secret over time,
+e.g. using authenticated public keys.
+</t>
 </section>
 
-<section title="Attacks against the Private Discovery Service" >
+<section title="Denial of Discovery of the Private Discovery Service" >
+<t>
+The algorithm described in <xref target="solution:discoverPds" /> scales as
+O(M*N), where M is the number of pairing per nodes and N is the number of nodes in
+the local scope. Adversaries can attack this service by publishing "fake"
+instances, effectively increasing the number N in that scaling equation.
+</t>
+<t>
+Similar attacks can be mounted against DNS-SD: creating fake instances
+will generally increase the noise in the system and make discovery less
+usable. Private Discovery Service discovery SHOULD use the same
+mitigations as DNS-SD.
+</t>
+<t>
+The attack is amplified because the clients need to compute proofs for
+all the nonces presented in Private Discovery Service Instance names. One
+possible mitigation would be to require that such nonces correspond to
+rounded timestamps. If we assume that timestamps must not be too old, there
+will be a finite number of valid rounded timestamps at any time. Even
+if there are many instances present, they would all pick their nonces
+from this small number of rounded timestamps, and a smart client
+could make sure that proofs are only computed once per valid
+time stamp.
+</t>
+</section>
+
+<section title="Replay attacks against Discovery of the Private Discovery Service" >
+<t>
+Adversaries can record the service instance names published by
+Private Discovery Service instances, and replay them later in different
+contexts. Peers engaging in discovery can be misled into believing
+that a paired server is present. They will attempt to connect to the
+absent peer, and in doing so will disclose their presence in a 
+monitored scope.
+</t>
+<t>
+The binary instance identifiers defined in <xref target="solution:publishPds"/>
+start with 32 bits encoding the "UNIX" time. In order to
+protect against replay attacks, clients MAY verify that this time
+is reasonably recent.
+</t>
+<t>
+TODO: should we somehow encode the scope in the identifier? Having both scope and
+time would really mitigate that attack.
+</t>
+</section>
+
+
+<section title="Denial of Private Discovery Service" >
 <t>
 The Private Discovery Service is only available through a 
 mutually authenticated TLS connection, which provides good
@@ -1220,10 +1276,17 @@ CPU cycles defending against them.
 <t>
 To mitigate such attacks, nodes SHOULD restrict the 
 range of network addresses from which they accept connections,
-matching the expected scope of the service. This will not
-restrict denial of service attacks to locally connected 
-adversaries. 
+matching the expected scope of the service. 
 </t>
+<t>
+The mitigation will not
+restrict denial of service attacks to locally connected 
+adversaries, but then we know that it is generally very difficult to protect
+against denial of service by local attackers. For example, local
+attackers can also attack mDNS and DNS-SD by generating large number of
+multicast requests.
+</t>
+
 </section>
 
 <section title="Replay Attacks against the Private Discovery Service" >
@@ -1250,42 +1313,6 @@ If the check is too strict, reasonable connections could fail. To
 further mitigate the replay attacks, servers MAY record the list of 
 valid PSK identifiers received in a recent past, and fail connections
 if one of these identifiers is replayed.
-</t>
-</section>
-
-<section title="Denial of Discovery Service" >
-<t>
-The algorithm described in <xref target="solution:discoverPds" /> scales as
-O(M*N), where M is the number of pairing per nodes and N is the number of nodes in
-the local scope. Adversaries can attack this service by publishing "fake"
-instances, effectively increasing the number N in that scaling equation.
-</t>
-<t>
-Similar attacks can be mounted against DNS-SD: creating fake instances
-will generally increase the noise in the system and make discovery less
-usable. Private Discovery Service discovery SHOULD use the same
-mitigations as DNS-SD.
-</t>
-</section>
-
-<section title="Replay attacks against discovery service" >
-<t>
-Adversaries can record the service instance names published by
-Private Discovery Service instances, and replay them later in different
-contexts. Peers engaging in discovery can be misled into believing
-that a paired server is present. They will attempt to connect to the
-absent peer, and in doing so will disclose their presence in a 
-monitored scope.
-</t>
-<t>
-The binary instance identifiers defined in <xref target="solution:publishPds"/>
-start with 32 bits encoding the "UNIX" time. In order to
-protect against replay attacks, clients MAY verify that this time
-is reasonably recent.
-</t>
-<t>
-TODO: should we somehow encode the scope in the identifier? Having both scope and
-time would really mitigate that attack.
 </t>
 </section>
 
