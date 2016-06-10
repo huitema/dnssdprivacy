@@ -253,16 +253,17 @@ It enables tracking of the device, and by extension of the device's owner.
 
 <section title="Privacy Implication of Publishing Service Attributes">
 <t>
-The TXT records contain a set of attribute and value pairs characteristics of
-the service implementation. These attributes reveal some information
-about the devices that publishes the service. The amount of information
-will vary widely with the particular service and its implementation:
+The TXT record's attribute and value pairs contain information on the characteristics of
+the corresponding service instance.
+This in turn reveals information
+about the devices that publish services. The amount of information
+varies widely with the particular service and its implementation:
 </t>
 <t>
 <list style="symbols">
 <t>
 Some attributes like the paper size available in a printer, are the
-same on many devices, and thus only provides limited information
+same on many devices, and thus only provide limited information
 to a tracker.
 </t>
 <t>
@@ -274,6 +275,18 @@ may reveal much more information.
 <t>
 Combinations of attributes have more information power than specific attributes,
 and can potentially be used for "fingerprinting" a specific device.
+</t>
+
+<t>
+Information contained in TXT records does not only breach privacy by making devices
+trackable, but might directly contain private information about a device user.
+For instance the _presence service reveals the "chat status" to everyone in the same network.
+Users might not be aware of that.
+</t>
+
+<t>
+  Further, TXT records often contain version information about services allowing potential attackers
+  to identify devices running exploit-prone version of a certain service.
 </t>
 
 </section>
