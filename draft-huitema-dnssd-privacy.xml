@@ -584,7 +584,8 @@ Key management becomes much easier if it is strictly pair-wise. Two
 paired devices, or to pairs of users, can simply renew their
 pairing and get a new secret. If a device ceases to be trusted, 
 the pairing data and the corresponding secret can just be 
-deleted and forgotten. But then, we have a scaling issue.
+deleted and forgotten.
+But using strictly pair-wise keys yields a scaling issue.
 Let's assume that:
 </t>
 <t>
@@ -1200,7 +1201,7 @@ of the service, or to deny it. A list of these attacks and their
 mitigations are described in the following sections.
 </t>
 
-<section title="Attacks against the Pairing System" >
+<section title="Attacks Against the Pairing System" >
 <t>
 There are a variety of attacks against pairing systems. They 
 may result in compromised pairing keys. If an adversary manages to
@@ -1253,7 +1254,7 @@ time stamp.
 </t>
 </section>
 
-<section title="Replay attacks against Discovery of the Private Discovery Service" >
+<section title="Replay Attacks Against Discovery of the Private Discovery Service" >
 <t>
 Adversaries can record the service instance names published by
 Private Discovery Service instances, and replay them later in different
@@ -1290,11 +1291,9 @@ range of network addresses from which they accept connections,
 matching the expected scope of the service. 
 </t>
 <t>
-The mitigation will not
-restrict denial of service attacks to locally connected 
-adversaries, but then we know that it is generally very difficult to protect
-against denial of service by local attackers. For example, local
-attackers can also attack mDNS and DNS-SD by generating large number of
+This mitigation will not prevent denial of service attacks performed by locally connected 
+adversaries; but protecting against local denial of service attacks is generally very difficult.
+For example, local attackers can also attack mDNS and DNS-SD by generating a large number of
 multicast requests.
 </t>
 
@@ -1321,7 +1320,7 @@ or if it occurs too far in the future.
 The processing of
 timestamps is however mitigated by the accuracy of computer clocks. 
 If the check is too strict, reasonable connections could fail. To
-further mitigate the replay attacks, servers MAY record the list of 
+further mitigate replay attacks, servers MAY record the list of 
 valid PSK identifiers received in a recent past, and fail connections
 if one of these identifiers is replayed.
 </t>
