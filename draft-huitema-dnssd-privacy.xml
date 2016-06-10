@@ -1026,9 +1026,13 @@ obfuscated host name.
 TODO: need to define the pairing service, or API. The API approach assumes that pairing is outside our scope,
 and is done using BT-LE, or any other existing mechanism. This is a bit of a cope-out. We could also define
 a pairing system that just sets the pairing with equivalent security as the "push button" or "PIN" solutions
-used for BT or Wi-Fi. And we could at this stage leverage pre-existing security association, e.g. PGP
+used for BT or Wi-Fi. And we could at this stage leverage a pre-existing security association, e.g. PGP
 identities or other certificates. If we do that, we should probably dedicate a top level section to
 specifying the minimal pairing service.
+
+Using a pre-existing asymmetric security association, we can use a key exchange similar to
+IKEv2 (RFC 7296). IKEv2 leverages the SIGMA protocols, which provide various methods of authenticated DH.
+It would also be possible to authenticate DH using symmetric passwords (e.g. Bellovin-Merritt).
 </t>
 </section>
 
