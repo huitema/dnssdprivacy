@@ -701,21 +701,30 @@ course taking advantage of lready authenticated public keys.
 -->
 
 <section title="Shared Secret">
-<t>
-  TODO: generation and transmission of the shared secret.
+  <t>
+  Goal of the pairing process is establishing pairwise shared secrets.
+  If two users can leverage a secure private off-channel,
+  it suffices for one user to generate the shared secret and transmit it over this
+  off-channel.
+  It would be possible for the users to meet and orally agree on a password that
+  both users enter in their devices. This has the disadvantage of user-chosen passwords to
+  have low entropy and the inconvenience of having to type the password.
+  Leveraging QR-codes can overcome these disadvantages:
+  one user generates a shared secret, displays it in form of a QR-code, and the other user scans this code.
+  Strictly speaking, displaying and scanning QR-codes does not establish a secure private channel,
+  as others could also photograph this code; but it is reasonable secure for the application area of private service discovery.
 
-  When using Bluetooth LE or scanning a QR code as means of transmitting the shared secret,
-  the probability of the secret getting stolen is reasonably low.
+  Using Bluetooth LE might also be considered satisfactory as a compromise between
+  convenience and security.
 </t>
 </section>
 
 
 <section title="Secure Authenticated Pairing Channel">
 <t>
-  Optionally, authenticated DH can be used to exchange a mutually authenticated shared secret.
-  
-  TODO: protocol.
-
+  Optionally, various versions of authenticated DH can be used to exchange a mutually authenticated shared secret
+  (which among other possibilities can leverage QR-codes for key fingerprint verification).
+  Using DH gives the benefit of provable security and the possibility to perform a pairing when not being able to meet in person.
   Further, using DH to generate the shared secret has the advantage of both parties contributing to the shared secret (multiparty computation).
 </t>
 </section>
