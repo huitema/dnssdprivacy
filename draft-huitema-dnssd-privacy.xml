@@ -160,7 +160,7 @@ in <xref target="design"/>, and describe the proposed solution in
 </section>
 </section>
 
-<section title="Privacy implications of DNS-SD" anchor="analysis">
+<section title="Privacy Implications of DNS-SD" anchor="analysis">
 <t>
 DNS-Based Service Discovery (DNS-SD) is defined in <xref target="RFC6763" />.
 It allows nodes to publish the availability of an instance of a service by
@@ -189,7 +189,7 @@ instance names, node names, service attributes and other data, as well as review
 the implications of using the discovery service as a client.
 </t>
 
-<section title="Privacy implication of publishing Service Instance Names" anchor="instanceLeak" >
+<section title="Privacy Implication of Publishing Service Instance Names" anchor="instanceLeak" >
 <t>
 In the first phase of discovery, the client obtains all
 the PTR records associated with a service type in a given naming domain.
@@ -238,7 +238,7 @@ services, but to anybody passively listing to the network traffic.
 </t>
 </section>
 
-<section title="Privacy implication of publishing node names">
+<section title="Privacy Implication of Publishing Node Names">
 <t>
 The SRV records contain the DNS name of the node publishing the
 service. Typical implementations construct this DNS name by
@@ -251,7 +251,7 @@ It enables tracking of the device, and by extension of the device's owner.
 </t>
 </section>
 
-<section title="Privacy implication of publishing service attributes">
+<section title="Privacy Implication of Publishing Service Attributes">
 <t>
 The TXT records contain a set of attribute and value pairs characteristics of
 the service implementation. These attributes reveal some information
@@ -278,7 +278,7 @@ and can potentially be used for "fingerprinting" a specific device.
 
 </section>
 
-<section title="Device fingerprinting" anchor="serverFingerprint">
+<section title="Device Fingerprinting" anchor="serverFingerprint">
 <t>
 The combination of information published in DNS-SD has the potential to
 provide a "fingerprint" of a specific device. Such information includes: 
@@ -319,7 +319,7 @@ traffic analysis.
 </t>
 </section>
 
-<section title="Privacy implication of discovering services" anchor="clientPrivacy" >
+<section title="Privacy Implication of Discovering Services" anchor="clientPrivacy" >
 <t>
 The consumers of services engage in discovery, and in doing so do 
 reveal some information such as the list of services that they
@@ -337,7 +337,7 @@ analysis can often reveal the service.
 </section>
 </section>
 
-<section title="Limits of a simple design" anchor="towards" >
+<section title="Limits of a Simple Design" anchor="towards" >
 <t>
 We tried first a simple design for mitigating the issues outlined in <xref target="analysis" />. 
 The basic idea was to advertise obfuscated names, so as to not reveal the particularities
@@ -367,7 +367,7 @@ discussed in <xref target="scalingIssues"/>.
 Both issues are mitigated by the two-stage design presented in <xref target="design" />. The following
 subsections detail the simple design, and its drawbacks.
 </t>
-<section title="Obfuscated instance names" anchor="obfuscatedInstanceName" >
+<section title="Obfuscated Instance Names" anchor="obfuscatedInstanceName" >
 <t>
 The privacy issues described in <xref target="instanceLeak"/> 
 could be solved by obfuscating the instance names. Instead
@@ -441,7 +441,7 @@ is suboptimal.
 </section>
 
 
-<section title="Names of obfuscated services">
+<section title="Names of Obfuscated Services">
 
 <t>
 Instead of publishing the actual service name in the SRV records,
@@ -531,7 +531,7 @@ simplicity and robustness of the DNS-SD design.
 </section>
 
 
-<section title="Scaling issues with obfuscation" anchor="scalingIssues" >
+<section title="Scaling Issues with Obfuscation" anchor="scalingIssues" >
 <t>
 In <xref target="obfuscatedInstanceName" />, we assumed that each advertised
 record contains a name obfuscated with a shared key. This approach is easy
@@ -860,7 +860,7 @@ the shared secret.
 </t>
 
 
-<section title="A note on Private DNS services" >
+<section title="A Note on Private DNS Services" >
 <t>
 Our solution uses a variant of the DNS over TLS  protocol 
 <xref target="RFC7858" /> defined by the DNS Private Exchange working group
@@ -906,7 +906,7 @@ the presence of a service.
 
 
 
-<section title="Randomized host names" >
+<section title="Randomized Host Names" >
 <t>
 Instead of publishing their actual name in the SRV records, nodes 
 could publish a randomized name. That is the solution argued for
@@ -921,7 +921,7 @@ usability issues.
 </section>
 
 
-<section title="Timing of obfuscation and randomization" anchor="timing" >
+<section title="Timing of Obfuscation and Randomization" anchor="timing" >
 <t>
 It is important that the obfuscation of instance names is performed at the right time,
 and that the obfuscated names change in synchrony with other identifiers,
