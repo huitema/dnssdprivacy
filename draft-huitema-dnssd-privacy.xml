@@ -622,22 +622,22 @@ the available services.
 
 <section title="Design of the Private DNS-SD Discovery Service" anchor="design" >
 <t>
-In this section, we present the design of a two stage solution that enables private
+In this section, we present the design of a two-stage solution that enables private
 use of DNS-SD, without affecting existing users, and with better scalability than 
 the simple solution presented in <xref target="towards" />. The solution is largely based
 on the architecture proposed in <xref target="KW14b" />, which separates the 
 general private discovery problems in three components: Pairing, discovery of 
-private directory service, and actual discovery through this private service. 
-Pairing has to provide Directory Discovery with means for mutual authentication, 
-e.g. with an authenticated shared secret. Directory Discovery has to provide Service 
-Querying with an authenticated connection to the desired service directory.
+a private discovery service, and actual service discovery through this private service. 
+Pairing has to provide the private discovery servers with means for mutual authentication, 
+e.g. with an authenticated shared secret.
+The private discovery servers provide actual service discovery with an authenticated connection.
 Our solution applies this architecture in the context of DNS-SD.
 It is based on the following components:
 </t>
 <t>
 <list style="symbols">
 <t>
-Adding to DNS-SD a pairing system, described in <xref target="pairingDesign"/>, 
+Adding a pairing system to DNS-SD, described in <xref target="pairingDesign"/>, 
 through which authorized peers can establish shared secrets;
 </t>
 <t>
@@ -669,12 +669,12 @@ These are independent with respect to means used for transmitting the necessary 
 <t>
 <list style="numbers">
 <t>
-inter-user pairing is a pairing between devices of "friends".
-      Since this has to be done manually, e.g. by the means described above,
+Inter-user pairing is a pairing between devices of "friends".
+      Since it has to be performed manually, e.g. by the means described above,
       it is important to limit it to once per pair of friends.
 </t>
 <t>
-intra-user pairing
+Intra-user pairing
       is a pairing of devices of the same user. It can be performed
       without any configuration by a meta-service (pairing data synchronization service) in
       a trusted (home) network.
@@ -724,7 +724,7 @@ course taking advantage of lready authenticated public keys.
   <t>
   The public/private key pair - if at all - is just used for the aforementioned authenticated DH to
   grant a mutually authenticated shared secret.
-  Obtaining and verifying a friend's public key, can be achieved by different means.
+  Obtaining and verifying a friend's public key can be achieved by different means.
   For obtaining the keys, we can either leverage an existing PKI, e.g. the PGP web of trust,
   or generate our own key pairs (and exchange them right before verifying).
   For authenticating the keys, which boils down to comparing fingerprints on an off-channel,
@@ -741,7 +741,7 @@ course taking advantage of lready authenticated public keys.
 <section title="Discovery of the Private Discovery Service" anchor="stage1Design">
 <t>
 The first stage of service discovery is to check whether 
-instances of compatible Private Discovery Service are available in the local scope.
+instances of compatible Private Discovery Services are available in the local scope.
 The goal of that stage is to identify devices that share a pairing with the querier, and
 are available locally. The service instances can be discovered 
 using regular DNS-SD procedures, but the list of
@@ -812,7 +812,7 @@ practical scenarios.
 <t>
 In practice, a 32 bit proof should be sufficient to
 distinguish between available devices. However, there is clearly a risk
-of collision. The Private Service Directory Service as described here will
+of collision. The Private Discovery Service as described here will
 find the available pairings, but it might also find a spurious number of 
 "false positives." The chances of that happening are however quite small: 
 less than 0.02% for a device managing 10 pairings and processing 10000
