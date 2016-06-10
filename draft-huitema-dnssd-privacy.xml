@@ -352,7 +352,7 @@ analysis can often reveal the service.
 
 <section title="Limits of a Simple Design" anchor="towards" >
 <t>
-We tried first a simple design for mitigating the issues outlined in <xref target="analysis" />. 
+We first tried a simple design for mitigating the issues outlined in <xref target="analysis" />. 
 The basic idea was to advertise obfuscated names, so as to not reveal the particularities
 of the service providers. This design is tempting, because it only requires minimal
 changes in the DNS-SD processing. However, as we will see in the following subsections,
@@ -362,11 +362,11 @@ it has two important drawbacks:
 <list style="symbols">
 <t>
 The simple design leads to UI issues, because users of unmodified DNS-SD agents will see
-a mix of clear text names and obfuscated names, which is unpleasant; 
+a mix of clear text names and obfuscated names, which is unpleasant.
 </t>
 <t>
 With this simple design, there is no good way to hide the type of services provided 
-or consumed by a specific node;
+or consumed by a specific node.
 </t>
 <t>
 The simple design either requires having a shared key between all "authorized users" of a 
@@ -392,7 +392,7 @@ values would be used at different locations, or at different times.
 <t>
 Authorized parties have to be able to "de-obfuscate" the names,
 while non-authorized third parties will not be. For example,
-if both Alice notebook and Bob's laptop use an obfuscation process, 
+if both Alice's notebook and Bob's laptop use an obfuscation process, 
 the list of available services should appear differently 
 to them and to third parties. Alice's phone will be able to
 de-obfuscate the name of Alice's notebook, but not that of 
@@ -548,8 +548,8 @@ simplicity and robustness of the DNS-SD design.
 <t>
 In <xref target="obfuscatedInstanceName" />, we assumed that each advertised
 record contains a name obfuscated with a shared key. This approach is easy
-to understand, but it contains the hidden assumption. Let look at one of our 
-examples:
+to understand, but it contains hidden assumptions.
+Let's look at one of our examples:
 </t>
 <t>
 <figure>
@@ -559,21 +559,21 @@ Abracadabragooklybok (Bob's Notebook) . _presence._tcp   . local
 </figure>
 </t>
 <t>
-We only see there one record for Bob's Notebook, obfuscated using 
+We only see one record for Bob's Notebook, obfuscated using 
 the unique shared secret associated with Bob's Notebook. That means that
 every device paired with Bob's Notebook will have a copy of that shared secret.
-We could of course do that, but there are known issues with having a secret 
+This is a possible solution, but there are known issues with having a secret 
 shared with multiple entities:
 </t>
 <t>
 <list style="symbols">
 <t>
 If for some reason the secret needs to be changed, every paired
-device will need a copy of the new secret before they can participate
-again in discovery;
+device will need a copy of the new secret before it can participate
+again in discovery.
 </t>
 <t>
-If one of the previous pairing becomes invalid, the only way
+If one of the previous pairings becomes invalid, the only way
 to block the corresponding devices from discovery is to change the
 secret for all other devices.
 </t>
@@ -590,17 +590,17 @@ Let's assume that:
 <t>
 <list style="symbols">
 <t>
-Each device maintains an average of N pairing
+Each device maintains an average of N pairings.
 </t>
 <t>
-There are on average M devices present during discovery
+There are on average M devices present during discovery.
 </t>
 </list>
 </t>
 <t>
 In the single key scenario, after issuing a broadcast query, the querier 
 will receive a series of responses, each of which may well be obfuscated 
-with a different key. If the receiver has N pre-existing pairing and 
+with a different key. If the receiver has N pre-existing pairings and 
 receives M obfuscated responses, the cost will scale as O(M*N), i.e. try 
 all N pairing keys for each of the M responses to see what matches. But
 if the keys are specific to each pair of devices, the obfuscation becomes 
@@ -610,9 +610,9 @@ send N responses, but then the load on the querier will scale as O(M*N^2).
 That can go out of hand very quickly.
 </t>
 <t>
-To solve the scaling issue, we consider a two-stages solutions: use
+To solve the scaling issue, we consider a two-stage solution that uses
 an optimized discovery procedure to discover privacy-compatible devices;
-and use point to point encrypted exchanges to privately discover
+and uses point to point encrypted exchanges to privately discover
 the available services.
 </t>
 </section>
