@@ -286,7 +286,7 @@ Users might not be aware of that.
 
 <t>
   Further, TXT records often contain version information about services allowing potential attackers
-  to identify devices running exploit-prone version of a certain service.
+  to identify devices running exploit-prone versions of a certain service.
 </t>
 
 </section>
