@@ -1209,7 +1209,7 @@ acquire a compromised key, the adversary will be able to perform
 private service discovery according to <xref target="solution:discoverPds" />.
 This will allow tracking of the service. The adversary will also
 be able to discover which private services are available for
-the compromized pairing.
+the compromised pairing.
 </t>
 <t>
 To mitigate such attacks, nodes MUST be able to quickly revoke 
