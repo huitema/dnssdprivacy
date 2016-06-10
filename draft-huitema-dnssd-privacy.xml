@@ -100,21 +100,19 @@
     <abstract>
         <t> 
 DNS-SD allows discovery of services published in DNS or MDNS. The publication
-normally disclose information about the device publishing the services.
+normally discloses information about the device publishing the services.
 There are use cases where devices want to communicate without disclosing
 their identity, for example two mobile devices visiting the same
 hotspot.
 </t>
 <t>
-We propose to solve this problem by defining a "Private Discovery Service",
-which is a version of DNS-SD running over TLS. Nodes that provide private
-services will run the Private Discovery Service, and publish its presence
-in DNS-SD using special formats to protect their privacy. Nodes will be
-authorized to access the services by a pairing system, resulting in
-the establishment of shared secrets. Peered nodes
-will discover the Private Discovery Services of their peers, and use TLS
-connections authenticated by a shared secret to retrieve information
-about the actual services.
+  We propose to solve this problem by a two-stage approach.
+  In the first stage, hosts discover Private Discovery Service Instances via
+  DNS-SD using special formats to protect their privacy.
+  These service instances correspond to Private Discovery Servers running on peers offering private services.
+  In the second stage, hosts directly query these Private Discovery Servers via DNS-SD over TLS.
+  A pairwise shared secret necessary to establish these connections
+  is only known to hosts authorized by a pairing system.
 </t>
     </abstract>
 </front>
@@ -1209,7 +1207,7 @@ the time has passed, and establish new pairings.
 </t>
 <t>
 This later requirement of limiting the Time-To-Live can raise
-doubts about the usability fo the protocol. The usability issues
+doubts about the usability of the protocol. The usability issues
 would be mitigated if the initial pairing provided both
 a shared secret and the means to renew that secret over time,
 e.g. using authenticated public keys.
