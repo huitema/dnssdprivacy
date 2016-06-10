@@ -314,10 +314,10 @@ The values of the priority and weight attributes in the SRV records.
 </list>
 </t>
 <t>
-This combination of services and attribute will often be sufficient to identify
+This combination of services and attributes will often be sufficient to identify
 the version of the software running on a device. If a device publishes
 many services with rich sets of attributes, the combination may be
-sufficient to identify the specific device. 
+sufficient to identify the specific device.
 </t>
 <t>
 There is however an argument that devices providing services can be discovered
@@ -334,8 +334,8 @@ traffic analysis.
 
 <section title="Privacy Implication of Discovering Services" anchor="clientPrivacy" >
 <t>
-The consumers of services engage in discovery, and in doing so do 
-reveal some information such as the list of services that they
+The consumers of services engage in discovery, and in doing so
+reveal some information such as the list of services they
 are interested in and the domains in which they are looking for the
 services. When the clients select specific instances of services,
 they reveal their preference for these instances. This can be benign if
