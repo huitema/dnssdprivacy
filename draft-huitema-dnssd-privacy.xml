@@ -1143,7 +1143,7 @@ In this formula, HASH SHOULD be the function SHA256
 defined in <xref target="RFC4055"/>, and BASE64 is defined 
 in section 6.8 of <xref target="RFC2045" />. The concatenation
 of a 32 bit nonce and up to 10 pairing hints result a bit string 
-at most 332 bit long. The BASE64 conversion will produce 
+at most 352 bit long. The BASE64 conversion will produce 
 a string that is up to 59 characters long, which fits
 within the 63 characters limit defined in
 <xref target="RFC6763"/>.
