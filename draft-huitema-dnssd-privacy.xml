@@ -319,16 +319,16 @@ the version of the software running on a device. If a device publishes
 many services with rich sets of attributes, the combination may be
 sufficient to identify the specific device.
 </t>
+
 <t>
 There is however an argument that devices providing services can be discovered
-by observing the local traffic, because different services have different traffic 
-patterns. The observation could in many cases also reveal some specificities
-of the service's implementation. Even if the traffic is encrypted, the size
-and the timing of packets may be sufficient to reveal that information. This
-argument can be used to assess the priority of, for example, protecting the 
-fact that a device publishes a particular service. However, we may assume that the 
-developers of sensitive services will use counter-measures to defeat such
-traffic analysis.
+by observing the local traffic, and that trying to hide the presence of the service
+is futile. The same argument can be extented to say that the pattern of services 
+offered by a device allows for fingerprinting the device. This may or may not
+be true, since we can expect that services will be designed or updated to
+avoid leaking fingerprints. In any case, the design of the discovery
+service should avoid making a bad situation worse, and should as much as
+possible avoid providing new fingerprinting information.
 </t>
 </section>
 
@@ -349,6 +349,8 @@ analysis can often reveal the service.
 </t>
 </section>
 </section>
+
+<!-- CH: commenting out the simple-design section
 
 <section title="Limits of a Simple Design" anchor="towards" >
 <t>
@@ -621,11 +623,12 @@ the available services.
 
 </section>
 
+-->
+
 <section title="Design of the Private DNS-SD Discovery Service" anchor="design" >
 <t>
 In this section, we present the design of a two-stage solution that enables private
-use of DNS-SD, without affecting existing users, and with better scalability than 
-the simple solution presented in <xref target="towards" />. The solution is largely based
+use of DNS-SD, without affecting existing users. The solution is largely based
 on the architecture proposed in <xref target="KW14b" />, which separates the 
 general private discovery problems in three components: Pairing, discovery of 
 a private discovery service, and actual service discovery through this private service. 
@@ -655,6 +658,7 @@ so that peers can discover their services without compromising their privacy.
 <t>
 These are independent with respect to means used for transmitting the necessary data.
 </t>
+
 
 <section title="Device Pairing" anchor="pairingDesign" >
 
@@ -759,11 +763,10 @@ discovered services will have to be filtered so only paired
 devices are retained.
 </t>
 <t>
-We have demonstrated in <xref target="scalingIssues" /> that 
-simple obfuscation would require publishing as many records per
-publisher as there are pairings, which ends up scaling as O(M*N^2)
-in which M is the number of devices present and N is the number of
-pairings per device. We can mitigate this problem by using a special
+The discovery relies on the advertisement of "proofs" by the publishers of the
+service. Each proof is the hash of a nonce with the key shared between the
+publisher and one of the paired devices. In order to reduce the overall
+number of messages, we use a special
 encoding of the instance name. Suppose that the publisher manages 
 N pairings with the associated keys K1, K2, ... Kn. The instance
 name will be set to an encoding of N "proofs" of the N keys,
@@ -963,6 +966,7 @@ composed at the same time.
 </t>
 
 </section>
+
 </section>
 
 <section title="Private Discovery Service Specification" anchor="solution" >
@@ -1017,7 +1021,7 @@ obfuscated host name.
 <section title="Device Pairing" anchor="solution:pairing">
 <t>
   Nodes that want to leverage the Private Directory Service for private service discovery among peers
-  MUST share a secret with each of these peers. The shared secret MUST be a 256 bit randomly chosen number.
+  MUST share a secret with each of these peers. Each shared secret MUST be a 256 bit randomly chosen number.
   The secret SHOULD be exchanged via device Pairing. The pairing process SHALL establish a mutually authenticated secure channel to
   perform the shared secret exchange.
   It is RECOMMENDED for both parties to contribute to the shared secret, e.g. by using a Diffie-Hellman key exchange.
