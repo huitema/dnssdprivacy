@@ -639,7 +639,7 @@ We use the pairing system proposed in [draft-pairing].
 </t>
 
 <t>
-  The further two components are online -- in contrast to pairing they are performed anew each time joining a network --
+  The further two components are online (in contrast to pairing they are performed anew each time joining a network)
   and compose the two service discovery stages, namely
 </t>
 <t>
@@ -676,86 +676,24 @@ through the Private Discovery Service, which only accepts encrypted messages ass
   between authorized devices, which are allowed to get information about discoverable entities,
   and other devices, which should not be aware of the availability of private entities.
   The commonly used solution to this problem is establishing a  "device pairing".
-  In our discovery scenarios, we envisage two kinds of pairings:
 </t>
 
 <t>
-<list style="numbers">
-<t>
-Inter-user pairing is a pairing between devices of "friends".
-      Since it has to be performed manually, e.g. by the means described above,
-      it is important to limit it to once per pair of friends.
-</t>
-<t>
-Intra-user pairing
-      is a pairing of devices of the same user. It can be performed
-      without any configuration by a meta-service (pairing data synchronization service) in
-      a trusted (home) network.
-    </t>
-</list>
+  Device pairing has to be performed only once per pair of users. This is important 
+  for user-friendliness, as it is the only step that demands user-interaction.
+  After this single pairing, privacy preserving service discovery works fully automaticly.
+  In this document, we leverage [pairing-draft] as pairing mechanism.
+  [pairing-draft] offers a fully automatic way of operation for devices of the same user.
+  It also provides means to synchroize pairing data among the devices of the same user
+  makeing a single pairing per pair of users feasible (instead of a pairing per pair of devices).
 </t>
 
 <t>
-  The result of the pairing will be a shared secret, and optionally
-  mutually authenticated public keys added to a local web of trust.
+  The pairing yields a mutually authenticated shared secret, and optionally
+  mutually authenticated public keys or certificates added to a local web of trust.
   Public key technology has many advantages, but shared secrets are typically easier to
   handle on small devices.
-  We offer both a simple pairing just exchanging a shared secret, and an authenticated pairing
-  using public key technology.
 </t>
-
-<!-- CH-Comments:
-I leave this as is, because we will have time to revisit it later, but I think
-that the discussion here is a bit confusing. The private discovery service
-should just assume the existence of a shared secret by pair of peers. The
-pairing service can establish this secret in many ways, including of
-course taking advantage of lready authenticated public keys. 
--->
-
-<section title="Shared Secret">
-  <t>
-  Goal of the pairing process is establishing pairwise shared secrets.
-  If two users can leverage a secure private off-channel,
-  it suffices for one user to generate the shared secret and transmit it over this
-  off-channel.
-  It would be possible for the users to meet and orally agree on a password that
-  both users enter in their devices. This has the disadvantage of user-chosen passwords to
-  have low entropy and the inconvenience of having to type the password.
-  Leveraging QR-codes can overcome these disadvantages:
-  one user generates a shared secret, displays it in form of a QR-code, and the other user scans this code.
-  Strictly speaking, displaying and scanning QR-codes does not establish a secure private channel,
-  as others could also photograph this code; but it is reasonable secure for the application area of private service discovery.
-
-  Using Bluetooth LE might also be considered satisfactory as a compromise between
-  convenience and security.
-</t>
-</section>
-
-
-<section title="Secure Authenticated Pairing Channel">
-<t>
-  Optionally, various versions of authenticated DH can be used to exchange a mutually authenticated shared secret
-  (which among other possibilities can leverage QR-codes for key fingerprint verification).
-  Using DH gives the benefit of provable security and the possibility to perform a pairing when not being able to meet in person.
-  Further, using DH to generate the shared secret has the advantage of both parties contributing to the shared secret (multiparty computation).
-</t>
-</section>
-
-
-<section title="Public Authentication Keys">
-  <t>
-  The public/private key pair - if at all - is just used for the aforementioned authenticated DH to
-  grant a mutually authenticated shared secret.
-  Obtaining and verifying a friend's public key can be achieved by different means.
-  For obtaining the keys, we can either leverage an existing PKI, e.g. the PGP web of trust,
-  or generate our own key pairs (and exchange them right before verifying).
-  For authenticating the keys, which boils down to comparing fingerprints on an off-channel,
-  we distinguish between means that demand users to be in close proximity of each other,
-  and means where users do not have to meet in person.
-  The former can e.g. be  realized by verifying a fingerprint leveraging QR-Codes,
-  the latter by reading a fingerprint during a phone call or using the socialist millionaires protocol.
-</t>
-</section>
 
 </section>
 
@@ -1030,21 +968,11 @@ obfuscated host name.
 <t>
   Nodes that want to leverage the Private Directory Service for private service discovery among peers
   MUST share a secret with each of these peers. Each shared secret MUST be a 256 bit randomly chosen number.
-  The secret SHOULD be exchanged via device Pairing. The pairing process SHALL establish a mutually authenticated secure channel to
-  perform the shared secret exchange.
-  It is RECOMMENDED for both parties to contribute to the shared secret, e.g. by using a Diffie-Hellman key exchange.
+  We RECOMMEND using the pairing mechanism proposed in [pairing-draft] to establish these secrets.
 </t>
-<t>
-TODO: need to define the pairing service, or API. The API approach assumes that pairing is outside our scope,
-and is done using BT-LE, or any other existing mechanism. This is a bit of a cope-out. We could also define
-a pairing system that just sets the pairing with equivalent security as the "push button" or "PIN" solutions
-used for BT or Wi-Fi. And we could at this stage leverage a pre-existing security association, e.g. PGP
-identities or other certificates. If we do that, we should probably dedicate a top level section to
-specifying the minimal pairing service.
 
-Using a pre-existing asymmetric security association, we can use a key exchange similar to
-IKEv2 (RFC 7296). IKEv2 leverages the SIGMA protocols, which provide various methods of authenticated DH.
-It would also be possible to authenticate DH using symmetric passwords (e.g. Bellovin-Merritt).
+<t>
+  TODO: optionally establishing mutually authenticated certificates. They can also be used to initiate TLS and have several advantages, i.e. allow setting an expiry date.
 </t>
 </section>
 
