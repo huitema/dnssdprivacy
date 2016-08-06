@@ -628,36 +628,44 @@ the available services.
 <section title="Design of the Private DNS-SD Discovery Service" anchor="design" >
 <t>
 In this section, we present the design of a two-stage solution that enables private
-use of DNS-SD, without affecting existing users. The solution is largely based
-on the architecture proposed in <xref target="KW14b" />, which separates the 
-general private discovery problems in three components: Pairing, discovery of 
-a private discovery service, and actual service discovery through this private service. 
-Pairing has to provide the private discovery servers with means for mutual authentication, 
-e.g. with an authenticated shared secret.
-The private discovery servers provide actual service discovery with an authenticated connection.
-Our solution applies this architecture in the context of DNS-SD.
-It is based on the following components:
+use of DNS-SD, without affecting existing users.
+The solution is largely based on the architecture proposed in <xref target="KW14b" />, which separates the 
+general private discovery problems in three components.
+The first component is an offline pairing mechanism,
+which is performed only once per pair of users.
+It establishes a shared secret over an authenticated channel, allowing devices to
+authenticate using this secret without user interaction at any later point in time.
+We use the pairing system proposed in [draft-pairing].
+</t>
+
+<t>
+  The further two components are online -- in contrast to pairing they are performed anew each time joining a network --
+  and compose the two service discovery stages, namely
 </t>
 <t>
 <list style="symbols">
 <t>
-Adding a pairing system to DNS-SD, described in <xref target="pairingDesign"/>, 
-through which authorized peers can establish shared secrets;
+Discovery of the Private Discovery Service -- the first stage -- in which
+hosts discover the Private Discovery Service (PDS), a special service offered by every host supporting our extension.
+After the discovery, hosts connect to the PSD offered by paired peers.
 </t>
 <t>
-Defining the Private Discovery Service through which other services can be advertised
-in a private manner;
-</t>
-<t>
-And, publishing availability
-of the Private Discovery Service using DNS-SD,
-so that peers can discover their services without compromising their privacy.
+Actual Service Discovery -- the second stage -- performed 
+through the Private Discovery Service, which only accepts encrypted messages associated with an authenticated session; thus not compromising privacy.
 </t>
 </list>
 </t>
 <t>
-These are independent with respect to means used for transmitting the necessary data.
+  In other words, the hosts first discover paired peers and then directly engage in privacy preserving service discovery.
 </t>
+
+<t>
+  The stages are independent with respect to means used for transmitting the necessary data.
+  While in our extension the messages for the first stage are transmitted using IP multicast, the messages for
+  the second stage are transmitted via unicast.
+  One could also imagine using a Distributed Hash Table for the first stage being completely independent of multicast.
+</t>
+
 
 
 <section title="Device Pairing" anchor="pairingDesign" >
