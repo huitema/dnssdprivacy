@@ -59,7 +59,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-huitema-dnssd-privacy-01.txt"
+     docName="draft-huitema-dnssd-privacy-02.txt"
      ipr="trust200902">
 
 <front>
@@ -319,16 +319,16 @@ the version of the software running on a device. If a device publishes
 many services with rich sets of attributes, the combination may be
 sufficient to identify the specific device.
 </t>
+
 <t>
 There is however an argument that devices providing services can be discovered
-by observing the local traffic, because different services have different traffic 
-patterns. The observation could in many cases also reveal some specificities
-of the service's implementation. Even if the traffic is encrypted, the size
-and the timing of packets may be sufficient to reveal that information. This
-argument can be used to assess the priority of, for example, protecting the 
-fact that a device publishes a particular service. However, we may assume that the 
-developers of sensitive services will use counter-measures to defeat such
-traffic analysis.
+by observing the local traffic, and that trying to hide the presence of the service
+is futile. The same argument can be extented to say that the pattern of services 
+offered by a device allows for fingerprinting the device. This may or may not
+be true, since we can expect that services will be designed or updated to
+avoid leaking fingerprints. In any case, the design of the discovery
+service should avoid making a bad situation worse, and should as much as
+possible avoid providing new fingerprinting information.
 </t>
 </section>
 
@@ -349,6 +349,8 @@ analysis can often reveal the service.
 </t>
 </section>
 </section>
+
+<!-- CH: commenting out the simple-design section
 
 <section title="Limits of a Simple Design" anchor="towards" >
 <t>
@@ -621,40 +623,50 @@ the available services.
 
 </section>
 
+-->
+
 <section title="Design of the Private DNS-SD Discovery Service" anchor="design" >
 <t>
 In this section, we present the design of a two-stage solution that enables private
-use of DNS-SD, without affecting existing users, and with better scalability than 
-the simple solution presented in <xref target="towards" />. The solution is largely based
-on the architecture proposed in <xref target="KW14b" />, which separates the 
-general private discovery problems in three components: Pairing, discovery of 
-a private discovery service, and actual service discovery through this private service. 
-Pairing has to provide the private discovery servers with means for mutual authentication, 
-e.g. with an authenticated shared secret.
-The private discovery servers provide actual service discovery with an authenticated connection.
-Our solution applies this architecture in the context of DNS-SD.
-It is based on the following components:
+use of DNS-SD, without affecting existing users.
+The solution is largely based on the architecture proposed in <xref target="KW14b" />, which separates the 
+general private discovery problems in three components.
+The first component is an offline pairing mechanism,
+which is performed only once per pair of users.
+It establishes a shared secret over an authenticated channel, allowing devices to
+authenticate using this secret without user interaction at any later point in time.
+We use the pairing system proposed in [draft-pairing].
+</t>
+
+<t>
+  The further two components are online (in contrast to pairing they are performed anew each time joining a network)
+  and compose the two service discovery stages, namely
 </t>
 <t>
 <list style="symbols">
 <t>
-Adding a pairing system to DNS-SD, described in <xref target="pairingDesign"/>, 
-through which authorized peers can establish shared secrets;
+Discovery of the Private Discovery Service -- the first stage -- in which
+hosts discover the Private Discovery Service (PDS), a special service offered by every host supporting our extension.
+After the discovery, hosts connect to the PSD offered by paired peers.
 </t>
 <t>
-Defining the Private Discovery Service through which other services can be advertised
-in a private manner;
-</t>
-<t>
-And, publishing availability
-of the Private Discovery Service using DNS-SD,
-so that peers can discover their services without compromising their privacy.
+Actual Service Discovery -- the second stage -- performed 
+through the Private Discovery Service, which only accepts encrypted messages associated with an authenticated session; thus not compromising privacy.
 </t>
 </list>
 </t>
 <t>
-These are independent with respect to means used for transmitting the necessary data.
+  In other words, the hosts first discover paired peers and then directly engage in privacy preserving service discovery.
 </t>
+
+<t>
+  The stages are independent with respect to means used for transmitting the necessary data.
+  While in our extension the messages for the first stage are transmitted using IP multicast, the messages for
+  the second stage are transmitted via unicast.
+  One could also imagine using a Distributed Hash Table for the first stage being completely independent of multicast.
+</t>
+
+
 
 <section title="Device Pairing" anchor="pairingDesign" >
 
@@ -664,86 +676,24 @@ These are independent with respect to means used for transmitting the necessary 
   between authorized devices, which are allowed to get information about discoverable entities,
   and other devices, which should not be aware of the availability of private entities.
   The commonly used solution to this problem is establishing a  "device pairing".
-  In our discovery scenarios, we envisage two kinds of pairings:
 </t>
 
 <t>
-<list style="numbers">
-<t>
-Inter-user pairing is a pairing between devices of "friends".
-      Since it has to be performed manually, e.g. by the means described above,
-      it is important to limit it to once per pair of friends.
-</t>
-<t>
-Intra-user pairing
-      is a pairing of devices of the same user. It can be performed
-      without any configuration by a meta-service (pairing data synchronization service) in
-      a trusted (home) network.
-    </t>
-</list>
+  Device pairing has to be performed only once per pair of users. This is important 
+  for user-friendliness, as it is the only step that demands user-interaction.
+  After this single pairing, privacy preserving service discovery works fully automaticly.
+  In this document, we leverage [pairing-draft] as pairing mechanism.
+  [pairing-draft] offers a fully automatic way of operation for devices of the same user.
+  It also provides means to synchroize pairing data among the devices of the same user
+  makeing a single pairing per pair of users feasible (instead of a pairing per pair of devices).
 </t>
 
 <t>
-  The result of the pairing will be a shared secret, and optionally
-  mutually authenticated public keys added to a local web of trust.
+  The pairing yields a mutually authenticated shared secret, and optionally
+  mutually authenticated public keys or certificates added to a local web of trust.
   Public key technology has many advantages, but shared secrets are typically easier to
   handle on small devices.
-  We offer both a simple pairing just exchanging a shared secret, and an authenticated pairing
-  using public key technology.
 </t>
-
-<!-- CH-Comments:
-I leave this as is, because we will have time to revisit it later, but I think
-that the discussion here is a bit confusing. The private discovery service
-should just assume the existence of a shared secret by pair of peers. The
-pairing service can establish this secret in many ways, including of
-course taking advantage of lready authenticated public keys. 
--->
-
-<section title="Shared Secret">
-  <t>
-  Goal of the pairing process is establishing pairwise shared secrets.
-  If two users can leverage a secure private off-channel,
-  it suffices for one user to generate the shared secret and transmit it over this
-  off-channel.
-  It would be possible for the users to meet and orally agree on a password that
-  both users enter in their devices. This has the disadvantage of user-chosen passwords to
-  have low entropy and the inconvenience of having to type the password.
-  Leveraging QR-codes can overcome these disadvantages:
-  one user generates a shared secret, displays it in form of a QR-code, and the other user scans this code.
-  Strictly speaking, displaying and scanning QR-codes does not establish a secure private channel,
-  as others could also photograph this code; but it is reasonable secure for the application area of private service discovery.
-
-  Using Bluetooth LE might also be considered satisfactory as a compromise between
-  convenience and security.
-</t>
-</section>
-
-
-<section title="Secure Authenticated Pairing Channel">
-<t>
-  Optionally, various versions of authenticated DH can be used to exchange a mutually authenticated shared secret
-  (which among other possibilities can leverage QR-codes for key fingerprint verification).
-  Using DH gives the benefit of provable security and the possibility to perform a pairing when not being able to meet in person.
-  Further, using DH to generate the shared secret has the advantage of both parties contributing to the shared secret (multiparty computation).
-</t>
-</section>
-
-
-<section title="Public Authentication Keys">
-  <t>
-  The public/private key pair - if at all - is just used for the aforementioned authenticated DH to
-  grant a mutually authenticated shared secret.
-  Obtaining and verifying a friend's public key can be achieved by different means.
-  For obtaining the keys, we can either leverage an existing PKI, e.g. the PGP web of trust,
-  or generate our own key pairs (and exchange them right before verifying).
-  For authenticating the keys, which boils down to comparing fingerprints on an off-channel,
-  we distinguish between means that demand users to be in close proximity of each other,
-  and means where users do not have to meet in person.
-  The former can e.g. be  realized by verifying a fingerprint leveraging QR-Codes,
-  the latter by reading a fingerprint during a phone call or using the socialist millionaires protocol.
-</t>
-</section>
 
 </section>
 
@@ -759,11 +709,10 @@ discovered services will have to be filtered so only paired
 devices are retained.
 </t>
 <t>
-We have demonstrated in <xref target="scalingIssues" /> that 
-simple obfuscation would require publishing as many records per
-publisher as there are pairings, which ends up scaling as O(M*N^2)
-in which M is the number of devices present and N is the number of
-pairings per device. We can mitigate this problem by using a special
+The discovery relies on the advertisement of "proofs" by the publishers of the
+service. Each proof is the hash of a nonce with the key shared between the
+publisher and one of the paired devices. In order to reduce the overall
+number of messages, we use a special
 encoding of the instance name. Suppose that the publisher manages 
 N pairings with the associated keys K1, K2, ... Kn. The instance
 name will be set to an encoding of N "proofs" of the N keys,
@@ -963,6 +912,7 @@ composed at the same time.
 </t>
 
 </section>
+
 </section>
 
 <section title="Private Discovery Service Specification" anchor="solution" >
@@ -1017,22 +967,12 @@ obfuscated host name.
 <section title="Device Pairing" anchor="solution:pairing">
 <t>
   Nodes that want to leverage the Private Directory Service for private service discovery among peers
-  MUST share a secret with each of these peers. The shared secret MUST be a 256 bit randomly chosen number.
-  The secret SHOULD be exchanged via device Pairing. The pairing process SHALL establish a mutually authenticated secure channel to
-  perform the shared secret exchange.
-  It is RECOMMENDED for both parties to contribute to the shared secret, e.g. by using a Diffie-Hellman key exchange.
+  MUST share a secret with each of these peers. Each shared secret MUST be a 256 bit randomly chosen number.
+  We RECOMMEND using the pairing mechanism proposed in [pairing-draft] to establish these secrets.
 </t>
-<t>
-TODO: need to define the pairing service, or API. The API approach assumes that pairing is outside our scope,
-and is done using BT-LE, or any other existing mechanism. This is a bit of a cope-out. We could also define
-a pairing system that just sets the pairing with equivalent security as the "push button" or "PIN" solutions
-used for BT or Wi-Fi. And we could at this stage leverage a pre-existing security association, e.g. PGP
-identities or other certificates. If we do that, we should probably dedicate a top level section to
-specifying the minimal pairing service.
 
-Using a pre-existing asymmetric security association, we can use a key exchange similar to
-IKEv2 (RFC 7296). IKEv2 leverages the SIGMA protocols, which provide various methods of authenticated DH.
-It would also be possible to authenticate DH using symmetric passwords (e.g. Bellovin-Merritt).
+<t>
+  TODO: optionally establishing mutually authenticated certificates. They can also be used to initiate TLS and have several advantages, i.e. allow setting an expiry date.
 </t>
 </section>
 
@@ -1143,7 +1083,7 @@ In this formula, HASH SHOULD be the function SHA256
 defined in <xref target="RFC4055"/>, and BASE64 is defined 
 in section 6.8 of <xref target="RFC2045" />. The concatenation
 of a 32 bit nonce and up to 10 pairing hints result a bit string 
-at most 332 bit long. The BASE64 conversion will produce 
+at most 352 bit long. The BASE64 conversion will produce 
 a string that is up to 59 characters long, which fits
 within the 63 characters limit defined in
 <xref target="RFC6763"/>.
