@@ -41,7 +41,8 @@
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-tls13.xml">
 <!ENTITY I-D.ietf-dnssd-push PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-push">
-
+<!ENTITY I-D.kaiser-dnssd-pairing PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.kaiser-dnssd-pairing">
 <!ENTITY kw14a PUBLIC ''
    "references/reference.kw14a.xml">
 <!ENTITY kw14b PUBLIC ''
@@ -68,16 +69,16 @@
     </title>
 
    <author fullname="Christian Huitema" initials="C." surname="Huitema">
-      <organization>Microsoft</organization>
+      <organization></organization>
       <address>
         <postal>
-          <street> </street>
-          <city>Redmond</city>
-          <code>98052</code>
+          <street></street>
+          <city>Clyde Hill</city>
+          <code>98004</code>
           <region>WA</region>
           <country>U.S.A.</country>
         </postal>
-        <email>huitema@microsoft.com</email>
+        <email>huitema@huitema.net</email>
       </address>
     </author>
 
@@ -682,10 +683,7 @@ through the Private Discovery Service, which only accepts encrypted messages ass
   Device pairing has to be performed only once per pair of users. This is important 
   for user-friendliness, as it is the only step that demands user-interaction.
   After this single pairing, privacy preserving service discovery works fully automaticly.
-  In this document, we leverage [pairing-draft] as pairing mechanism.
-  [pairing-draft] offers a fully automatic way of operation for devices of the same user.
-  It also provides means to synchroize pairing data among the devices of the same user
-  makeing a single pairing per pair of users feasible (instead of a pairing per pair of devices).
+  In this document, we leverage <xref target="I-D.kaiser-dnssd-pairing" /> as pairing mechanism.
 </t>
 
 <t>
@@ -968,7 +966,8 @@ obfuscated host name.
 <t>
   Nodes that want to leverage the Private Directory Service for private service discovery among peers
   MUST share a secret with each of these peers. Each shared secret MUST be a 256 bit randomly chosen number.
-  We RECOMMEND using the pairing mechanism proposed in [pairing-draft] to establish these secrets.
+  We RECOMMEND using the pairing mechanism proposed in
+  <xref target="I-D.kaiser-dnssd-pairing" /> to establish these secrets.
 </t>
 
 <t>
@@ -1317,6 +1316,7 @@ This draft results from initial discussions with Dave Thaler, and encouragements
        &I-D.ietf-dprive-dnsodtls;
        &I-D.ietf-tls-tls13;
        &I-D.ietf-dnssd-push;
+       &I-D.kaiser-dnssd-pairing;
 
 <reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
   <front>
