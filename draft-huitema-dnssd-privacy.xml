@@ -147,8 +147,8 @@ discover this service, and then connect to it.
 </t>
 <t>
 When analyzing these scenarios in <xref target="analysis"/>, we find that
-the DNS-SD messages leak identifying information such as instance name,
-host name or service properties. We review the design constraint of a solution
+the DNS-SD messages leak identifying information such as the instance name,
+the host name or service properties. We review the design constraint of a solution
 in <xref target="design"/>, and describe the proposed solution in
 <xref target="solution"/>.
 </t>
@@ -280,7 +280,7 @@ and can potentially be used for "fingerprinting" a specific device.
 
 <t>
 Information contained in TXT records does not only breach privacy by making devices
-trackable, but might directly contain private information about a device user.
+trackable, but might directly contain private information about the user.
 For instance the _presence service reveals the "chat status" to everyone in the same network.
 Users might not be aware of that.
 </t>
@@ -324,7 +324,7 @@ sufficient to identify the specific device.
 <t>
 There is however an argument that devices providing services can be discovered
 by observing the local traffic, and that trying to hide the presence of the service
-is futile. The same argument can be extented to say that the pattern of services 
+is futile. The same argument can be extended to say that the pattern of services 
 offered by a device allows for fingerprinting the device. This may or may not
 be true, since we can expect that services will be designed or updated to
 avoid leaking fingerprints. In any case, the design of the discovery
@@ -631,12 +631,12 @@ the available services.
 In this section, we present the design of a two-stage solution that enables private
 use of DNS-SD, without affecting existing users.
 The solution is largely based on the architecture proposed in <xref target="KW14b" />, which separates the 
-general private discovery problems in three components.
+general private discovery problem in three components.
 The first component is an offline pairing mechanism,
 which is performed only once per pair of users.
 It establishes a shared secret over an authenticated channel, allowing devices to
 authenticate using this secret without user interaction at any later point in time.
-We use the pairing system proposed in [draft-pairing].
+We use the pairing system proposed in <xref target="I-D.kaiser-dnssd-pairing" />.
 </t>
 
 <t>
@@ -651,7 +651,7 @@ hosts discover the Private Discovery Service (PDS), a special service offered by
 After the discovery, hosts connect to the PSD offered by paired peers.
 </t>
 <t>
-Actual Service Discovery -- the second stage -- performed 
+Actual Service Discovery -- the second stage -- is performed
 through the Private Discovery Service, which only accepts encrypted messages associated with an authenticated session; thus not compromising privacy.
 </t>
 </list>
@@ -664,7 +664,7 @@ through the Private Discovery Service, which only accepts encrypted messages ass
   The stages are independent with respect to means used for transmitting the necessary data.
   While in our extension the messages for the first stage are transmitted using IP multicast, the messages for
   the second stage are transmitted via unicast.
-  One could also imagine using a Distributed Hash Table for the first stage being completely independent of multicast.
+  One could also imagine using a Distributed Hash Table for the first stage, being completely independent of multicast.
 </t>
 
 
@@ -682,7 +682,7 @@ through the Private Discovery Service, which only accepts encrypted messages ass
 <t>
   Device pairing has to be performed only once per pair of users. This is important 
   for user-friendliness, as it is the only step that demands user-interaction.
-  After this single pairing, privacy preserving service discovery works fully automaticly.
+  After this single pairing, privacy preserving service discovery works fully automatically.
   In this document, we leverage <xref target="I-D.kaiser-dnssd-pairing" /> as pairing mechanism.
 </t>
 
@@ -749,8 +749,7 @@ procedure will be:
 </t>
 <t>
 The procedure presented here requires on average O(M*N) iterations of the
-hash function, which is the same scaling as the "shared secret" variant.
-It requires O(M*N^2) comparison operations, but these are less onerous
+hash function. It also requires O(M*N^2) comparison operations, but these are less onerous
 than cryptographic operations.
 Further, when setting the nonce to a timestamp, the Fi have to be
 calculated only once per time interval.
@@ -771,7 +770,7 @@ In practice, a 32 bit proof should be sufficient to
 distinguish between available devices. However, there is clearly a risk
 of collision. The Private Discovery Service as described here will
 find the available pairings, but it might also find a spurious number of 
-"false positives." The chances of that happening are however quite small: 
+"false positives". The chances of that happening are however quite small: 
 less than 0.02% for a device managing 10 pairings and processing 10000
 responses.
 </t>
@@ -840,7 +839,7 @@ would also be a candidate.
 </t>
 <t>
 DPRIVE and Private Discovery solve however two somewhat different
-problems. DPRIVE is concerned with the confidentiality to DNS transactions, 
+problems. DPRIVE is concerned with the confidentiality of DNS transactions, 
 addressing the problems outlined in <xref target="RFC7626" />. However,
 DPRIVE does not address the confidentiality or privacy issues with
 publication of services, and is not a direct solution to DNS-SD privacy:
@@ -951,8 +950,8 @@ same scope as the PTR, SRV and TXT records used by DNS-SD.
 </t>
 <t>
 If the link-layer address of the network connection is properly obfuscated 
-(e.g. using MAC Address Randomization), 
-The Randomized Host Name MAY be computed using the algorithm described
+(e.g. using MAC Address Randomization),
+the Randomized Host Name MAY be computed using the algorithm described
 in section 3.7 of <xref target="RFC7844" />. 
 If this is not possible, the randomized host name SHOULD be constructed by simply
 picking a 48 bit random number meeting the 
@@ -971,7 +970,8 @@ obfuscated host name.
 </t>
 
 <t>
-  TODO: optionally establishing mutually authenticated certificates. They can also be used to initiate TLS and have several advantages, i.e. allow setting an expiry date.
+  [[TODO: Should we support mutually authenticated certificates?
+  They can also be used to initiate TLS and have several advantages, i.e. allow setting an expiry date.]]
 </t>
 </section>
 
@@ -994,12 +994,12 @@ obfuscated host name.
 <t>
   The PDS MUST only answer queries via DNS over TLS <xref target="RFC7858"/> and MUST use
   a PSK authenticated TLS handshake <xref target="RFC4279"/>. The client and server
-  should negotiate a forward secure cypher suite such as DHE-PSK or ECDHE-PSK when 
+  should negotiate a forward secure cipher suite such as DHE-PSK or ECDHE-PSK when 
   available. The shared secret exchanged during pairing MUST be used as PSK.
 </t>
 <t>
   When using the PSK based authentication, the "psk_identity" parameter identifying
-  the pre-shared key MUST be composed as follow, using the conventions
+  the pre-shared key MUST be composed as follows, using the conventions
   of TLS <xref target="RFC7858"/>:
 </t>
 <t>
@@ -1010,7 +1010,7 @@ obfuscated host name.
              uint32 gmt_unix_time;
 
              opaque random_bytes[4];
-         
+
    } nonce;
 
    long_proof = HASH(nonce  | pairing_key )
@@ -1030,7 +1030,7 @@ to the current time and date in standard UNIX 32-bit format
 (seconds since the midnight starting Jan 1, 1970, UTC, ignoring
 leap seconds) according to the client's internal clock. The 
 next 32 bits of the nonce are set to a value generated by
-a secure random generator.
+a secure random number generator.
 </t>
 <t>
 In this formula, the identity is finally set to a character
@@ -1040,7 +1040,7 @@ rules specified in section 5.1 of <xref target="RFC4279"/>.
 </t>
 <t>
 The server will check the received key identity, trying the key against the valid
-keys established through pairing. If one of the key matches, the TLS connection is
+keys established through pairing. If one of the keys matches, the TLS connection is
 accepted, otherwise it is declined.
 </t>
 </section>
@@ -1155,35 +1155,22 @@ mitigations are described in the following sections.
 
 <section title="Attacks Against the Pairing System" >
 <t>
-There are a variety of attacks against pairing systems. They 
-may result in compromised pairing keys. If an adversary manages to
+There are a variety of attacks against pairing systems, which may
+result in compromised pairing secrets. If an adversary manages to
 acquire a compromised key, the adversary will be able to perform 
 private service discovery according to <xref target="solution:discoverPds" />.
 This will allow tracking of the service. The adversary will also
-be able to discover which private services are available for
-the compromised pairing.
+be able to discover which private services are available for the compromised pairing.
 </t>
 <t>
-To mitigate such attacks, nodes MUST be able to quickly revoke 
-a compromised pairing. This is however not sufficient, as the 
-compromise of the pairing key could remain undetected for
-a long time. For further safety, nodes SHOULD assign a time limit
-to the validity of pairings, discard the corresponding keys when
-the time has passed, and establish new pairings.
-</t>
-<t>
-This later requirement of limiting the Time-To-Live can raise
-doubts about the usability of the protocol. The usability issues
-would be mitigated if the initial pairing provided both
-a shared secret and the means to renew that secret over time,
-e.g. using authenticated public keys.
+Attacks on pairing systems are detailed in <xref target="I-D.kaiser-dnssd-pairing" />.
 </t>
 </section>
 
 <section title="Denial of Discovery of the Private Discovery Service" >
 <t>
 The algorithm described in <xref target="solution:discoverPds" /> scales as
-O(M*N), where M is the number of pairing per nodes and N is the number of nodes in
+O(M*N), where M is the number of pairings per node and N is the number of nodes in
 the local scope. Adversaries can attack this service by publishing "fake"
 instances, effectively increasing the number N in that scaling equation.
 </t>
@@ -1222,8 +1209,8 @@ protect against replay attacks, clients MAY verify that this time
 is reasonably recent.
 </t>
 <t>
-TODO: should we somehow encode the scope in the identifier? Having both scope and
-time would really mitigate that attack.
+[[TODO: Should we somehow encode the scope in the identifier? Having both scope and
+time would really mitigate that attack.]]
 </t>
 </section>
 
@@ -1231,8 +1218,8 @@ time would really mitigate that attack.
 <section title="Denial of Private Discovery Service" >
 <t>
 The Private Discovery Service is only available through a 
-mutually authenticated TLS connection, which provides good
-protections. However, adversaries can mount a denial of service 
+mutually authenticated TLS connection, which provides state-of-the-art protection mechanisms.
+However, adversaries can mount a denial of service 
 attack against the service. In the absence of shared secrets,
 the connections will fail, but the servers will expend some
 CPU cycles defending against them.
@@ -1270,7 +1257,7 @@ or if it occurs too far in the future.
 </t>
 <t>
 The processing of
-timestamps is however mitigated by the accuracy of computer clocks. 
+timestamps is however affected by the accuracy of computer clocks. 
 If the check is too strict, reasonable connections could fail. To
 further mitigate replay attacks, servers MAY record the list of 
 valid PSK identifiers received in a recent past, and fail connections
