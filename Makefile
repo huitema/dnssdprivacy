@@ -1,4 +1,5 @@
-TARGET    = draft-huitema-dnssd-privacy
+TARGET    = draft-ietf-dnssd-privacy
+# TARGET    = draft-huitema-dnssd-privacy
 SOURCE    = ${TARGET}.xml
 TXT       = ${TARGET}.txt
 HTML      = ${TARGET}.html
