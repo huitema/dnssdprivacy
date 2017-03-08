@@ -122,7 +122,8 @@ a serious privacy problem arises.
 <middle>
 <section title="Introduction">
 <t>
-DNS-SD <xref target="RFC6763" /> over mDNS <xref target="RFC6762" /> enables configurationless service disocvery in local networks.
+DNS-SD <xref target="RFC6763" /> over mDNS <xref target="RFC6762" /> enables configurationless 
+service discovery in local networks.
 It is very convenient for users, but it requires the public exposure 
 of the offering and requesting identities along with information about the offered and 
 requested services.  Some of the information published by the 
@@ -633,7 +634,7 @@ instance name in BASE64 or BASE32, assuming 24 bit nonces.
 </texttable>
 
 <t>
-The table shows that for a proof, 24 bits would be too short. 32 bits might be
+The table shows that for a proof, 24 bits would be too short. 32 bits might
 be long enough, but the BASE64 encoding requires padding if the input is not an
 even multiple of 24 bits, and BASE32 requires padding if the input is not a 
 multiple of 40 bits. Given that, the desirable proof lengths are thus 48 bits
@@ -694,7 +695,7 @@ directed discoveries.
 </t>
 <t>
 We have considered defining an ad-hoc protocol for the private discovery service, but 
-found that  just using TLS would be much simpler. The Directed Private Discovery service 
+found that just using TLS would be much simpler. The Directed Private Discovery service 
 is just a regular DNS-SD service, accessed over TLS, using the encapsulation of DNS over
 TLS defined in <xref target="RFC7858" />. The main difference with simple DNS over TLS is
 the need for authentication.
@@ -901,9 +902,20 @@ obfuscated host name.
 <t>
   The PDS MUST only answer queries via DNS over TLS <xref target="RFC7858"/> and MUST use
   a PSK authenticated TLS handshake <xref target="RFC4279"/>. The client and server
-  should negotiate a forward secure cipher suite such as DHE-PSK or ECDHE-PSK when 
-  available. The shared secret exchanged during pairing MUST be used as PSK.
+  SHOULD negotiate a forward secure cipher suite such as DHE-PSK or ECDHE-PSK when 
+  available. The shared secret exchanged during pairing MUST be used as PSK. To guarantee
+  interoperability, implementations of the Private Name Server MUST support
+  TLS_PSK_WITH_AES_256_GCM_SHA384.
 </t>
+<!-- new text -->
+<t>
+When using the PSK based authentication, the "psk_identity" parameter identifying
+the pre-shared key MUST be identical to the "Instance Identifier" defined in
+<xref target="solution:publishPds" />, i.e. 24 bit nonce and 48 bit proof encoded
+in BASE64 as 12 character string. The server will use the pairing key associated with 
+this instance identifier.
+</t>
+<!-- old text
 <t>
   When using the PSK based authentication, the "psk_identity" parameter identifying
   the pre-shared key MUST be composed as follows, using the conventions
@@ -950,6 +962,8 @@ The server will check the received key identity, trying the key against the vali
 keys established through pairing. If one of the keys matches, the TLS connection is
 accepted, otherwise it is declined.
 </t>
+--><!-- end of old text -->
+
 </section>
 
 </section> <!-- end of Private Discovery Server -->
@@ -1035,10 +1049,11 @@ within the 63 characters limit defined in
 
 <section title="Discovering Private Discovery Service Instances"  anchor="solution:discoverPds" >
 <t>
-Nodes that wish to discover Private Discovery Service Instances will issue a DNS-SD 
-discovery request for the service type "_pds._tcp" (They MAY, as an alternative, use the Direct
-Discovery procedure defined in <xref target="solution:discoverDirectPds" />.).
-This request will return a series of PTR records, providing the names of the instances present in the scope.
+Nodes that wish to discover Private Discovery Service Instances SHOULD issue a DNS-SD 
+discovery request for the service type "_pds._tcp". They MAY, as an alternative, use the Direct
+Discovery procedure defined in <xref target="solution:discoverDirectPds" />. If nodes
+send a DNS-SD discovery request, they will receive in response a series of PTR records, 
+providing the names of the instances present in the scope.
 </t>
 <!-- new text -->
 <t>
@@ -1138,18 +1153,11 @@ be composed of a nonce and a proof, using the algorithm specified in
 <t>
 The querier will issue SRV record queries for each of these names. The queries will 
 only succeed if the corresponding instance is present, in which case a pairing is
-discovered. After that, the querier SHOULD 
-try connecting to the corresponding instance, as explained in <xref target="solution:publishPds" />.
+discovered. After that, the querier SHOULD try connecting to the corresponding instance, 
+as explained in <xref target="solution:publishPds" />.
 </t>
 </section>
 
-<section title="Using the Private Discovery Service" >
-<t>
-Once instances of the Private Discovery Service have been discovered, 
-peers can establish TLS connections and send DNS requests over
-these connections, as specified in DNS-SD.
-</t>
-</section>
 <section title="Using the Private Discovery Service" >
 <t>
 Once instances of the Private Discovery Service have been discovered, 
@@ -1200,14 +1208,15 @@ usable. Private Discovery Service discovery SHOULD use the same
 mitigations as DNS-SD.
 </t>
 <t>
-The attack is amplified because the clients need to compute proofs for
-all the nonces presented in Private Discovery Service Instance names. One
-possible mitigation would be to require that such nonces correspond to
-rounded timestamps. If we assume that timestamps must not be too old, there
+The attack could be amplified if the clients needed to compute proofs for
+all the nonces presented in Private Discovery Service Instance names. This
+is mitigated by the specification of nonces as rounded time stamps in
+<xref target="solution:discoverPds" />.
+If we assume that timestamps must not be too old, there
 will be a finite number of valid rounded timestamps at any time. Even
 if there are many instances present, they would all pick their nonces
 from this small number of rounded timestamps, and a smart client
-could make sure that proofs are only computed once per valid
+will make sure that proofs are only computed once per valid
 time stamp.
 </t>
 </section>
@@ -1223,13 +1232,15 @@ monitored scope.
 </t>
 <t>
 The binary instance identifiers defined in <xref target="solution:publishPds"/>
-start with 32 bits encoding the "UNIX" time. In order to
-protect against replay attacks, clients MAY verify that this time
-is reasonably recent.
+start with 24 bits encoding the most significant bits of the "UNIX" time. In order to
+protect against replay attacks, clients SHOULD verify that this time
+is reasonably recent, as specified in <xref target="solution:discoverPds" />.
 </t>
 <t>
 [[TODO: Should we somehow encode the scope in the identifier? Having both scope and
-time would really mitigate that attack.]]
+time would really mitigate that attack. For example, one could add a local IPv4
+or IPv6 prefix in the nonce. However, this won't work in networks behind NAT. It would
+also increase the size of the instance ID.]]
 </t>
 </section>
 
@@ -1269,7 +1280,7 @@ location.
 </t>
 <t>
 The PSK identifiers defined in <xref target="solution:tls"/>
-start with 32 bits encoding the "UNIX" time. In order to
+start with the 24 most significant bits of the "UNIX" time. In order to
 mitigate replay attacks, servers SHOULD verify that this time
 is reasonably recent, and fail the connection if it is too old,
 or if it occurs too far in the future. 
