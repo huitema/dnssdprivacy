@@ -34,6 +34,8 @@
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7844.xml'>
 <!ENTITY rfc7858 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7858.xml'>
+<!ENTITY rfc8117 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8117.xml'>
 
 <!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
@@ -253,7 +255,7 @@ The SRV records contain the DNS name of the node publishing the
 service. Typical implementations construct this DNS name by
 concatenating the "host name" of the node with the name of the 
 local domain. The privacy implications of this
-practice are reviewed in <xref target="I-D.ietf-intarea-hostname-practice" />.
+practice are reviewed in <xref target="RFC8117" />.
 Depending on naming practices, the host name is either a strong 
 identifier of the device, or at a minimum a partial identifier.
 It enables tracking of the device, and by extension of the device's owner.
@@ -585,6 +587,16 @@ the number of 256 seconds intervals since the epoch. 256 seconds correspond to 4
 and 16 seconds, which is close enough to our design goal of 5 minutes. We will thus
 use this 24 bit number as nonce, represented as 3 octets.
 </t>
+<t>
+Publishers will need to compute O(M) hashes at most once per time stamp interval.
+If records can be created "on the fly", publishers will only need to perform that computation
+upon receipt of the first query during a given interval, and cache the computed results
+for the remainder of the interval. There are however scenarios in which
+records have to be produced in advance, for example when records are published within
+a scope defined by a domain name and managed by a "classic" DNS server. In such scenarios,
+publishers will need to perform the computations and publication exactly once per time stamp 
+interval.
+</t>
 </section>
 
 <section title="Using a Short Proof" anchor="shortProof">
@@ -789,7 +801,7 @@ the presence of a service.
 <t>
 Instead of publishing their actual name in the SRV records, nodes 
 could publish a randomized name. That is the solution argued for
-in <xref target="I-D.ietf-intarea-hostname-practice" />.
+in <xref target="RFC8117" />.
 </t>
 <t>
 Randomized host names will prevent some of the tracking.
@@ -812,7 +824,7 @@ host names remained constant, the adversary could link the new addresses to the
 old ones using the published name.
 </t>
 <t>
-The problem is handled in <xref target="I-D.ietf-intarea-hostname-practice" />, 
+The problem is handled in <xref target="RFC8117" />, 
 which recommends to pick a new random host name at the time of connecting to 
 a new network. New instance names for the Private Discovery Services should be
 composed at the same time.
@@ -1333,7 +1345,7 @@ the DNS-SD working group members.
        &rfc7626;
        &rfc7844;
        &rfc7858;
-       &I-D.ietf-intarea-hostname-practice;
+       &rfc8117;
        &I-D.ietf-dprive-dnsodtls;
        &I-D.ietf-tls-tls13;
        &I-D.ietf-dnssd-push;
