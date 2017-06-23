@@ -36,11 +36,11 @@
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7858.xml'>
 <!ENTITY rfc8117 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8117.xml'>
+<!ENTITY rfc8094 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8094.xml'>
 
-<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
+<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
-<!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
-   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
 <!ENTITY I-D.ietf-tls-tls13 PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-tls13.xml">
 <!ENTITY I-D.ietf-dnssd-push PUBLIC ''  
@@ -129,9 +129,9 @@ DNS-SD <xref target="RFC6763" /> over mDNS <xref target="RFC6762" /> enables con
 service discovery in local networks.
 It is very convenient for users, but it requires the public exposure 
 of the offering and requesting identities along with information about the offered and 
-requested services.  Some of the information published by the 
-announcements can be very revealing. These privacy issues and potential
-solutions are discussed in <xref target="KW14a" /> 
+requested services.
+Parts of the published information can seriously breach the user's privacy.
+These privacy issues and potential solutions are discussed in <xref target="KW14a" />
 and <xref target="KW14b" />.
 </t>
 <t>
@@ -258,13 +258,13 @@ local domain. The privacy implications of this
 practice are reviewed in <xref target="RFC8117" />.
 Depending on naming practices, the host name is either a strong 
 identifier of the device, or at a minimum a partial identifier.
-It enables tracking of the device, and by extension of the device's owner.
+It enables tracking of both the device, and, by extension, the device's owner.
 </t>
 </section>
 
 <section title="Privacy Implication of Publishing Service Attributes">
 <t>
-The TXT record's attribute and value pairs contain information on the characteristics of
+The TXT record's attribute-value pairs contain information on the characteristics of
 the corresponding service instance.
 This in turn reveals information
 about the devices that publish services. The amount of information
@@ -423,7 +423,7 @@ privacy preserving service discovery.
   Device pairing has to be performed only once per pair of users. This is important 
   for user-friendliness, as it is the only step that demands user-interaction.
   After this single pairing, privacy preserving service discovery works fully automatically.
-  In this document, we leverage <xref target="I-D.ietf-dnssd-pairing" /> as pairing mechanism.
+  In this document, we utilize <xref target="I-D.ietf-dnssd-pairing" /> as the pairing mechanism.
 </t>
 
 <t>
@@ -611,7 +611,7 @@ BASE64  (<xref target="RFC2045" /> section 6.8) or BASE32
 <t>
 Using long proofs, such as the full output of SHA256 <xref target="RFC4055"/>,
 would generate fairly long instance names: 48 characters using BASE64, or 56
-using BASE56. These long names would inflate the network traffic required 
+using BASE32. These long names would inflate the network traffic required 
 when discovering the privacy service. They would also limit the number of
 DNS-SD PTR records that could be packed in a single 1500 octet sized packet,
 to 23 or fewer with BASE64, or 20 or fewer with BASE32.
@@ -707,16 +707,16 @@ shared secret. At that point, the querier can engage in a series of
 directed discoveries.
 </t>
 <t>
-We have considered defining an ad-hoc protocol for the private discovery service, but 
-found that just using TLS would be much simpler. The Directed Private Discovery service 
+We have considered defining an ad-hoc protocol for the private discovery service, but
+found that just using TLS would be much simpler. The directed Private Discovery Service
 is just a regular DNS-SD service, accessed over TLS, using the encapsulation of DNS over
-TLS defined in <xref target="RFC7858" />. The main difference with simple DNS over TLS is
+TLS defined in <xref target="RFC7858" />. The main difference with plain DNS over TLS is
 the need for authentication.
 </t>
 <t>
 We assume that the pairing process has provided each pair of authorized client and server
 with a shared secret. We can use that shared secret to provide mutual authentication of
-clients and servers using "Pre Shared Key" authentication, as defined in <xref target="RFC4279" />
+clients and servers using "Pre-Shared Key" authentication, as defined in <xref target="RFC4279" />
 and incorporated in the latest version of TLS <xref target="I-D.ietf-tls-tls13" />.
 </t>
 <t>
@@ -755,8 +755,8 @@ the shared secret.
 <t>
 Our solution uses a variant of the DNS over TLS  protocol 
 <xref target="RFC7858" /> defined by the DNS Private Exchange working group
-(DPRIVE). DPRIVE is also working on an UDP variant, 
-DNS over DTLS <xref target="I-D.ietf-dprive-dnsodtls" />, which
+(DPRIVE). DPRIVE further published an UDP variant,
+DNS over DTLS <xref target="RFC8094" />, which
 would also be a candidate.
 </t>
 <t>
@@ -799,8 +799,8 @@ the presence of a service.
 
 <section title="Randomized Host Names" >
 <t>
-Instead of publishing their actual name in the SRV records, nodes 
-could publish a randomized name. That is the solution argued for
+Instead of publishing their actual host names in the SRV records, nodes 
+could publish randomized host names. That is the solution argued for
 in <xref target="RFC8117" />.
 </t>
 <t>
@@ -993,8 +993,7 @@ The DNS-SD service type for the Private Discovery Service is "_pds._tcp".
 <t>
 Each published instance describes one server and one pairing.
 In the case where a node manages more than one pairing, it should
-publish as many instances as necessary to advertise all available
-pairings.
+publish as many instances as necessary to advertise the PDS to all paired peers.
 </t>
 <t>
 Each instance name is composed as follows:
@@ -1183,8 +1182,8 @@ these connections, as specified in DNS-SD.
 
 <section title="Security Considerations">
 <t> 
-This document specifies a method to protect the privacy of 
-service publishing nodes. This is especially useful when operating
+This document specifies a method for protecting the privacy of 
+nodes that offer and query for services. This is especially useful when operating
 in a public space.
 Hiding the identity of the publishing nodes prevents
 some forms of "targeting" of high value nodes. However,
@@ -1346,7 +1345,7 @@ the DNS-SD working group members.
        &rfc7844;
        &rfc7858;
        &rfc8117;
-       &I-D.ietf-dprive-dnsodtls;
+       &rfc8094;
        &I-D.ietf-tls-tls13;
        &I-D.ietf-dnssd-push;
        &I-D.ietf-dnssd-pairing;
