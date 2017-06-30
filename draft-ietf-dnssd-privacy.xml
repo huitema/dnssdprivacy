@@ -332,9 +332,19 @@ sufficient to identify the specific device.
 </t>
 
 <t>
-There is however an argument that devices providing services can be discovered
+A sometimes heard argument is that devices providing services can be identified
 by observing the local traffic, and that trying to hide the presence of the service
-is futile. The same argument can be extended to say that the pattern of services 
+is futile.
+This argument, however, does not carry any weight because
+(1) proving privacy at the discovery layer is of the essence for enabling automatically configured privacy-preserving
+network applications. Application layer protocols are not forced to leverage the offered privacy,
+but if device tracking is not prevented at the deeper layers, including the service discovery layer,
+obfuscating a certain service's protocol at the application layer is futile.
+Further, (2) even if the application layer does not protect privacy,
+it is hard to record and analyse the unicast traffic (which most applications will generate)
+compared to just listening to the multicast messages sent by DNS-SD/mDNS.
+
+The same argument can be extended to say that the pattern of services
 offered by a device allows for fingerprinting the device. This may or may not
 be true, since we can expect that services will be designed or updated to
 avoid leaking fingerprints. In any case, the design of the discovery
@@ -570,8 +580,8 @@ which means that it could cause a significant drain of resource in large network
 In order to minimize the amount of computing resource, we suggest that the nonce be derived
 from the current time, for example set to a representation of the current time rounded 
 to some period.
-With this convention, receivers can predict the nonces that will appear in the published
-instances. They will only need to compute O(M) hashes, instead of O(N*M*M).
+With this convention, receivers can predict the nonces that will appear in the published instances.
+<!-- old: They will only need to compute O(M) hashes, instead of O(N*M*M). -->
 </t>
 <t>
 The publishers will have to create new records at the end of each rounding period. 
@@ -580,6 +590,14 @@ which is inefficient. On the other hand, if the rounding period is too long, the
 system may be exposed to replay attacks. We propose to set a value of about 5 minutes,
 which seems to be a reasonable compromise.
 </t>
+
+<t>
+  Receivers can pre-calculate all the M relevant proofs once per time interval and then
+  establish a mapping from the corresponding instance names to the pairing data in form of a hash table.
+  These M relevant proofs are the proofs resulting from hashing a host's M pairing keys alongside the current nonce.
+  Each time they receive an instance name, they can test in O(1) time if the received service information is relevant or not.
+</t>
+
 <t>
 Unix defines a 32 bit time stamp as the number of seconds elapsed since January 1st, 1970 
 not counting leap seconds. The most significant 24 bits of this 32 bit number represent
@@ -587,6 +605,18 @@ the number of 256 seconds intervals since the epoch. 256 seconds correspond to 4
 and 16 seconds, which is close enough to our design goal of 5 minutes. We will thus
 use this 24 bit number as nonce, represented as 3 octets.
 </t>
+
+<t>
+  For coping with time skew, receivers pre-calculate proofs for the respective next time interval
+  and store hash tables for the last, the current, and the next time interval.
+  When receiving a service instance name, receivers first check whether the nonce corresponds
+  to the current, the last or the next time interval, and if so, check whether the instance name is
+  in the corresponding hash table.
+  For (approximately) meeting our design goal of 5 min validity, the last time interval may only be
+  considered if the current one is less than half way over and the next time interval may only be considered if
+  the current time interval is more than half way over.
+</t>
+
 <t>
 Publishers will need to compute O(M) hashes at most once per time stamp interval.
 If records can be created "on the fly", publishers will only need to perform that computation
@@ -1022,6 +1052,7 @@ of a 24 bit nonce and 48 bit proof result in a 72 bit string.
 The BASE64 conversion is 12 characters long per
 <xref target="RFC6763"/>.
 </t>
+
 <!-- Old text
 <t>
 Each published instance describes one server and up to 10 pairings.
