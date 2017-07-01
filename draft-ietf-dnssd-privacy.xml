@@ -335,15 +335,20 @@ sufficient to identify the specific device.
 A sometimes heard argument is that devices providing services can be identified
 by observing the local traffic, and that trying to hide the presence of the service
 is futile.
-This argument, however, does not carry any weight because
-(1) proving privacy at the discovery layer is of the essence for enabling automatically configured privacy-preserving
+This argument, however, does not carry much weight because
+<list style="numbers">
+<t>
+proving privacy at the discovery layer is of the essence for enabling automatically configured privacy-preserving
 network applications. Application layer protocols are not forced to leverage the offered privacy,
 but if device tracking is not prevented at the deeper layers, including the service discovery layer,
 obfuscating a certain service's protocol at the application layer is futile.
-Further, (2) even if the application layer does not protect privacy,
+</t>
+<t>
+Further, even if the application layer does not protect privacy,
 it is hard to record and analyse the unicast traffic (which most applications will generate)
 compared to just listening to the multicast messages sent by DNS-SD/mDNS.
-
+</t>
+</list>
 The same argument can be extended to say that the pattern of services
 offered by a device allows for fingerprinting the device. This may or may not
 be true, since we can expect that services will be designed or updated to
@@ -1115,8 +1120,13 @@ of its available pairings, according to the following conceptual algorithm:
 
       nonce = first 24 bits of binary.
 
-      if nonce does not match the first 24 bits of the current
-      time plus or minus 1 minute, discard the instance.   
+      Check that the nonce matches the first 24 bits of
+      the current time, or the previous interval (24 bit number
+      minus 1) if the current interval is less than half over,
+      or the next interval ((24 bit number plus 1) if the
+      current interval is more than half over. If the
+      nonce does not match an acceptable value, discard
+      the instance.   
       
       for each available pairing
          retrieve the key Xj of pairing number j
@@ -1129,7 +1139,7 @@ of its available pairings, according to the following conceptual algorithm:
 </t>
 <t>
 The check of the current time is meant to mitigate replay attacks, while not
-mandating a time synchronization precision better than one minute.  
+mandating a time synchronization precision better than two minutes.
 </t>
 <t>
 Once a pairing has been marked available, the querier SHOULD 
