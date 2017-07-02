@@ -1045,7 +1045,7 @@ Each instance name is composed as follows:
    set the 72 bit binary identifier as the concatenation
    of nonce and proof
 
-   set instance-ID = BASE64(binary identifier)
+   set instance_name = BASE64(binary identifier)
 </artwork>
 </figure>
 </t>
@@ -1103,15 +1103,36 @@ Discovery procedure defined in <xref target="solution:discoverDirectPds" />. If 
 send a DNS-SD discovery request, they will receive in response a series of PTR records, 
 providing the names of the instances present in the scope.
 </t>
+
+<!-- new text -->
+<t>
+  For each time interval, the querier SHOULD pre-calculate a hash table mapping instance names to pairings
+  according to the following conceptual algorithm:
+</t>
+<figure>
+<artwork>
+  nonce = 24 bit rounded time stamp of the respective next time interval
+  for each available pairing
+    retrieve the key Xj of pairing number j
+    compute F = first 48 bits of hash(nonce, Xj)
+    construct the binary instance_name as described in the previous section
+    instance_names[nonce][instance_name] = Xj;
+</artwork>
+</figure>
+<t>
+  The querier SHOULD store the hash tables for the previous, the current, and the next time interval.
+</t>
+
 <!-- new text -->
 <t>
 The querier SHOULD examine each instance to see whether it corresponds to one
 of its available pairings, according to the following conceptual algorithm:
 </t>
+
 <t>
 <figure>
 <artwork>
-   for each received instance name:
+   for each received instance_name:
       convert the instance name to binary using BASE64
       if the conversion fails, 
          discard the instance.
@@ -1128,12 +1149,8 @@ of its available pairings, according to the following conceptual algorithm:
       nonce does not match an acceptable value, discard
       the instance.   
       
-      for each available pairing
-         retrieve the key Xj of pairing number j
-         compute F = first 48 bits of hash(nonce, Xj)
-         if F is equal to the last 48 bits of
-         the binary instance ID
-            mark the pairing number j as available
+      if ((Xj = instance_names[nonce][instance_name]) != null)
+        mark the pairing number j as available
 </artwork>
 </figure>
 </t>
@@ -1199,7 +1216,7 @@ explained in <xref target="solution:discoverPds" />.
 To perform Direct Discovery,
 nodes should compose a list of Private Discovery Service Instances Names.
 There will be one name for each pairing available to the node. 
-The Instance ID for each name will
+The Instance name for each name will
 be composed of a nonce and a proof, using the algorithm specified in
 <xref target="solution:publishPds" />.
 </t>
@@ -1293,7 +1310,7 @@ is reasonably recent, as specified in <xref target="solution:discoverPds" />.
 [[TODO: Should we somehow encode the scope in the identifier? Having both scope and
 time would really mitigate that attack. For example, one could add a local IPv4
 or IPv6 prefix in the nonce. However, this won't work in networks behind NAT. It would
-also increase the size of the instance ID.]]
+also increase the size of the instance name.]]
 </t>
 </section>
 
