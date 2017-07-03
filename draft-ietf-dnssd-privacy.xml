@@ -1111,11 +1111,13 @@ providing the names of the instances present in the scope.
 </t>
 <figure>
 <artwork>
-  nonce = 24 bit rounded time stamp of the respective next time interval
+  nonce = 24 bit rounded time stamp of the\
+    respective next time interval
   for each available pairing
     retrieve the key Xj of pairing number j
     compute F = first 48 bits of hash(nonce, Xj)
-    construct the binary instance_name as described in the previous section
+    construct the binary instance_name as described\
+      in the previous section
     instance_names[nonce][instance_name] = Xj;
 </artwork>
 </figure>
@@ -1144,11 +1146,11 @@ of its available pairings, according to the following conceptual algorithm:
       Check that the nonce matches the first 24 bits of
       the current time, or the previous interval (24 bit number
       minus 1) if the current interval is less than half over,
-      or the next interval ((24 bit number plus 1) if the
+      or the next interval (24 bit number plus 1) if the
       current interval is more than half over. If the
       nonce does not match an acceptable value, discard
-      the instance.   
-      
+      the instance.
+
       if ((Xj = instance_names[nonce][instance_name]) != null)
         mark the pairing number j as available
 </artwork>
