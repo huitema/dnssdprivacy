@@ -64,7 +64,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-ietf-dnssd-privacy-02.txt"
+     docName="draft-ietf-dnssd-privacy-03.txt"
      ipr="trust200902">
 
 <front>
@@ -450,89 +450,6 @@ privacy preserving service discovery.
 
 </section>
 
-
-<!-- old text of discovery
-<section title="Discovery of the Private Discovery Service" anchor="stage1Design">
-<t>
-The first stage of service discovery is to check whether 
-instances of compatible Private Discovery Services are available in the local scope.
-The goal of that stage is to identify devices that share a pairing with the querier, and
-are available locally. The service instances can be discovered 
-using regular DNS-SD procedures, but the list of
-discovered services will have to be filtered so only paired
-devices are retained.
-</t>
-<t>
-The discovery relies on the advertisement of "proofs" by the publishers of the
-service. Each proof is the hash of a nonce with the key shared between the
-publisher and one of the paired devices. In order to reduce the overall
-number of messages, we use a special
-encoding of the instance name. Suppose that the publisher manages 
-N pairings with the associated keys K1, K2, ... Kn. The instance
-name will be set to an encoding of N "proofs" of the N keys,
-where each proof is computed as function of the key and a nonce:
-</t>
-<t>
-<list>
-<t>
-instance name = &lt;nonce&gt;&lt;F1&gt;&lt;F2&gt;..&lt;Fn&gt;
-</t>
-<t>
-Fi = hash (nonce, Ki), where hash is a cryptographic hash function.
-</t>
-</list>
-</t>
-<t>
-The querier can test the instance name by computing the same "proof" for
-each of its own keys. Suppose that the receiver manages P pairings, with
-the corresponding keys X1, X2, .. Xp. The receiver verification
-procedure will be:
-</t>
-<t>
-<figure>
-<artwork>
-   for each received instance name:
-      retrieve nonce from instance name
-      for (j = 1 to P)
-         retrieve the key Xj of pairing number j
-         compute F = hash(nonce, Xj)
-         for (i=1 to N)
-            retrieve the proof Fi
-            if F is equal to Fi
-               mark the pairing number j as available
-</artwork>
-</figure>
-</t>
-<t>
-The procedure presented here requires on average O(M*N) iterations of the
-hash function. It also requires O(M*N^2) comparison operations, but these are less onerous
-than cryptographic operations.
-Further, when setting the nonce to a timestamp, the Fi have to be
-calculated only once per time interval.
-</t>
-<t>
-The number of pairing proofs that can be encoded in a single record is
-limited by the maximum size of a DNS label, which is 63 bytes. Since
-this are characters and not pure binary values, nonce and proofs
-will have to be encoded using BASE64 (<xref target="RFC2045" /> section 6.8),
-resulting in at most 378 bits. The nonce should 
-not be repeated, and the simplest way to achieve that is to set
-the nonce to a 32 bit timestamp value. The remaining 346 bits could encode
-up to 10 proofs of 32 bits each, which would be sufficient for many
-practical scenarios. 
-</t>
-<t>
-In practice, a 32 bit proof should be sufficient to
-distinguish between available devices. However, there is clearly a risk
-of collision. The Private Discovery Service as described here will
-find the available pairings, but it might also find a spurious number of 
-"false positives". The chances of that happening are however quite small: 
-less than 0.02% for a device managing 10 pairings and processing 10000
-responses.
-</t>
-
-</section>
---> <!-- end old text of discovery -->
 <section title="Discovery of the Private Discovery Service" anchor="stage1Design">
 <t>
 The first stage of service discovery is to check whether 
@@ -586,13 +503,15 @@ In order to minimize the amount of computing resource, we suggest that the nonce
 from the current time, for example set to a representation of the current time rounded 
 to some period.
 With this convention, receivers can predict the nonces that will appear in the published instances.
-<!-- old: They will only need to compute O(M) hashes, instead of O(N*M*M). -->
 </t>
 <t>
 The publishers will have to create new records at the end of each rounding period. 
 If the rounding period is set too short, they will have to repeat that very often,
 which is inefficient. On the other hand, if the rounding period is too long, the 
-system may be exposed to replay attacks. We propose to set a value of about 5 minutes,
+system may be exposed to replay attacks. We initially proposed a value of about
+5 minutes, which would work well for the MDNS variant of DNSSD. However, this may
+cause an excessive number of updates for the DNS server based version of DNSSD.
+We propose to set a value of about 30 minutes,
 which seems to be a reasonable compromise.
 </t>
 
@@ -605,10 +524,11 @@ which seems to be a reasonable compromise.
 
 <t>
 Unix defines a 32 bit time stamp as the number of seconds elapsed since January 1st, 1970 
-not counting leap seconds. The most significant 24 bits of this 32 bit number represent
-the number of 256 seconds intervals since the epoch. 256 seconds correspond to 4 minutes
-and 16 seconds, which is close enough to our design goal of 5 minutes. We will thus
-use this 24 bit number as nonce, represented as 3 octets.
+not counting leap seconds. The most significant 20 bits of this 32 bit number represent
+the number of 2048 seconds intervals since the epoch. 2048 seconds correspond to 34 minutes
+and 8 seconds, which is close enough to our design goal of 30 minutes. We will thus
+use this 20 bit number as nonce, which for simplicity will be padded zeroes to 24 bits
+and encoded on 3 octets.
 </t>
 
 <t>
@@ -926,10 +846,6 @@ obfuscated host name.
   <xref target="I-D.ietf-dnssd-pairing" /> to establish these secrets.
 </t>
 
-<t>
-  [[TODO: Should we support mutually authenticated certificates?
-  They can also be used to initiate TLS and have several advantages, i.e. allow setting an expiry date.]]
-</t>
 </section>
 
 <section title="Private Discovery Server" anchor="solution:pns">
@@ -955,7 +871,7 @@ obfuscated host name.
   interoperability, implementations of the Private Name Server MUST support
   TLS_PSK_WITH_AES_256_GCM_SHA384.
 </t>
-<!-- new text -->
+
 <t>
 When using the PSK based authentication, the "psk_identity" parameter identifying
 the pre-shared key MUST be identical to the "Instance Identifier" defined in
@@ -963,54 +879,6 @@ the pre-shared key MUST be identical to the "Instance Identifier" defined in
 in BASE64 as 12 character string. The server will use the pairing key associated with 
 this instance identifier.
 </t>
-<!-- old text
-<t>
-  When using the PSK based authentication, the "psk_identity" parameter identifying
-  the pre-shared key MUST be composed as follows, using the conventions
-  of TLS <xref target="RFC7858"/>:
-</t>
-<t>
-<figure>
-<artwork>
-   struct {
-
-             uint32 gmt_unix_time;
-
-             opaque random_bytes[4];
-
-   } nonce;
-
-   long_proof = HASH(nonce  | pairing_key )
-   proof = first 12 bytes of long_proof 
-   psk_identity = BASE64(nonce) "." BASE64(proof) 
-</artwork>
-</figure>
-</t>
-<t>
-In this formula, HASH SHOULD be the function SHA256 
-defined in <xref target="RFC4055"/>. Implementers MAY eventually 
-replace SHA256 with a stronger algorithm, in which cases both
-clients and servers will have to agree on that algorithm during
-the pairing process. The first 32 bits of the nonce are set
-to the current time and date in standard UNIX 32-bit format
- 
-(seconds since the midnight starting Jan 1, 1970, UTC, ignoring
-leap seconds) according to the client's internal clock. The 
-next 32 bits of the nonce are set to a value generated by
-a secure random number generator.
-</t>
-<t>
-In this formula, the identity is finally set to a character
-string, using BASE64 (<xref target="RFC2045" /> section 6.8).
-This transformation is meant to comply with the PSK identity encoding
-rules specified in section 5.1 of <xref target="RFC4279"/>.
-</t>
-<t>
-The server will check the received key identity, trying the key against the valid
-keys established through pairing. If one of the keys matches, the TLS connection is
-accepted, otherwise it is declined.
-</t>
---><!-- end of old text -->
 
 </section>
 
@@ -1024,7 +892,6 @@ availability by publishing instances of the service through DNS-SD.
 <t>
 The DNS-SD service type for the Private Discovery Service is "_pds._tcp".
 </t>
-<!-- new text -->
 <t>
 Each published instance describes one server and one pairing.
 In the case where a node manages more than one pairing, it should
@@ -1036,8 +903,13 @@ Each instance name is composed as follows:
 <t>
 <figure>
 <artwork>
-   pick a 24 bit nonce, set to the 24 most
-   significant bits of the 32 bit Unix GMT time.
+   pick a 24 bit nonce, set to the 20 most significant bits of the
+   32 bit Unix GMT time padded with 4 zeroes.
+
+      For example, on August 22, 2017 at 20h 4 min and 54 seconds
+      international time, the Unix 32 bit time had the
+      hexadecimal value 0x599C8E68. The corresponding nonce
+      would be set to the 24 bits: 0x599C80.
 
    compute a 48 bit proof:
       proof = first 48 bits of HASH(&lt;nonce&gt;|&lt;pairing key&gt;)
@@ -1058,41 +930,6 @@ The BASE64 conversion is 12 characters long per
 <xref target="RFC6763"/>.
 </t>
 
-<!-- Old text
-<t>
-Each published instance describes one server and up to 10 pairings.
-In the case where a node manages more than 10 pairings, it should
-publish as many instances as necessary to advertise all available
-pairings.
-</t>
-<t>
-Each instance name is composed as follows:
-</t>
-<t>
-<figure>
-<artwork>
-   pick a 32 bit nonce, e.g. using the Unix GMT time.
-   set the binary identifier to the nonce.
-
-   for each of up to 10 pairings
-      hint = first 32 bits of HASH(&lt;nonce&gt;|&lt;pairing key&gt;)
-      concatenate the hint to the binary identifier
-
-   set instance-ID = BASE64(binary identifier)
-</artwork>
-</figure>
-</t>
-<t>
-In this formula, HASH SHOULD be the function SHA256 
-defined in <xref target="RFC4055"/>, and BASE64 is defined 
-in section 6.8 of <xref target="RFC2045" />. The concatenation
-of a 32 bit nonce and up to 10 pairing hints result a bit string 
-at most 352 bit long. The BASE64 conversion will produce 
-a string that is up to 59 characters long, which fits
-within the 63 characters limit defined in
-<xref target="RFC6763"/>.
-</t>
---> <!-- end of old text -->
 </section>
 
 <section title="Discovering Private Discovery Service Instances"  anchor="solution:discoverPds" >
@@ -1101,18 +938,18 @@ Nodes that wish to discover Private Discovery Service Instances SHOULD issue a D
 discovery request for the service type "_pds._tcp". They MAY, as an alternative, use the Direct
 Discovery procedure defined in <xref target="solution:discoverDirectPds" />. If nodes
 send a DNS-SD discovery request, they will receive in response a series of PTR records, 
-providing the names of the instances present in the scope.
+each providing the name of one of the instances present in the scope.
 </t>
 
-<!-- new text -->
 <t>
   For each time interval, the querier SHOULD pre-calculate a hash table mapping instance names to pairings
   according to the following conceptual algorithm:
 </t>
 <figure>
 <artwork>
-  nonce = 24 bit rounded time stamp of the\
-    respective next time interval
+  nonce = 20 bit rounded time stamp of the\
+    respective next time interval padded to
+    24 bits with four zeroes
   for each available pairing
     retrieve the key Xj of pairing number j
     compute F = first 48 bits of hash(nonce, Xj)
@@ -1124,13 +961,10 @@ providing the names of the instances present in the scope.
 <t>
   The querier SHOULD store the hash tables for the previous, the current, and the next time interval.
 </t>
-
-<!-- new text -->
 <t>
 The querier SHOULD examine each instance to see whether it corresponds to one
 of its available pairings, according to the following conceptual algorithm:
 </t>
-
 <t>
 <figure>
 <artwork>
@@ -1138,15 +972,17 @@ of its available pairings, according to the following conceptual algorithm:
       convert the instance name to binary using BASE64
       if the conversion fails, 
          discard the instance.
-      if the binary instance length is not multiple 72 bits,
+      if the binary instance length is not 72 bits,
          discard the instance.
 
       nonce = first 24 bits of binary.
 
-      Check that the nonce matches the first 24 bits of
-      the current time, or the previous interval (24 bit number
+      Check that the 4 least significant bits of the nonce
+      have the value 0, and that the 20 most significant
+      bits of the nonce match the first 20 bits of
+      the current time, or the previous interval (20 bit number
       minus 1) if the current interval is less than half over,
-      or the next interval (24 bit number plus 1) if the
+      or the next interval (20 bit number plus 1) if the
       current interval is more than half over. If the
       nonce does not match an acceptable value, discard
       the instance.
@@ -1158,7 +994,7 @@ of its available pairings, according to the following conceptual algorithm:
 </t>
 <t>
 The check of the current time is meant to mitigate replay attacks, while not
-mandating a time synchronization precision better than two minutes.
+mandating a time synchronization precision better than 15 minutes.
 </t>
 <t>
 Once a pairing has been marked available, the querier SHOULD 
@@ -1170,42 +1006,7 @@ will occur if the hash of the nonce with two different keys produces
 the same result. In that case, the TLS connection will fail with
 an authentication error or a decryption error.
 </t>
-<!-- old text
-<t>
-The querier SHOULD examine each instance to see whether it hints at one
-of its available pairings, according to the following conceptual algorithm:
-</t>
-<t>
-<figure>
-<artwork>
-   for each received instance name:
-      convert the instance name to binary using BASE64
-      if the conversion fails, 
-         discard the instance.
-      if the binary instance length is a not multiple of 32 bits,
-         discard the instance.
 
-      nonce = first 32 bits of binary.
-      for each 32 bit hint after the nonce
-         for each available pairing
-            retrieve the key Xj of pairing number j
-            compute F = hash(nonce, Xj)
-            if F is equal to the 32 bit hint
-               mark the pairing number j as available
-</artwork>
-</figure>
-</t>
-<t>
-Once a pairing has been marked available, the querier SHOULD 
-try connecting to the corresponding instance, using the selected key.
-The connection is likely to succeed, but it MAY fail for a variety
-of reasons. One of these reasons is the probabilistic nature of the
-hint, which entails a small chance of "false positive" match. This
-will occur if the hash of the nonce with two different keys produces
-the same result. In that case, the TLS connection will fail with
-an authentication error or a decryption error.
-</t>
---> <!-- end of old text -->
 </section>
 
 <section title="Direct Discovery of Private Discovery Service Instances"  anchor="solution:discoverDirectPds" >
@@ -1308,12 +1109,6 @@ start with 24 bits encoding the most significant bits of the "UNIX" time. In ord
 protect against replay attacks, clients SHOULD verify that this time
 is reasonably recent, as specified in <xref target="solution:discoverPds" />.
 </t>
-<t>
-[[TODO: Should we somehow encode the scope in the identifier? Having both scope and
-time would really mitigate that attack. For example, one could add a local IPv4
-or IPv6 prefix in the nonce. However, this won't work in networks behind NAT. It would
-also increase the size of the instance name.]]
-</t>
 </section>
 
 
@@ -1367,18 +1162,51 @@ if one of these identifiers is replayed.
 </t>
 </section>
 
+
+<section title="Replay attacks and clock synchronization" >
+<t>
+The mitigation of replay attacks relies on verification of the time
+encoded in the nonce. This verification assumes that the hosts engaged
+in discovery have a reasonably accurate sense of the current time.
+</t>
+</section>
+
+<section title="Fingerprinting the number of published instances" >
+<t>
+Adversaries could monitor the number of instances published by a
+particular device, which in the absence of mitigations will reflect
+the number of pairings established by that device. This number
+will probably vary between 1 and maybe 100, providing the adversary
+with maybe 6 or 7 bits of input in a fingerprinting algorithm.
+</t>
+<t>
+Devices MAY protect against this fingerprinting by publishing
+a number of
+"fake" instances in addition to the real ones. The fake instance
+identifiers will contain the same nonce as the genuine instance
+identifiers, and random bits instead of the proof. Peers should
+be able to quickly discard these fake instances, as the proof
+will not match any of the values that they expect. One plausible
+padding strategy is to ensure that the total number of published
+instances, either fake or genuine, matches one of a few values
+such as 16, 32, 64, or higher powers of 2.
+</t>
+</section>
+
 </section>
 
 <section title="IANA Considerations" anchor="iana">
 <t> 
-This draft does not require any IANA action. (Or does it? What about the _pds tag?)
+This draft does not require any IANA action.
 </t> 
 </section>
 
 <section title="Acknowledgments">
     <t>
 This draft results from initial discussions with Dave Thaler, and encouragements from 
-the DNS-SD working group members.
+the DNS-SD working group members. We would like to thank Stephane Bortzmeyer and 
+Ted Lemon for their
+detailed reviews of the working draft.
     </t>
 </section>
 
