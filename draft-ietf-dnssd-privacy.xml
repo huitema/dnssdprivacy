@@ -245,7 +245,7 @@ and uses a chat application supporting the
 _presence protocol on both of her devices. She might currently chat with Bob or Carol, 
 as they are also using a _presence supporting chat application.
 This information is not just available to devices actively browsing for and offering 
-services, but to anybody passively listing to the network traffic.
+services, but to anybody passively listening to the network traffic.
 </t>
 </section>
 
@@ -380,7 +380,7 @@ analysis can often reveal the service.
 <t>
 In this section, we present the design of a two-stage solution that enables private
 use of DNS-SD, without affecting existing users.
-The solution is largely based on the architecture proposed in <xref target="KW14b" />, which separates the 
+The solution is largely based on the architecture proposed in <xref target="KW14b" /> and <xref target="K17" />, which separates the 
 general private discovery problem in three components.
 The first component is an offline pairing mechanism,
 which is performed only once per pair of users.
@@ -455,10 +455,9 @@ privacy preserving service discovery.
 The first stage of service discovery is to check whether 
 instances of compatible Private Discovery Services are available in the local scope.
 The goal of that stage is to identify devices that share a pairing with the querier, and
-are available locally. The service instances can be discovered 
-using regular DNS-SD procedures, but the list of
-discovered services will have to be filtered so only paired
-devices are retained.
+are available locally.
+The service instances can be browsed using regular DNS-SD procedures,
+and then filtered so that only instances offered by paired devices are retained.
 </t>
 
 <section title="Obfuscated Instance Names" anchor="specHashProof" >
@@ -509,8 +508,8 @@ The publishers will have to create new records at the end of each rounding perio
 If the rounding period is set too short, they will have to repeat that very often,
 which is inefficient. On the other hand, if the rounding period is too long, the 
 system may be exposed to replay attacks. We initially proposed a value of about
-5 minutes, which would work well for the MDNS variant of DNSSD. However, this may
-cause an excessive number of updates for the DNS server based version of DNSSD.
+5 minutes, which would work well for the mDNS variant of DNS-SD. However, this may
+cause an excessive number of updates for the DNS server based version of DNS-SD.
 We propose to set a value of about 30 minutes,
 which seems to be a reasonable compromise.
 </t>
@@ -528,7 +527,7 @@ not counting leap seconds. The most significant 20 bits of this 32 bit number re
 the number of 2048 seconds intervals since the epoch. 2048 seconds correspond to 34 minutes
 and 8 seconds, which is close enough to our design goal of 30 minutes. We will thus
 use this 20 bit number as nonce, which for simplicity will be padded zeroes to 24 bits
-and encoded on 3 octets.
+and encoded in 3 octets.
 </t>
 
 <t>
@@ -715,9 +714,9 @@ DNS over DTLS <xref target="RFC8094" />, which
 would also be a candidate.
 </t>
 <t>
-DPRIVE and Private Discovery solve however two somewhat different
-problems. DPRIVE is concerned with the confidentiality of DNS transactions, 
-addressing the problems outlined in <xref target="RFC7626" />. However,
+DPRIVE and Private Discovery, however, solve two somewhat different
+problems. While DPRIVE is concerned with the confidentiality of DNS transactions
+addressing the problems outlined in <xref target="RFC7626" />,
 DPRIVE does not address the confidentiality or privacy issues with
 publication of services, and is not a direct solution to DNS-SD privacy:
 </t>
@@ -736,7 +735,7 @@ still be able to discover the content of PTR, SRV and TXT
 records.
 </t>
 <t>
-Neither DNS over TLS nor DNS over DTLS applies to MDNS.
+Neither DNS over TLS nor DNS over DTLS applies to mDNS.
 </t>
 </list>
 </t>
@@ -822,7 +821,7 @@ use a randomized host name. The randomized name MUST be changed when
 network connectivity changes, to avoid the correlation issues described in
 <xref target="timing" />. The randomized host name MUST be used in
 the SRV records describing the service instance, and the corresponding 
-A or AAAA records MUST be made available through DNS or MDNS, within the
+A or AAAA records MUST be made available through DNS or mDNS, within the
 same scope as the PTR, SRV and TXT records used by DNS-SD.
 </t>
 <t>
@@ -947,13 +946,13 @@ each providing the name of one of the instances present in the scope.
 </t>
 <figure>
 <artwork>
-  nonce = 20 bit rounded time stamp of the\
-    respective next time interval padded to
+  nonce = 20 bit rounded time stamp of the \
+    respective next time interval padded to \
     24 bits with four zeroes
   for each available pairing
     retrieve the key Xj of pairing number j
     compute F = first 48 bits of hash(nonce, Xj)
-    construct the binary instance_name as described\
+    construct the binary instance_name as described \
       in the previous section
     instance_names[nonce][instance_name] = Xj;
 </artwork>
@@ -1140,7 +1139,7 @@ multicast requests.
 Adversaries may record the PSK Key Identifiers used in successful
 connections to a private discovery service. They could attempt
 to replay them later against nodes advertising the private 
-service at other times or at other locations. If the PSK Identifier
+service at other times or at other locations. If the PSK identifier
 is still valid, the server will accept the TLS connection, and in doing 
 so will reveal being the same server observed at a previous time or
 location.
@@ -1266,6 +1265,15 @@ detailed reviews of the working draft.
   <seriesInfo name="DOI" value="10.1109/HPCC.2014.141"/>
 </reference>
 
+<reference anchor="K17" target="http://nbn-resolving.de/urn:nbn:de:bsz:352-0-422757">
+  <front>
+    <title>Efficient Privacy-Preserving Configurationless Service Discovery Supporting Multi-Link Networks</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <date year="2017"/>
+  </front>
+</reference>
 
 </references>  
 
