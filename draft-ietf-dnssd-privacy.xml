@@ -664,8 +664,8 @@ directed discoveries.
 We have considered defining an ad-hoc protocol for the private discovery service, but
 found that just using TLS would be much simpler. The directed Private Discovery Service
 is just a regular DNS-SD service, accessed over TLS, using the encapsulation of DNS over
-TLS defined in <xref target="RFC7858" />. The main difference with plain DNS over TLS is
-the need for authentication.
+TLS defined in <xref target="RFC7858" />.
+The main difference with plain DNS over TLS is the need for an authentication based on pre-shared keys.
 </t>
 <t>
 We assume that the pairing process has provided each pair of authorized client and server
@@ -1000,7 +1000,7 @@ Once a pairing has been marked available, the querier SHOULD
 try connecting to the corresponding instance, using the selected key.
 The connection is likely to succeed, but it MAY fail for a variety
 of reasons. One of these reasons is the probabilistic nature of the
-hint, which entails a small chance of "false positive" match. This
+proof, which entails a small chance of "false positive" match. This
 will occur if the hash of the nonce with two different keys produces
 the same result. In that case, the TLS connection will fail with
 an authentication error or a decryption error.
