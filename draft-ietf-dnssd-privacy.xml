@@ -935,8 +935,11 @@ The BASE64 conversion is 12 characters long per
 <t>
 Nodes that wish to discover Private Discovery Service Instances SHOULD issue a DNS-SD 
 discovery request for the service type "_pds._tcp". They MAY, as an alternative, use the Direct
-Discovery procedure defined in <xref target="solution:discoverDirectPds" />. If nodes
-send a DNS-SD discovery request, they will receive in response a series of PTR records, 
+Discovery procedure defined in <xref target="solution:discoverDirectPds" />. 
+When using mDNS, they SHOULD always set the QU-bit (unicast response requested, see <xref target="RFC6762"/> Section 5.4)
+because responses related to a "_pds._tcp" instance are only relevant for the querying node itself.
+
+When nodes send a DNS-SD discovery request, they will receive in response a series of PTR records, 
 each providing the name of one of the instances present in the scope.
 </t>
 
