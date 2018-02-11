@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY rfc1033 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1033.xml'>
+<!ENTITY rfc1034 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1034.xml'>
+<!ENTITY rfc1035 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1035.xml'>
+<!ENTITY rfc2045 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2045.xml'>
+<!ENTITY rfc2119 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml'>
+<!ENTITY rfc2782 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2782.xml'>
+<!ENTITY rfc4055 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4055.xml'>
+<!ENTITY rfc4075 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4075.xml'>
+<!ENTITY rfc4279 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4279.xml'>
+<!ENTITY rfc5246 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml'>
+<!ENTITY rfc6762 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml'>
+<!ENTITY rfc6763 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6763.xml'>
+<!ENTITY rfc7626 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7626.xml'>
+<!ENTITY rfc7844 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7844.xml'>
+<!ENTITY rfc7858 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7858.xml'>
+
+<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
+<!ENTITY I-D.ietf-dprive-dnsodtls PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dprive-dnsodtls.xml">
+<!ENTITY I-D.ietf-tls-tls13 PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-tls13.xml">
+<!ENTITY I-D.ietf-dnssd-push PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-push">
+<!ENTITY I-D.ietf-dnssd-pairing PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-pairing">
+<!ENTITY I-D.ietf-dnssd-privacy PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-privacy">
+<!ENTITY kw14a PUBLIC ''
+   "references/reference.kw14a.xml">
+<!ENTITY kw14b PUBLIC ''
+   "references/reference.kw14b.xml">
+]>
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc compact="yes"?>
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+
+<!-- Expand crefs and put them inline -->
+<?rfc comments='yes' ?>
+<?rfc inline='yes' ?>
+
+<rfc category="info" 
+     docName="draft-huitema-dnssd-privacyscaling-00"
+     ipr="trust200902">
+
+<front>
+    <title abbrev="DNS-SD Privacy Scaling Tradeoffs">
+      Privacy Extensions for DNS-SD
+    </title>
+
+   <author fullname="Christian Huitema" initials="C." surname="Huitema">
+      <organization>Private Octopus Inc.</organization>
+      <address>
+        <postal>
+          <street></street>
+          <city>Friday Harbor</city>
+          <code>98250</code>
+          <region>WA</region>
+          <country>U.S.A.</country>
+        </postal>
+        <email>huitema@huitema.net</email>
+      </address>
+    </author>
+
+    <date year="2018" />
+
+    <abstract>
+        <t>
+DNS-SD (DNS Service Discovery) normally discloses information about both the devices offering services and the devices requesting services.
+This information includes host names, network parameters, and possibly a further description of the corresponding service instance.
+Especially when mobile devices engage in DNS Service Discovery over Multicast DNS at a public hotspot,
+a serious privacy problem arises.
+</t>
+<t>
+The draft currently progressing in the DNSSD Working Group assumes peer-to-peer pairing between the service to be discovered
+and each of its client. This has good security properties, but create scaling issues. Each server needs to publish as many
+announcements as it has paired clients. Each client needs to process all announcements from all servers present in the
+network. This leads to large number of operations when each server is paired with many clients.
+</t>
+<t>
+Different designs are possible. For example, if there was only one server "discovery key" known by each authorized client,
+each server would only have to announce a single record, and clients would only have to process one response for each
+server that is present on the network. Yet, these designs will present different privacy profiles, and pose different management
+challenges. This draft analyses the tradeoffs between privacy and scaling in a set of different designs, using
+either shared secrets or public keys.
+</t>
+</abstract>
+</front>
+
+<middle>
+<section title="Introduction">
+<t>
+DNS-SD <xref target="RFC6763" /> over mDNS <xref target="RFC6762" /> enables configurationless 
+service discovery in local networks.
+It is very convenient for users, but it requires the public exposure 
+of the offering and requesting identities along with information about the offered and 
+requested services.
+Parts of the published information can seriously breach the user's privacy.
+These privacy issues and potential solutions are discussed in <xref target="KW14a" />
+and <xref target="KW14b" />.
+</t>
+<t>
+A recent draft <xref target="I-D.ietf-dnssd-privacy" /> proposes to solve this problem 
+by relying on device pairing. Only clients that have paired with a device would be
+able to discover that device, and the discovery would not be observable by third 
+parties. This design has a number of good privacy and security properties, but it
+has a cost, because each server must provide separate annoucements for each clients.
+In this draft, we compare scaling and privacy properties of three different designs:
+</t>
+<t>
+<list style="symbols">
+<t>
+The individual pairing defined in <xref target="I-D.ietf-dnssd-privacy" />,
+</t>
+<t>
+A single server discovery secret, shared by all authorized clients,
+</t>
+<t>
+A single server discovery public key, known by all authorized clients.
+</t>
+</list>
+</t>
+<t>
+After presenting briefly these three solutions, the draft presents the scaling 
+and privacy properties of each of them.
+</t>
+</section>
+<section title="Privacy and Secrets" anchor="secrets">
+<t>
+Private discovery tries to ensure that clients and servers can discover eachother
+in a potentially hostile network context, while maintaining privacy. Unauthorized
+third parties must not be able to discover that a specific server or device is
+currently present on the network, and they must not be able to discover that a
+particular client is trying to discover a particular service. This cannot be
+achieved without some kind of shared secret between client and servers. We
+review here three particular design for sharing these secrets.
+</t>
+<section title="Pairing secrets" anchor="pairsecret" >
+<t>
+The solution proposed in <xref target="I-D.ietf-dnssd-privacy" /> relies on pairing
+secrets. Each client obtains a pairing secret from each
+server that they are authorized to use. The servers publish announcements
+of the form "nonce|proof", in which the proof is the hash of the nonce and the
+pairing secret. The proof is of course different for each client, because the
+secrets are different. For better scalling, the nonce is common to all clients,
+and defined as a coarse function of time, such as the current 30 minutes
+interval.
+</t>
+<t>
+Clients discover the required server by issuing queries containing the current nonce and
+proof. Servers respond to these queries if the nonce matches the current 
+time interval, and if the proof matches the hash of the nonce with one of the
+pairing key of an authorized client.
+</t>
+</section>
+
+<section title="Discovery secret" anchor="discosecret" >
+<t>
+Instead of using a different secret for each client as in <xref target="pairsecret"/>,
+another design is to have a single secret per server, shared by all authorized clients of
+that server. As in the previous solution, the servers publish announcements
+of the form "nonce|proof", but this time they only need to publish a single
+announcement per server, because each server maintains a single discovery secret.
+Again, the nonce can be common to all clients,
+and defined as a coarse function of time.
+</t>
+<t>
+Clients discover the required server by issuing queries containing the current nonce and
+proof. Servers respond to these queries if the nonce matches the current 
+time interval, and if the proof matches the hash of the nonce with one of the
+discovery secret.
+</t>
+</section>
+
+<section title="Discovery public key" anchor="discopubkey" >
+<t>
+Instead of a discovery secret used in <xref target="discosecret"/>,
+clients could obtain the public keys of the servers that they are
+authorized to use.
+</t>
+<t>
+Many public key systems assume that the public key of the server is, well,
+not secret. But if adversaries know the public key of a server, they
+can use that public key as a unique identifier to track the server.
+Moreover, they could use variations of the padding oracle to observe
+discovery protocol messages and attribute them to a specific public
+key, thus breaking server privacy. For these reasons, we assume here
+that the discovery public key is kept secret, only known to
+authorized clients.
+</t>
+<t>
+As in the previous solution, the servers publish announcements
+of the form "nonce|proof", but this time they only need to publish a single
+announcement per server, because each server maintains a single discovery secret.
+The proof is obtained by either hashing the nonce with the public key,
+or using the public key to encrypt the nonce -- the point being that
+both clients and server can contruct the proof.
+Again, the nonce can be common to all clients,
+and defined as a coarse function of time.
+</t>
+<t>
+The advantage of public key based solutions is that the clients can 
+easily verify the identity of the server, for example if the service is
+accessed over TLS. On the other hand, just using standard TLS would disclose the
+certificate of the server to any client that attempts a connection, not just to
+authorized clients. The server should thus only accept connections from clients that
+demonstrate knowledge of its public key.
+</t>
+</section>
+</section>
+
+<section title="Scaling properties of different solutions" anchor="scaleprop" >
+<t>
+To analyze scaling issues we will use the following variables:
+</t>
+<t>
+<list style="hanging">
+<t hangText="N:">
+The average number of authorized clients per server.
+</t>
+<t hangText="M:">
+The average number of servers per client.
+</t>
+<t hangText="P:">
+The average total number of servers present during discovery.
+</t>
+</list>
+</t>
+<t>
+The big difference between the three proposals is the number of 
+records that need to be published by a server when using DNS-SD
+in server mode, or the number of  broadcast messages that needs 
+to be announced per server in MDNS mode: 
+</t>
+<t>
+<list style="hanging" >
+<t hangText="Pairing secrets:">
+O(N). One record per client.
+</t>
+<t hangText="Discovery secrets:">
+O(1). One record for all clients.
+</t>
+<t hangText="Discovery public key:">
+O(1). One record for all clients.
+</t>
+</list>
+</t>
+<t>
+There are other elements of scaling, linked to the mapping of the privacy
+discovery service to DNSSD. DNSSD identifies services by a combination of
+a service type and an instance name. In classic mapping behavior,
+clients send a query for a service type, and will receive
+responses from each server instance supporting that type:
+</t>
+<t>
+<list style="hanging" >
+<t hangText="Pairing secrets:">
+O(P*N). There are O(P) servers present, and each publishes O(N) instances.
+</t>
+<t hangText="Discovery secrets:">
+O(P). One record per server present.
+</t>
+<t hangText="Discovery public key:">
+O(P). One record per server present.
+</t>
+</list>
+</t>
+<t>
+The DNSSD Privacy draft suggests an optimization that considerably reduces
+the considerations about scaling of responses -- see section 4.6 of 
+<xref target="I-D.ietf-dnssd-privacy" />. In that case, clients compose
+the list of instance names that they are looking for, and specifically
+query for these instance names:
+</t>
+<t>
+<list style="hanging" >
+<t hangText="Pairing secrets:">
+O(M). The client will compose O(M) queries to discover all the
+servers that it is interested in. There will be at most O(M) responses.
+</t>
+<t hangText="Discovery secrets:">
+O(M). Same behavior as in the pairing secret case.
+</t>
+<t hangText="Discovery public key:">
+O(M). Same behavior as in the pairing secret case.
+</t>
+</list>
+</t>
+<t>
+Finally, another element of scaling is cacheability. Responses to DNS 
+queries can be cached by DNS resolvers, and MDNS responses can be
+cached by MDNS resolvers. If several clients send the same queries,
+and if previous responses could be cached, the client can be
+served immediately. There are of course differences between the
+solutions:
+</t>
+<t>
+<list style="hanging" >
+<t hangText="Pairing secrets:">
+No caching possible, since there are separate server instances for 
+separate clients. 
+</t>
+<t hangText="Discovery secrets:">
+Caching is possible, since there is just one server instance.
+</t>
+<t hangText="Discovery public key:">
+Caching is possible, since there is just one server instance.
+</t>
+</list>
+</t>
+</section>
+
+<section title="Comparing privacy posture of different solutions" anchor="privapost" >
+<t>
+The analysis of scaling issues in <xref target="scaleprop"/> shows that the 
+solutions base on a common discovery secret or discovery public key scale much better than the
+solutions based on pairing secret. All these solutions protect against 
+tracking of clients or servers by third parties, as long as the secret on which they
+rely are kept secret. There are however significant differences in
+privacy properties, which become visible when one of the clients becomes compromised.
+</t>
+<section title="Effects of compromized client" anchor="clientcompro" >
+<t>
+If a client is compromised, an adversary will take possession of the secrets
+owned by that client. The effects will be the following:
+</t>
+<t>
+<list style="hanging" >
+<t hangText="Pairing secrets:">
+With a valid pairing key, the adversary can issue queries or parse annoucements.
+It will be able to track the presence of all the servers to which the
+compromised client was paired. It may be able to track other clients of these servers if
+it can infer that multiple independent instances are tied to the same
+server, for example by assessing the IP address associated with a specific
+instance. It will not be able to impersonate the servers
+for other clients. 
+</t>
+<t hangText="Discovery secrets:">
+With a valid discovery secret, the adversary can issue queries or parse annoucements.
+It will be able to track the presence of all the servers that the
+compromised client could discover. It will also be able to detect the clients 
+that try to use one of these servers. This will not reveal the identity of
+the client, but it can provide clues for network analysis. The adversary
+will also be able to spoof the server's announcements, which could be the
+first step in a serve impersonation attack. 
+</t>
+<t hangText="Discovery public key:">
+With a valid discovery public key, the adversary can issue queries or parse annoucements.
+It will be able to track the presence of all the servers that the
+compromised client could discover. It will also be able to detect the clients 
+that try to use one of these servers. This will not reveal the identity of
+the client, but it can provide clues for network analysis. The adversary
+will not be able to spoof the server's announcements, or to impersonate the
+server.
+</t>
+</list>
+</t>
+</section>
+<section title="Remediation of compromized client" >
+<t>
+Let's assume that an administrator discovers that a client has been
+compromised. As seen in <xref target="clientcompro" />, compromising a client
+entails a loss of privacy for all the servers that the client was authorized
+to use, and also to all other users of these servers. The worse situation happens
+in the solutions based on "discovery secrets", but no solution provides
+a great defense. The administrator will have to remedy the problem,
+which means different
+actions based on the different solutions:
+</t>
+<t>
+<list style="hanging" >
+<t hangText="Pairing secrets:">
+The administrator will need to revoke the pairing keys used by the compromised
+client. This implies contacting the O(M) servers to which the client was paired. 
+</t>
+<t hangText="Discovery secrets:">
+The administrator will need to revoke the discovery secrets used by the compromised
+client. This implies contacting the O(M) servers that the client was
+authorized to discover, and then the O(N) clients of each of these servers. 
+This will require a total of O(N*M) management operations.
+</t>
+<t hangText="Discovery public key:">
+The administrator will need to revoke the discovery public keys used by the compromised
+client. This implies contacting the O(M) servers that the client was
+authorized to discover, and then the O(N) clients of each of these servers. Just as in the
+case of discovery secrets, this will require O(N*M) management operations.
+</t>
+</list>
+</t>
+<t>
+The revocation of public keys might benefit from some kind of
+centralized revocation list, and thus may actually be easier to organize
+than simple scaling considerations would dictate.
+</t>
+
+</section>
+
+<section title="Effect of compromized server" >
+<t>
+If a server is compromised, an adversary will take possession of the secrets
+owned by that server. The effects are pretty much the same in all configurations.
+With a set of valid credentials, the adversary can impersonate the server. It
+can track all of the server's clients. There are no differences between the 
+various solutions.
+</t>
+<t>
+As remedy, once the compromise is discovered, the administrator
+will have to revoke the credentials of O(N) clients connected to that server.
+In all cases, this could be done by notifying all potential clients
+to not trust this particular server anymore.
+</t>
+</section>
+
+</section>
+
+<section title="Summary of tradeoffs" >
+<t>
+In the preceeding sections, we have reviewed the scaling and privacy properties of
+three possible secret sharing solutions for privacy discovery. The comparison can
+be summed up as follow:
+</t>
+<texttable anchor="table_ex" title="Comparison of secret sharing solutions">
+    <ttcol align='center'>Solution</ttcol>
+    <ttcol align='center'>Scaling</ttcol>
+    <ttcol align='center'>Resistance</ttcol>
+    <ttcol align='center'>Remediation</ttcol>
+    <c>Pairing secret</c>
+    <c>Poor</c>
+    <c>Bad</c>
+    <c>Good</c>
+    <c>Discovery secret</c>
+    <c>Good</c>
+    <c>Really bad</c>
+    <c>Poor</c>
+    <c>Discovery public key</c>
+    <c>Good</c>
+    <c>Bad</c>
+    <c>Maybe</c>
+</texttable>
+<t>
+All three types of solutions provide reasonable privacy when the secrets are
+not compromized. They all have poor resistance to the compromise of
+one a client, as explained in <xref target="clientcompro" />, but
+pairing secret and public key solution have the advantage of
+preventing server impersonation. The
+pairing secret solution scales worse than the discovery secret and
+discovery public key solutions. The pairing secret solution can recover from
+a compromise with a smaller number of updates, but the public key
+solution may benefit from a simple recovery solution using
+some form of "revocation list".
+</t>
+
+</section>
+
+
+
+
+<section title="Security Considerations">
+<t> 
+This document does not specify a solution, but inform future choices when
+providing privacy for discovery protocols.
+</t> 
+</section>
+
+<section title="IANA Considerations" anchor="iana">
+<t> 
+This draft does not require any IANA action.
+</t> 
+</section>
+
+<section title="Acknowledgments">
+    <t>
+This draft results from initial feedback in the DNS SD working group on <xref target="I-D.ietf-dnssd-privacy" />.
+    </t>
+</section>
+</middle>
+
+<back>
+
+<references title="Informative References">
+       &I-D.ietf-dnssd-privacy;
+       &rfc6762;
+       &rfc6763;
+
+<reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
+  <front>
+    <title>Adding Privacy to Multicast DNS Service Discovery</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <author initials="M." surname="Waldvogel" fullname="Marcel Waldvogel">
+      <organization/>
+    </author>
+    <date year="2014"/>
+  </front>
+  <seriesInfo name="DOI" value="10.1109/TrustCom.2014.107"/>
+</reference>
+
+<reference anchor="KW14b" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7056899">
+  <front>
+    <title>Efficient Privacy Preserving Multicast DNS Service Discovery</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <author initials="M." surname="Waldvogel" fullname="Marcel Waldvogel">
+      <organization/>
+    </author>
+    <date year="2014"/>
+  </front>
+  <seriesInfo name="DOI" value="10.1109/HPCC.2014.141"/>
+</reference>
+
+
+</references>  
+
+</back>
+</rfc>
