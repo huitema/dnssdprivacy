@@ -38,9 +38,8 @@
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8117.xml'>
 <!ENTITY rfc8094 PUBLIC ''
    'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8094.xml'>
-
-<!ENTITY I-D.ietf-intarea-hostname-practice PUBLIC ''
-   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-intarea-hostname-practice.xml"> 
+<!ENTITY rfc8117 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8117.xml'>
 <!ENTITY I-D.ietf-tls-tls13 PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-tls13.xml">
 <!ENTITY I-D.ietf-dnssd-push PUBLIC ''  
@@ -64,7 +63,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-ietf-dnssd-privacy-03"
+     docName="draft-ietf-dnssd-privacy-04"
      ipr="trust200902">
 
 <front>
@@ -101,7 +100,7 @@
       </address>
     </author>
 
-    <date year="2017" />
+    <date year="2018" />
 
     <abstract>
         <t>
