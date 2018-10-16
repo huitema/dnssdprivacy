@@ -46,6 +46,11 @@
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-push">
 <!ENTITY I-D.ietf-dnssd-pairing PUBLIC ''  
    "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-pairing">
+<!ENTITY I-D.ietf-dnssd-privacyscaling PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-privacyscaling">
+<!ENTITY I-D.ietf-dnssd-prireq PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-prireq">
+
 <!ENTITY kw14a PUBLIC ''
    "references/reference.kw14a.xml">
 <!ENTITY kw14b PUBLIC ''
@@ -63,7 +68,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-ietf-dnssd-privacy-04"
+     docName="draft-ietf-dnssd-privacy-05"
      ipr="trust200902">
 
 <front>
@@ -118,6 +123,9 @@ a serious privacy problem arises.
   A pairwise shared secret necessary to establish these connections
   is only known to hosts authorized by a pairing system.
 </t>
+<t>
+  Revisions of this draft are currently considered in the DNSSD working group.
+</t>
     </abstract>
 </front>
 
@@ -150,7 +158,7 @@ or a file store in our examples. The user of the other device will
 discover this service, and then connect to it.
 </t>
 <t>
-When analyzing these scenarios in <xref target="analysis"/>, we find that
+When analyzing these scenarios in <xref target="I-D.ietf-dnssd-prireq" />, we find that
 the DNS-SD messages leak identifying information such as the instance name,
 the host name or service properties. We review the design constraint of a solution
 in <xref target="design"/>, and describe the proposed solution in
@@ -161,6 +169,13 @@ in <xref target="design"/>, and describe the proposed solution in
   our solution is agnostic about the distribution method and also works with other distribution methods,
   e.g. the classical hierarchical DNS.
 </t>
+<t>
+  The solution presented here relies on 1-1 pairings between clients and servers.
+  Discussions during the IETF 101 in London showed that this requirement of a full
+  mesh of pairings poses some scalability issues, as explained in
+  <xref target="I-D.ietf-dnssd-privacyscaling"/>. The next revision of this draft
+  may propose a different mechanism.
+</t>
 <section title="Requirements">
 <t>
   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -169,7 +184,7 @@ in <xref target="design"/>, and describe the proposed solution in
 </t>
 </section>
 </section>
-
+<!-- DNSSD analysis moved to separate document
 <section title="Privacy Implications of DNS-SD" anchor="analysis">
 <t>
 DNS-Based Service Discovery (DNS-SD) is defined in <xref target="RFC6763" />.
@@ -374,6 +389,7 @@ analysis can often reveal the service.
 </t>
 </section>
 </section>
+end of analysis -->
 
 <section title="Design of the Private DNS-SD Discovery Service" anchor="design" >
 <t>
@@ -1226,10 +1242,6 @@ detailed reviews of the working draft.
        &rfc5246;
 </references>
 <references title="Informative References">
-       &rfc1033;
-       &rfc1034;
-       &rfc1035;
-       &rfc2782;
        &rfc4648;
        &rfc6762;
        &rfc7626;
@@ -1240,6 +1252,8 @@ detailed reviews of the working draft.
        &I-D.ietf-tls-tls13;
        &I-D.ietf-dnssd-push;
        &I-D.ietf-dnssd-pairing;
+       &I-D.ietf-dnssd-privacyscaling;
+       &I-D.ietf-dnssd-prireq;
 
 <reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
   <front>
