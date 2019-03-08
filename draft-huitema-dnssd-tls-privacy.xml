@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY rfc1033 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1033.xml'>
+<!ENTITY rfc1034 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1034.xml'>
+<!ENTITY rfc1035 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1035.xml'>
+<!ENTITY rfc2045 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2045.xml'>
+<!ENTITY rfc2119 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml'>
+<!ENTITY rfc2782 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2782.xml'>
+<!ENTITY rfc4055 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4055.xml'>
+<!ENTITY rfc4075 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4075.xml'>
+<!ENTITY rfc4279 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4279.xml'>
+<!ENTITY rfc4648 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4648.xml'>
+<!ENTITY rfc5246 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml'>
+<!ENTITY rfc6762 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml'>
+<!ENTITY rfc6763 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6763.xml'>
+<!ENTITY rfc7626 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7626.xml'>
+<!ENTITY rfc7844 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7844.xml'>
+<!ENTITY rfc7858 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7858.xml'>
+<!ENTITY rfc8117 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8117.xml'>
+<!ENTITY rfc8094 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8094.xml'>
+<!ENTITY rfc8117 PUBLIC ''
+   'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8117.xml'>
+<!ENTITY rfc8446 PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8446.xml">
+
+<!ENTITY I-D.ietf-dnssd-privacyscaling PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-privacyscaling">
+<!ENTITY I-D.ietf-dnssd-prireq PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-prireq">
+<!ENTITY I-D.ietf-tls-dtls13 PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-dtls13">
+<!ENTITY I-D.ietf-tls-esni PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tls-esni">
+<!ENTITY I-D.ietf-quic-transport PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-quic-transport">
+<!ENTITY I-D.ietf-quic-tls PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-quic-tls">
+
+<!ENTITY I-D.huitema-quic-dnsoquic PUBLIC ''  
+   "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.huitema-quic-dnsoquic">
+
+<!ENTITY kw14a PUBLIC ''
+   "references/reference.kw14a.xml">
+<!ENTITY kw14b PUBLIC ''
+   "references/reference.kw14b.xml">
+]>
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc compact="yes"?>
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+
+<!-- Expand crefs and put them inline -->
+<?rfc comments='yes' ?>
+<?rfc inline='yes' ?>
+
+<rfc category="std" 
+     docName="draft-huitema-dnssd-tls-privacy-00"
+     ipr="trust200902">
+
+<front>
+    <title abbrev="DNS-SD Privacy Extensions">
+      Privacy Extensions for DNS-SD
+    </title>
+
+   <author fullname="Christian Huitema" initials="C." surname="Huitema">
+      <organization>Private Octopus Inc.</organization>
+      <address>
+        <postal>
+          <street></street>
+          <city>Friday Harbor</city>
+          <code>98250</code>
+          <region>WA</region>
+          <country>U.S.A.</country>
+        </postal>
+        <email>huitema@huitema.net</email>
+        <uri>http://privateoctopus.com/</uri>
+      </address>
+    </author>
+
+   <author fullname="Daniel Kaiser" initials="D." surname="Kaiser">
+     <organization>University of Konstanz</organization>
+      <address>
+        <postal>
+          <street> </street>
+          <city>Konstanz</city>
+          <code>78457</code>
+          <region></region>
+          <country>Germany</country>
+        </postal>
+        <email>daniel.kaiser@uni-konstanz.de</email>
+      </address>
+    </author>
+
+    <date year="2019" />
+
+    <abstract>
+        <t>
+DNS-SD (DNS Service Discovery) normally discloses information about both the devices offering services and the devices requesting services.
+This information includes host names, network parameters, and possibly a further description of the corresponding service instance.
+Especially when mobile devices engage in DNS Service Discovery over Multicast DNS at a public hotspot,
+a serious privacy problem arises.
+</t>
+<t>
+  We propose to solve this problem by a two-stage approach.
+[[TODO]]
+</t>
+    </abstract>
+</front>
+
+<middle>
+<section title="Introduction">
+<t>
+DNS-SD <xref target="RFC6763" /> over mDNS <xref target="RFC6762" /> enables configurationless 
+service discovery in local networks.
+It is very convenient for users, but it requires the public exposure 
+of the offering and requesting identities along with information about the offered and 
+requested services.
+Parts of the published information can seriously breach the user's privacy.
+These privacy issues and potential solutions are discussed in <xref target="KW14a" />
+and <xref target="KW14b" />.
+</t>
+<t>
+When analyzing these scenarios in <xref target="I-D.ietf-dnssd-prireq" />, we find that
+the DNS-SD messages leak identifying information such as the instance name,
+the host name or service properties. 
+</t>
+<t>
+We propose here a discovery solution that can replace DNS-SD in simple deployment
+scenarios, with the following characteristics:
+</t>
+<t>
+<list style="numbers">
+<t>
+We only target discovery of peers on the same local network, using multicast. We
+make no attempt at compatibility with the server based solutions such as DNSSD
+over Unicast DNS <xref target="RFC6763" />.
+</t>
+<t>
+We do not attempt to keep the same formats as mDNS <xref target="RFC6762" />.
+</t>
+<t>
+We assume a solution that can be integrated in an application, without dependency
+on system support.
+</t>
+</list>
+</t>
+<t>
+The proposed solution aligns with TLS 1.3 <xref target="RFC8446"/>, and
+specifically with transports of TLS over UDP, such as DTLS <xref target="I-D.ietf-tls-dtls13"/>
+or QUIC <xref target="I-D.ietf-quic-transport" />.
+The solution uses SNI encryption <xref target="I-D.ietf-tls-esni" />.
+</t>
+<t>
+The solution assumes that entities who want to be privately discovered maintain
+an asymmetric discovery key pair. The public component of that discovery key pair
+and the service name of the entity are provisioned to authorized discovery
+clients. In this document, we will refer to this public component as the
+"Discovery Key" of the server. When needed, we will refer to the private
+component of the key pair as the "Discovery Private Key".
+</t>
+<section title="Requirements">
+<t>
+  The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+  "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+  document are to be interpreted as described in <xref target="RFC2119" />.
+</t>
+</section>
+</section>
+
+<section title="Discovery Service Using TLS and ESNI" anchor="esni-design" >
+<t>
+In the proposed solution, the first packet of a TLS-based UDP transport is
+broadcast or multicast over the local network. These packet carry the TLS 1.3 
+ClientHello message, including an Encrypted SNI (ESNI) extension. The ESNI
+is encrypted with the Discovery Key of the requested service.
+</t>
+<t>
+The services who are ready to be discovered listend on the broadcast or
+multicast address and check whether the received packets contain a TLS 1.3
+ClientHello Message and an ESNI extension. If the extension can be
+decrypted with the Private Discovery Key of the local service, they
+set up a connection.
+</t>
+<t>
+This mechanism only works with TLS based protocols operating over UDP, such
+as DTLS or QUIC.
+</t>
+<section title="Discovery Key" anchor="esni-key" >
+<t>
+Private discovery relies on the privacy of the server Discovery Key, which
+is used to encrypt the target server name carried in the ESNI extension.
+Clients can only discover a server if they know the server's Discovery Key.
+Servers receiving a properly encrypted discovery request do not know
+the identity of the client issuing the request, but they know that the
+client belongs to a group authorized to perform the discovery.
+</t>
+<t>
+In the ESNI based specification, the server's Discovery Key plays the
+same role as the ESNI Encryption Key of the client facing server, but
+a major difference is that the Discovery Key is kept private.
+According to standard ESNI, the client facing server publish an ESNI encryption
+key in the DNS. In contrast, the Discovery Key MUST NOT be publicly
+available in the DNS.
+</t>
+<t>
+The discovery key is passed to the peer in exactly the same format as ESNI:
+</t>
+<t>
+<figure>
+<artwork>
+    struct {
+        uint8 checksum[4];
+        KeyShareEntry keys&lt;4..2^16-1>;
+        CipherSuite cipher_suites&lt;2..2^16-2>;
+        uint16 padded_length;
+        uint64 not_before;
+        uint64 not_after;
+        Extension extensions&lt;0..2^16-1>;
+    } ESNIKeys;
+</artwork>
+</figure>
+</t>
+<t>
+[[TODO: should we discuss provisoning?]]
+</t>
+</section>
+
+<section title="ESNI extension for discovery" anchor="esni-verif" >
+<t>
+The ESNI extension is defined in <xref target="I-D.ietf-tls-esni" /> as:
+</t>
+<t>
+<figure>
+<artwork>
+      struct {
+          CipherSuite suite;
+          KeyShareEntry key_share;
+          opaque record_digest&lt;0..2^16-1>;
+          opaque encrypted_sni&lt;0..2^16-1>;
+      } ClientEncryptedSNI;
+</artwork>
+</figure>
+</t>
+<t>
+In standard ESNI usage, the "record_digest" identifies the ESNI Encryption Key.
+Clients using private discovery MUST leave the "record_digest" empty, and
+encode it as a zero-length binary string. The ESNI Encryption Key will be
+the Discovery Key of the target server.
+</t>
+<t>
+The KeyShareEntry is set in accordance with the ESNI specification. It is combined
+with the server Discovery Key to encrypt the SNI. According to the ESNI
+specification, the encrypted structure contains:
+</t>
+<t>
+<figure>
+<artwork>
+      struct {
+          ServerNameList sni;
+          opaque zeros[ESNIKeys.padded_length - length(sni)];
+      } PaddedServerNameList;
+
+      struct {
+          uint8 nonce[16];
+          PaddedServerNameList realSNI;
+      } ClientESNIInner;
+</artwork>
+</figure>
+</t>
+<t>
+Servers that receive the extension as part of private discovery attempt to decrypt the
+value using their Private Discovery Key. If the decryption succeeds, and if
+the decrypted SNI corresponds to the expected value, the server will accept
+the discovery request. 
+</t>
+<t>
+[[TODO: conventional value for the padded length?]]
+</t>
+</section>
+
+<section title="Integration with DTLS" >
+<t>
+The message flows of DTLS 1.3 <xref target="I-D.ietf-tls-dtls13"/> all start
+with the client sending a TLS ClientHello message. The following figure
+presents a simple DTLS flow using the ESNI extension for private discovery:
+</t>
+<t>
+<figure>
+<artwork>
+Client                                             Server
+
+ClientHello                                              +----------+
+ + key_share*                                            | Flight 1 |
+ + ESNI                 -------->                        +----------+
+
+                                            ServerHello
+                                           + key_share*  +----------+
+                                  {EncryptedExtensions}  | Flight 2 |
+                                                 {ESNI}  +----------+
+                                         {Certificate*}
+                        &lt;--------            {Finished}
+                                    [Application Data*]
+
+                                                         +----------+
+                                                         | Flight 3 |
+ {Finished}             -------->                        +----------+
+ [Application Data]
+
+                                                         +----------+
+                        &lt;--------                 [Ack]  | Flight 4 |
+                                    [Application Data*]  +----------+
+
+ [Application Data]     &lt;------->   [Application Data]
+</artwork>
+</figure>
+</t>
+<t>
+The first flight consists of a single UDP packet. In classic DTLS, this would be
+sent to the IP address and UDP port chosen for the application. Instead, the client using
+private discovery MUST sent this to the "private discovery" multicast address and to
+the UDP port chosen for the application.
+</t>
+<t>
+The multicast message sent by the client will be received by many servers.
+The servers using private discovery MUST verify that the ESNI extension is
+present. If it is present, each server attempts to decrypt the ESNI extension
+using the local private discovery key, as specified in <xref target="esni-verif"/>.
+If the verification succeeds, the server proceeds with the connection, and
+sends the second flight of DTLS packets to the IP address and UDP port
+from which it received the client's first flight.
+</t>
+<t>
+The client receiving the second flight of messages processe them as specified in
+DTLS 1.3 <xref target="I-D.ietf-tls-dtls13"/>. The client MUST verify that the ESNI
+extension is present, and matches the expected value as specified in 
+<xref target="esni-verif"/>. If the ESNI extension is absent or does not
+pass verfication, the entire flight MUST be ignored. If the verification
+succeeds, the client remembers the IP address and UDP port of the server,
+and uses it for the reminder of the session.
+</t>
+<t>
+[[TODO: server certificate -- is that redundant with Discovery Key?]]
+</t>
+<t>
+[[TODO: client authentication -- possible per DTLS of course, but only after ESNI verified.]]
+</t>
+<t>
+[[TODO: processing responses from multiple servers, keeping just one.]]
+</t>
+<t>
+[[TODO: security section, usual protections against off-link traffic.]]
+</t>
+</section>
+
+<section title="Integration with QUIC" anchor="disco-esni-quic" >
+<t>
+The QUIC Transport uses TLS to negotiate encryption keys. The use of TLS in QUIC is
+specified in <xref target="I-D.ietf-quic-tls" />, and can be summarized as follow:
+</t>
+<t>
+<list style="numbers" >
+<t>
+The QUIC connection starts with the client sending an Initial message, carrying
+a TLS ClientHello and its extensions.
+</t>
+<t>
+The server replies with its own Initial message, carrying the server hello and
+establishing the "handshake" keys used to protect the reminder of the TLS 1.3
+exchange.
+</t>
+<t>
+Server and client exchange encrypted Handshake messages to verify that the
+session is properly established and to negotiate the encryption keys of the
+application data.
+</t>
+<t>
+Server and Client exchange encrypted application messages until they decide to
+close the connection.
+</t>
+</list>
+</t>
+<t>
+All messages are sent over UDP. 
+</t>
+<t>
+When using Private Discovery, the client adds an ESNI extension to the ClientHello
+sent in the Initial message. The ESNI extension is formated a specified
+in <xref target="esni-verif"/>. In classic QUIC, the Initial message would be
+sent in a UDP packet to the IP address and UDP port of the server. Instead, the client using
+private discovery MUST sent this to the "private discovery" multicast address and to
+the UDP port chosen for the application.
+</t>
+<t>
+The multicast message sent by the client will be received by many servers.
+The servers using private discovery MUST verify that the ESNI extension is
+present. If it is present, each server attempts to decrypt the ESNI extension
+using the local private discovery key, as specified in <xref target="esni-verif"/>.
+If the verification succeeds, the server proceeds with the connection, and
+sends the next QUIC packets to the IP address and UDP port
+from which it received the client's first flight.
+</t>
+<t>
+The client receiving the second flight of messages processe them as specified in
+DTLS 1.3 <xref target="I-D.ietf-tls-dtls13"/>. The client MUST verify that the ESNI
+extension is present, and matches the expected value as specified in 
+<xref target="esni-verif"/>. If the ESNI extension is absent or does not
+pass verfication, the entire QUIC connection MUST be ignored. If the verification
+succeeds, the client remembers the IP address and UDP port of the server,
+and uses it for the reminder of the QUIC connection.
+</t>
+</section>
+
+
+</section> 
+
+
+
+<section title="Private Discovery DNS Service" >
+<t>
+The mechanisms discussed in <xref target="esni-design" /> assume that an application
+based on DTLS or QUIC is modified to enable private local discovery. This does not
+cover all services. The other services can be supported by a two-phase process
+in which each application is paired with an implementation of the private
+discovery service.
+</t> 
+<t>
+The private discovery service is an implementation of DNS over QUIC, as
+specified in <xref target="I-D.huitema-quic-dnsoquic" />, modified to
+also implement the Private Discovery over Quic defined in
+<xref target="disco-esni-quic" />. The DNS implementation is solely
+for the purpose of providing an equivalent service to DNS-SD.
+</t>
+<t>
+The Private Discovery DNS Service is run by the service that wants
+to be discovered. The name of the discovery service is the name of the service
+that needs to be discovered. The client are provisioned with the associated
+Discovery Key. The discovers the Private Discovery DNS Service, and can then
+use it to obtain the DNS records associated with the application service:
+SRV, TXT, A or AAAA records.
+</t>
+
+
+</section> <!-- end of Private Discovery Service -->
+
+<section title="Security Considerations">
+<t>
+[[TODO: explain why ESNI design provides lots of protections, e.g. replay attack -- reference to ESNI incorporating handshake extension in hash]]
+</t>
+<t>
+[[TODO: what if the server discovery key leaks?]]
+</t>
+<t>
+[[TODO: off link attack]]
+</t>
+<t>
+[[TODO: man-in-the-middle, relay, etc.]]
+</t>
+</section>
+
+<section title="IANA Considerations" anchor="iana">
+<t> 
+[[TODO: IPv6 multicast address reserved for discovery]]
+</t>
+<t>
+[[TODO: do we even need to worry about IPv4?]]
+</t>
+</section>
+
+<section title="Acknowledgments">
+<t>
+[[TODO]]
+</t>
+</section>
+
+</middle>
+
+<back>
+<references title="Normative References">
+       &rfc2119;
+       &rfc6763;
+       &rfc8446;
+       &I-D.ietf-tls-dtls13;
+       &I-D.ietf-tls-esni;
+       &I-D.ietf-quic-transport;
+       &I-D.ietf-quic-tls;
+       &I-D.huitema-quic-dnsoquic;
+</references>
+<references title="Informative References">
+       &rfc6762;
+       &I-D.ietf-dnssd-prireq;
+
+<reference anchor="KW14a" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7011331">
+  <front>
+    <title>Adding Privacy to Multicast DNS Service Discovery</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <author initials="M." surname="Waldvogel" fullname="Marcel Waldvogel">
+      <organization/>
+    </author>
+    <date year="2014"/>
+  </front>
+  <seriesInfo name="DOI" value="10.1109/TrustCom.2014.107"/>
+</reference>
+
+<reference anchor="KW14b" target="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=7056899">
+  <front>
+    <title>Efficient Privacy Preserving Multicast DNS Service Discovery</title>
+    <author initials="D." surname="Kaiser" fullname="Daniel Kaiser">
+      <organization/>
+    </author>
+    <author initials="M." surname="Waldvogel" fullname="Marcel Waldvogel">
+      <organization/>
+    </author>
+    <date year="2014"/>
+  </front>
+  <seriesInfo name="DOI" value="10.1109/HPCC.2014.141"/>
+</reference>
+
+</references>  
+
+</back>
+</rfc>
