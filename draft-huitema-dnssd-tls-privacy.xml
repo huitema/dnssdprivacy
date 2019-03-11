@@ -99,17 +99,19 @@
       </address>
     </author>
 
+
    <author fullname="Daniel Kaiser" initials="D." surname="Kaiser">
-     <organization>University of Konstanz</organization>
+      <organization>University of Luxembourg</organization>
       <address>
         <postal>
-          <street> </street>
-          <city>Konstanz</city>
-          <code>78457</code>
+          <street>6, avenue de la Fonte</street>
+          <city>Esch-sur-Alzette</city>
+          <code>4364</code>
           <region></region>
-          <country>Germany</country>
+          <country>Luxembourg</country>
         </postal>
-        <email>daniel.kaiser@uni-konstanz.de</email>
+        <email>daniel.kaiser@uni.lu</email>
+        <uri>https://secan-lab.uni.lu/</uri>
       </address>
     </author>
 
@@ -148,7 +150,7 @@ the DNS-SD messages leak identifying information such as the instance name,
 the host name or service properties. 
 </t>
 <t>
-We propose here a discovery solution that can replace DNS-SD in simple deployment
+In this document, we propose a discovery solution that can replace DNS-SD in simple deployment
 scenarios, with the following characteristics:
 </t>
 <t>
@@ -193,12 +195,12 @@ component of the key pair as the "Discovery Private Key".
 <section title="Discovery Service Using TLS and ESNI" anchor="esni-design" >
 <t>
 In the proposed solution, the first packet of a TLS-based UDP transport is
-broadcast or multicast over the local network. These packet carry the TLS 1.3 
+broadcast or multicast over the local network. This packet carries the TLS 1.3 
 ClientHello message, including an Encrypted SNI (ESNI) extension. The ESNI
 is encrypted with the Discovery Key of the requested service.
 </t>
 <t>
-The services who are ready to be discovered listend on the broadcast or
+Services that are ready to be discovered listen on the broadcast or
 multicast address and check whether the received packets contain a TLS 1.3
 ClientHello Message and an ESNI extension. If the extension can be
 decrypted with the Private Discovery Key of the local service, they
@@ -221,7 +223,7 @@ client belongs to a group authorized to perform the discovery.
 In the ESNI based specification, the server's Discovery Key plays the
 same role as the ESNI Encryption Key of the client facing server, but
 a major difference is that the Discovery Key is kept private.
-According to standard ESNI, the client facing server publish an ESNI encryption
+According to standard ESNI, the client facing server publishes an ESNI encryption
 key in the DNS. In contrast, the Discovery Key MUST NOT be publicly
 available in the DNS.
 </t>
@@ -255,13 +257,13 @@ client facing server, ensuring that third parties cannot infer the
 identity of the service from the length of the extension. In our
 design, requests for multiple services are sent over multicast. If different
 services used different padding length, third parties could infer the
-service identity from the ESNI length. To provent this information
+service identity from the ESNI length. To prevent this information
 leakage, services participating in private discovery MUST set the padded
 length to exactly 128 bytes.
 </t>
 </section>
 
-<section title="ESNI extension for discovery" anchor="esni-verif" >
+<section title="ESNI Extension for Discovery" anchor="esni-verif" >
 <t>
 The ESNI extension is defined in <xref target="I-D.ietf-tls-esni" /> as:
 </t>
@@ -364,7 +366,7 @@ sends the second flight of DTLS packets to the IP address and UDP port
 from which it received the client's first flight.
 </t>
 <t>
-The client receiving the second flight of messages processe them as specified in
+The client receiving the second flight of messages processes them as specified in
 DTLS 1.3 <xref target="I-D.ietf-tls-dtls13"/>. The client MUST verify that the ESNI
 extension is present, and matches the expected value as specified in 
 <xref target="esni-verif"/>. If the ESNI extension is absent or does not
@@ -373,11 +375,11 @@ succeeds, the client remembers the IP address and UDP port of the server,
 and uses it for the reminder of the session.
 </t>
 <t>
-A successful ESNI exchange demonstrtes to the server that the client has knowledge of
+A successful ESNI exchange demonstrates to the server that the client has knowledge of
 the server discovery key, and to the client that the server is in
 possession of the corresponding private discovery key. This is meant to restrict
 access to a subset of the client and server population, but does not replace the
-need for server authenttication and optional client authentication as
+need for server authentication and optional client authentication as
 specified in TLS 1.3.
 </t>
 </section>
@@ -414,7 +416,7 @@ All messages are sent over UDP.
 </t>
 <t>
 When using Private Discovery, the client adds an ESNI extension to the ClientHello
-sent in the Initial message. The ESNI extension is formated a specified
+sent in the Initial message. The ESNI extension is formatted a specified
 in <xref target="esni-verif"/>. In classic QUIC, the Initial message would be
 sent in a UDP packet to the IP address and UDP port of the server. Instead, the client using
 private discovery MUST sent this to the "private discovery" multicast address 
@@ -431,11 +433,11 @@ sends the next QUIC packets to the IP address and UDP port
 from which it received the client's first flight.
 </t>
 <t>
-The client receiving the second flight of messages processe them as specified in
+The client receiving the second flight of messages processes them as specified in
 DTLS 1.3 <xref target="I-D.ietf-tls-dtls13"/>. The client MUST verify that the ESNI
 extension is present, and matches the expected value as specified in 
 <xref target="esni-verif"/>. If the ESNI extension is absent or does not
-pass verfication, the entire QUIC connection MUST be ignored. If the verification
+pass verification, the entire QUIC connection MUST be ignored. If the verification
 succeeds, the client remembers the IP address and UDP port of the server,
 and uses it for the reminder of the QUIC connection.
 </t>
@@ -450,7 +452,7 @@ and uses it for the reminder of the QUIC connection.
 <t>
 The mechanisms discussed in <xref target="esni-design" /> assume that an application
 based on DTLS or QUIC is modified to enable private local discovery. This does not
-cover all services. The other services can be supported by a two-phase process
+cover all services. Further services can be supported by a two-phase process
 in which each application is paired with an implementation of the private
 discovery service.
 </t> 
@@ -459,13 +461,13 @@ The private discovery service is an implementation of DNS over QUIC, as
 specified in <xref target="I-D.huitema-quic-dnsoquic" />, modified to
 also implement the Private Discovery over Quic defined in
 <xref target="disco-esni-quic" />. The DNS implementation is solely
-for the purpose of providing an equivalent service to DNS-SD.
+for the purpose of providing a service equivalent to DNS-SD.
 </t>
 <t>
 The Private Discovery DNS Service is run by the service that wants
 to be discovered. The name of the discovery service is the name of the service
-that needs to be discovered. The client are provisioned with the associated
-Discovery Key. The discovers the Private Discovery DNS Service, and can then
+that needs to be discovered. Clients are provisioned with the associated
+Discovery Key. Clients discover the Private Discovery DNS Service, and can then
 use it to obtain the DNS records associated with the application service:
 SRV, TXT, A or AAAA records.
 </t>
@@ -475,21 +477,21 @@ SRV, TXT, A or AAAA records.
 
 <section title="Security Considerations">
 <t>
-The use of TLS 1.3 and the ESNI extension provides robust defenses agaisnt attacks.
+The use of TLS 1.3 and the ESNI extension provides robust defenses against attacks.
 In particular, Private Discovery benefits from the defenses against
 dictionary attacks and replay attacks built in the ESNI design. Protections
 against a residual DOS attack is discussed in <xref target="esni-spoof" />.
 </t>
 <t>
-The privacy of the discovery relies on keeping secret the discovery key of
-the service. The consequences and partial mitigation of leaking the
+The privacy of the discovery relies on keeping the discovery key of
+the service secret. The consequences and partial mitigation of leaking the
 discovery key are discussed in <xref target="esni-leak" />.
 </t>
 <t>
-Compromising of the server's private discovery key will allow
+Compromising of the server's private discovery key will allow an
 attacker to break the privacy of the discovery, as discussed in <xref target="esni-fail" />.
 </t>
-<section title="Denial of service by spoofed response" anchor="esni-spoof" >
+<section title="Denial of Service by Spoofed Response" anchor="esni-spoof" >
 <t>
 Attackers may try to disrupt a private discovery handshake by sending a spoofed
 Server Hello (DTLS) or a spoofed Server Initial packet (QUIC). The client will
@@ -509,7 +511,7 @@ attempting validation until they receive at least one valid response from the
 expected server.
 </t>
 </section>
-<section title="Discovery Key compromise" anchor="esni-leak" >
+<section title="Discovery Key Compromise" anchor="esni-leak" >
 <t>
 The Discovery Key is known by all the authorized clients. If one of these clients
 is compromised, the privacy of the server will be compromised: attackers
@@ -523,8 +525,8 @@ The attack is mitigated when the server migrates to a different discovery
 key and restricts the availability of that key to non-compromised clients.
 </t>
 <t>
-Exploiting a compromized discovery key normally requires that the attacker
-be present on the same link as the target. Attackers might try to work
+Exploiting a compromised discovery key normally requires that the attacker
+is present on the same link as the target. Attackers might try to work
 around that limitation by sending unicast packet targeted at plausible
 server locations. Servers participating in private discovery MUST NOT
 accept discovery requests arriving from off-link sources.
@@ -532,12 +534,12 @@ accept discovery requests arriving from off-link sources.
 </section>
 
 
-<section title="Private Discovery Key compromise" anchor="esni-fail" >
+<section title="Private Discovery Key Compromise" anchor="esni-fail" >
 <t>
 The private component of the asymmetric key pair used for discovery MUST
 be kept secret by the server. If it is compromised, attackers can
 process discovery requests and verify that they can be decrypted with
-the server's private discovery key. They could also process logs of
+the server's private discovery key. They could also process logs
 of old discovery attempts.
 </t>
 <t>
@@ -551,7 +553,7 @@ The discovery requests do not uniquely identify the client, and the attacker
 will only know that an attempt came from one of the authorized clients.
 </t>
 <t>
-The actual communications are protected by TLS, and inherit from the
+The actual communications are protected by TLS, and inherit the
 forward secrecy properties of TLS 1.3.
 </t>
 </list>
