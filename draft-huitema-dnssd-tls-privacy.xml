@@ -99,17 +99,19 @@
       </address>
     </author>
 
+
    <author fullname="Daniel Kaiser" initials="D." surname="Kaiser">
-     <organization>University of Konstanz</organization>
+      <organization>University of Luxembourg</organization>
       <address>
         <postal>
-          <street> </street>
-          <city>Konstanz</city>
-          <code>78457</code>
+          <street>6, avenue de la Fonte</street>
+          <city>Esch-sur-Alzette</city>
+          <code>4364</code>
           <region></region>
-          <country>Germany</country>
+          <country>Luxembourg</country>
         </postal>
-        <email>daniel.kaiser@uni-konstanz.de</email>
+        <email>daniel.kaiser@uni.lu</email>
+        <uri>https://secan-lab.uni.lu/</uri>
       </address>
     </author>
 
