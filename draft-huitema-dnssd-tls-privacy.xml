@@ -76,7 +76,7 @@
 <?rfc inline='yes' ?>
 
 <rfc category="std" 
-     docName="draft-huitema-dnssd-tls-privacy-00"
+     docName="draft-huitema-dnssd-tls-privacy-01"
      ipr="trust200902">
 
 <front>
@@ -443,7 +443,6 @@ and uses it for the reminder of the QUIC connection.
 </t>
 </section>
 
-
 </section> 
 
 
@@ -474,6 +473,68 @@ SRV, TXT, A or AAAA records.
 
 
 </section> <!-- end of Private Discovery Service -->
+
+<section title="Optional Server Arrival Announce" >
+<t>
+The proposed design relies on active discovery of servers by the clients. When a client
+arrives on a new network and wishes to establish a connection to a server, it sends
+a multicast message that tries to reach that server. This designs has two
+potential issues:
+</t>
+<t>
+<list>
+<t>
+If the server is not present when a client tries to contact it, the client may
+have to repeat the connection attempts over time.
+</t>
+<t>
+If multiple clients connect to the same server, each client sends a multicast
+message, which can translate in heavy multicast load in some configurations.
+</t>
+</list>
+</t>
+<t>
+The importance of these two issues is debatable. Many applications have a
+peer-to-peer nature, in which peers can be either clients or servers. When two
+peers are not present at the same time, the first peer to arrive will fail to
+establish a connection, but the second peer will succeed, without having to rely
+on time based repetitions.
+Similarly, if we move from device oriented discovery to application oriented
+discovery, the number of client per server is likely to be very small, so
+that there will be little difference between "multicast per client" and
+"multicast per server".
+</t>
+<t>
+However, there may be configurations where a "server arrival announce" message would
+result in fast discovery and fewer multicast messages. 
+</t>
+<section title="Server Arrival Announce Specification" >
+<t>
+The server arrival announce message is a UDP packet sent to the Discovery
+Multicast Address reserved in <xref target="iana" /> and port %lt;TBD>.
+</t>
+<t>
+The format of the message will be defined in a next draft version, meeting
+the following requirements:
+</t>
+<t>
+<list>
+<t>
+Multiplexing: should be easily demuxed from DTLS or QUIC traffic.
+</t>
+<t>
+ESNI: should contain an ESNI extension, secured with the server's
+discovery key.
+</t>
+<t>
+Replay: should contain a timestamp and the global scope IPv6 address
+of the server.
+</t>
+</list>
+</t>
+</section>
+
+</section>
 
 <section title="Security Considerations">
 <t>
@@ -557,6 +618,41 @@ The actual communications are protected by TLS, and inherit the
 forward secrecy properties of TLS 1.3.
 </t>
 </list>
+</t>
+<t>
+[[TODO: consider specifying a way to rotate the discovery key, so as to
+mitigate the lack of forward secrecy. Maybe add that to ESNI. ]]
+</t>
+</section>
+
+<section title="Tracking by Replay" >
+<t>
+Suppose that an attacker has identified a client, and is capable of
+recording the multicast messages from that client. The attacker can
+then replay the message, triggering a response from the target server
+if present on the network. 
+</t>
+<t>
+The attacker will not be able to actually establish a connection with
+the server -- the TSL and ESNI designs protect against that. But it
+will be able to find out that the same server that responded to the
+client before responds now, which is a way to track the server.
+</t>
+<t>
+The attacker can mount two variations of the attack: replay over time,
+and replay at different locations. In the current design, the main
+protection against that attack is the implementation of a "discovery
+window", so that servers only listen to multicast requests when they
+are "ready to be discovered".
+</t>
+<t>
+[[TODO: consider adding a time stamp in an extension to ESNI.]]
+</t>
+<t>
+[[TODO: consider adding the IPv6 address of the sender in an extension to ESNI.]]
+</t>
+<t>
+[[TODO: special consideration for server arrival announce.]]
 </t>
 </section>
 
